@@ -14,11 +14,13 @@ from __future__ import annotations
 import torch
 from typing import TYPE_CHECKING
 
-from isaaclab.assets import RigidObject
+from isaaclab.assets import RigidObject, RigidObjectCollection
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.utils.math import combine_frame_transforms
 
 from scipy.spatial.transform import Rotation as R
+
+from dapl.metrics import planar_pose_success
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
@@ -86,6 +88,34 @@ def object_reached_goal(
     return position_reached & rotation_reached
 
 
+def clutter_target_reached_goal(
+    env: ManagerBasedRLEnv,
+    command_name: str = "target_object_pose",
+    position_threshold: float = 0.05,
+    rotation_threshold: float = 0.1,
+    target_cfg: SceneEntityCfg = SceneEntityCfg("target"),
+) -> torch.Tensor:
+    """Terminate on the planar-position and full-orientation success criterion.
+
+    DAPL evaluates target translation in the table plane while still requiring
+    the full quaternion angular error to be below the rotation threshold.  The
+    legacy ``object_reached_goal(planar=True)`` intentionally ignores rotation,
+    so the clutter task needs a separate termination term.
+    """
+
+    target: RigidObject = env.scene[target_cfg.name]
+    command = env.command_manager.get_command(command_name)
+
+    target_pos_env = target.data.root_pos_w[:, :3] - env.scene.env_origins
+    return planar_pose_success(
+        target_pos_env,
+        target.data.root_quat_w,
+        command,
+        position_threshold=position_threshold,
+        rotation_threshold=rotation_threshold,
+    )
+
+
 def object_dropped_off_table(
     env: ManagerBasedRLEnv,
     minimum_height: float = 0.02,  # Minimum height above table surface
@@ -108,3 +138,20 @@ def object_dropped_off_table(
     object_height = object_pos_w[:, 2]  # z-coordinate
     # terminate if object is below minimum height (fell off table)
     return object_height < minimum_height
+
+
+def clutter_object_dropped_off_table(
+    env: ManagerBasedRLEnv,
+    minimum_height: float = -0.15,
+    target_cfg: SceneEntityCfg = SceneEntityCfg("target"),
+    obstacles_cfg: SceneEntityCfg = SceneEntityCfg("obstacles"),
+) -> torch.Tensor:
+    """Terminate when the target or any non-target object falls off the table."""
+
+    target: RigidObject = env.scene[target_cfg.name]
+    obstacles: RigidObjectCollection = env.scene[obstacles_cfg.name]
+    target_dropped = target.data.root_pos_w[:, 2] < minimum_height
+    obstacle_dropped = torch.any(
+        obstacles.data.object_pos_w[..., 2] < minimum_height, dim=1
+    )
+    return target_dropped | obstacle_dropped

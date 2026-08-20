@@ -7,6 +7,7 @@ import math
 import os
 import json
 import torch
+from pathlib import Path
 from collections import deque
 import time
 
@@ -116,6 +117,79 @@ def load_object_candidates(
         usd_cfg.obj_path = obj_path
         assets.append(usd_cfg)
     return assets
+
+
+def resolve_object_candidates():
+    """Resolve legacy DGN assets without developer-specific absolute paths.
+
+    A real baseline run must point ``DGN_DATA_ROOT`` at a directory containing
+    ``yes.json``, ``coacd_usd_convexhull/``, and ``coacd_normalized/``.  The
+    procedural cube is deliberately opt-in and exists only to validate the
+    Isaac Lab environment and training pipeline before downloading assets.
+    """
+    dgn_root = os.environ.get("DGN_DATA_ROOT")
+    if dgn_root:
+        root = Path(dgn_root).expanduser().resolve()
+        assets = load_object_candidates(
+            root / "yes.json",
+            usd_dir=root / "coacd_usd_convexhull",
+            obj_dir=root / "coacd_normalized",
+        )
+        if not assets:
+            raise RuntimeError(
+                f"DGN_DATA_ROOT={root} did not yield any usable USD assets. "
+                "Check yes.json and the coacd_usd_convexhull directory."
+            )
+        return assets
+
+    if os.environ.get("DAPL_USE_SMOKE_ASSET") == "1":
+        return [_smoke_object_candidate()]
+
+    raise FileNotFoundError(
+        "Legacy DGN assets are not configured. Set DGN_DATA_ROOT to the "
+        "directory containing yes.json, coacd_usd_convexhull/, and "
+        "coacd_normalized/. For a pipeline-only smoke test, explicitly set "
+        "DAPL_USE_SMOKE_ASSET=1."
+    )
+
+
+def _smoke_object_candidate() -> sim_utils.CuboidCfg:
+    """Return an import-safe placeholder for the legacy single-object scene."""
+
+    smoke_cfg = sim_utils.CuboidCfg(
+        size=(1.0, 1.0, 1.0),
+        collision_props=sim_utils.CollisionPropertiesCfg(),
+        rigid_props=RigidBodyPropertiesCfg(
+            solver_position_iteration_count=16,
+            solver_velocity_iteration_count=1,
+            max_angular_velocity=1000.0,
+            max_linear_velocity=1000.0,
+            max_depenetration_velocity=5.0,
+            disable_gravity=False,
+        ),
+        visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.2, 0.55, 0.85)),
+    )
+    smoke_cfg.obj_path = str(Path(__file__).with_name("assets") / "smoke_cube.obj")
+    return smoke_cfg
+
+
+def _legacy_object_spawner(
+    assets_cfg: list,
+) -> sim_utils.MultiAssetSpawnerCfg:
+    """Build the legacy object spawner without resolving data at import time."""
+
+    return sim_utils.MultiAssetSpawnerCfg(
+        assets_cfg=assets_cfg,
+        random_choice=False,
+        rigid_props=RigidBodyPropertiesCfg(
+            solver_position_iteration_count=16,
+            solver_velocity_iteration_count=1,
+            max_angular_velocity=1000.0,
+            max_linear_velocity=1000.0,
+            max_depenetration_velocity=5.0,
+            disable_gravity=False,
+        ),
+    )
 
 
 # Helper for point cloud caching, compatible with IsaacLab multi-env
@@ -233,18 +307,9 @@ class NonPrehensileSceneCfg(InteractiveSceneCfg):
 
     object = RigidObjectCfg(
         prim_path="{ENV_REGEX_NS}/Object",
-        spawn=sim_utils.MultiAssetSpawnerCfg(
-            assets_cfg=load_object_candidates("/home/steve/Downloads/DGN/yes.json", usd_dir="/home/steve/Downloads/DGN/coacd_usd_convexhull", obj_dir="/home/steve/Downloads/DGN/coacd_normalized"),
-            random_choice=False,
-            rigid_props=RigidBodyPropertiesCfg(
-                solver_position_iteration_count=16,
-                solver_velocity_iteration_count=1,
-                max_angular_velocity=1000.0,
-                max_linear_velocity=1000.0,
-                max_depenetration_velocity=5.0,
-                disable_gravity=False,
-            ),
-        ),
+        # Asset discovery is intentionally deferred to NonPrehensileEnvCfg.
+        # Clutter6D subclasses remove this entity and should not require DGN.
+        spawn=_legacy_object_spawner([_smoke_object_candidate()]),
     )
 
 
@@ -497,6 +562,14 @@ class NonPrehensileEnvCfg(ManagerBasedRLEnvCfg):
     disable_obs_noise: bool = False
 
     def __post_init__(self) -> None:
+        # Preserve the legacy environment's external DGN behavior while
+        # avoiding data access during module import. Clutter subclasses set
+        # this entity to None and install their manifest-backed assets later.
+        if self.scene.object is not None:
+            self.scene.object.spawn = _legacy_object_spawner(
+                resolve_object_candidates()
+            )
+
         # Optionally disable observation noise for evaluation or ablations
         if self.disable_obs_noise:
             obs_cfg = self.observations

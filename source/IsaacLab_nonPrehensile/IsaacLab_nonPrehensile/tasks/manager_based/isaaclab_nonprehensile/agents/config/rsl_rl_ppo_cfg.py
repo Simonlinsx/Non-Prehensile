@@ -62,6 +62,8 @@
 # -------------------------------------------------------------------------------------------
 
 
+import os
+
 from isaaclab.utils import configclass
 
 from isaaclab_rl.rsl_rl import (
@@ -72,6 +74,12 @@ from isaaclab_rl.rsl_rl import (
 from dataclasses import field
 
 
+_USE_RANDOM_ICP = os.environ.get("DAPL_USE_RANDOM_ICP") == "1"
+_ICP_WEIGHTS_PATH = None if _USE_RANDOM_ICP else os.environ.get(
+    "DAPL_ICP_WEIGHTS", "./ckpts/512-32-balanced-SAM-wd-5e-05-920"
+)
+
+
 @configclass
 class ICPActorCriticCfg:
     """Config for ICP-based Actor-Critic used in manipulation tasks."""
@@ -79,15 +87,14 @@ class ICPActorCriticCfg:
     class_name: str = "ActorCriticICP"
     
     # ICP pretrained weights path
-    icp_weights_path: str | None = './ckpts/512-32-balanced-SAM-wd-5e-05-920'
-    # icp_weights_path: str | None = None
-    freeze_icp: bool = True     # Whether to freeze ICP parameters
+    icp_weights_path: str | None = _ICP_WEIGHTS_PATH
+    freeze_icp: bool = not _USE_RANDOM_ICP  # Never freeze a random smoke-test encoder.
     
     icp_point_dim: int = 3  # Only xyz coordinates
     icp_num_points: int = 512  # Number of points in point cloud
     
     # Network architecture
-    fuser_hidden_dims: list[int] = [512, 256, 128]  # Feature fusion MLP
+    fusion_hidden_dims: list[int] = [512, 256, 128]  # Feature fusion MLP
     actor_hidden_dims: list[int] = field(default_factory=lambda: [64])
     critic_hidden_dims: list[int] = field(default_factory=lambda: [64])
     
@@ -130,3 +137,38 @@ class NonPrehensilePPORunnerCfg(RslRlOnPolicyRunnerCfg):
         desired_kl=0.016, 
         max_grad_norm=1.0,
     )
+
+
+@configclass
+class Clutter6DPPORunnerCfg(NonPrehensilePPORunnerCfg):
+    """Privileged target-cloud PPO baseline for Clutter6D integration."""
+
+    experiment_name = "franka_clutter6d"
+
+
+@configclass
+class DAPLActorCriticCfg:
+    """Paper-aligned frozen dynamics encoder and cross-attention policy."""
+
+    class_name: str = "ActorCriticDAPL"
+    world_model_checkpoint_path: str | None = os.environ.get(
+        "DAPL_WORLD_MODEL_CHECKPOINT"
+    )
+    scene_num_points: int = 1280
+    scene_point_dim: int = 7
+    environment_state_dim: int = 44
+    policy_attention_heads: int = 8
+    fusion_hidden_dims: list[int] = field(default_factory=lambda: [512, 256, 128])
+    actor_hidden_dims: list[int] = field(default_factory=lambda: [64])
+    critic_hidden_dims: list[int] = field(default_factory=lambda: [64])
+    activation: str = "elu"
+    init_noise_std: float = 1.0
+    noise_std_type: str = "scalar"
+
+
+@configclass
+class Clutter6DDAPLPPORunnerCfg(NonPrehensilePPORunnerCfg):
+    """DAPL stage-2 PPO configuration from the paper supplement."""
+
+    experiment_name = "franka_clutter6d_dapl"
+    policy: DAPLActorCriticCfg = DAPLActorCriticCfg()

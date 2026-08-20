@@ -10,13 +10,171 @@ from __future__ import annotations
 import torch
 from typing import TYPE_CHECKING
 
-from isaaclab.assets import RigidObject
+from isaaclab.assets import RigidObject, RigidObjectCollection
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.utils.math import sample_uniform
 import isaaclab.sim as sim_utils
 
+from dapl.scene import ClutterScene, load_scene_manifest
+
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
+
+
+def _runtime_clutter_scenes(env: ManagerBasedRLEnv) -> tuple[ClutterScene, ...]:
+    """Resolve Hydra-safe runtime scenes once and keep them off the config tree."""
+
+    if not hasattr(env, "_clutter_scenes_runtime"):
+        configured = tuple(env.cfg.clutter_scenes)
+        if configured and all(isinstance(item, ClutterScene) for item in configured):
+            env._clutter_scenes_runtime = configured
+        else:
+            env._clutter_scenes_runtime = tuple(
+                load_scene_manifest(env.cfg.clutter_manifest_path)
+            )
+    return env._clutter_scenes_runtime
+
+
+def set_clutter_material_properties_from_manifest(
+    env: ManagerBasedRLEnv,
+    env_ids: torch.Tensor | None,
+    target_cfg: SceneEntityCfg = SceneEntityCfg("target"),
+    obstacles_cfg: SceneEntityCfg = SceneEntityCfg("obstacles"),
+) -> None:
+    """Apply per-instance manifest friction and restitution through PhysX views.
+
+    Isaac Lab 2.2's ``UsdFileCfg`` cannot override a physics material.  The
+    startup event runs after rigid-body views exist, so it can set every
+    collision shape without editing the source USD files.
+    """
+
+    scenes = _runtime_clutter_scenes(env)
+    if not scenes:
+        raise RuntimeError("env.cfg.clutter_scenes is empty")
+    if env_ids is None:
+        selected_env_ids = torch.arange(env.num_envs, dtype=torch.long, device="cpu")
+    else:
+        selected_env_ids = torch.as_tensor(env_ids, dtype=torch.long, device="cpu")
+
+    target: RigidObject = env.scene[target_cfg.name]
+    target_materials = target.root_physx_view.get_material_properties()
+    target_values = torch.tensor(
+        [
+            (
+                scenes[env_id % len(scenes)].target_object.static_friction,
+                scenes[env_id % len(scenes)].target_object.dynamic_friction,
+                scenes[env_id % len(scenes)].target_object.restitution,
+            )
+            for env_id in selected_env_ids.tolist()
+        ],
+        dtype=target_materials.dtype,
+        device="cpu",
+    )
+    target_materials[selected_env_ids] = target_values.unsqueeze(1)
+    target.root_physx_view.set_material_properties(
+        target_materials,
+        selected_env_ids.to(dtype=torch.int32),
+    )
+
+    obstacles: RigidObjectCollection = env.scene[obstacles_cfg.name]
+    obstacle_materials_view = obstacles.root_physx_view.get_material_properties()
+    max_shapes = obstacle_materials_view.shape[1]
+    obstacle_materials = obstacle_materials_view.reshape(
+        obstacles.num_objects, obstacles.num_instances, max_shapes, 3
+    ).permute(1, 0, 2, 3)
+    obstacle_values = torch.tensor(
+        [
+            [
+                (item.static_friction, item.dynamic_friction, item.restitution)
+                for item in scenes[env_id % len(scenes)].obstacle_objects
+            ]
+            for env_id in selected_env_ids.tolist()
+        ],
+        dtype=obstacle_materials.dtype,
+        device="cpu",
+    )
+    obstacle_materials[selected_env_ids] = obstacle_values.unsqueeze(2)
+    obstacle_materials_view = obstacle_materials.permute(1, 0, 2, 3).reshape(
+        obstacles.num_objects * obstacles.num_instances, max_shapes, 3
+    )
+    view_ids = (
+        selected_env_ids.unsqueeze(0)
+        + torch.arange(obstacles.num_objects, dtype=torch.long).unsqueeze(1)
+        * obstacles.num_instances
+    ).reshape(-1)
+    obstacles.root_physx_view.set_material_properties(
+        obstacle_materials_view,
+        view_ids.to(dtype=torch.int32),
+    )
+
+
+def reset_clutter_from_manifest(
+    env: ManagerBasedRLEnv,
+    env_ids: torch.Tensor,
+    target_cfg: SceneEntityCfg = SceneEntityCfg("target"),
+    obstacles_cfg: SceneEntityCfg = SceneEntityCfg("obstacles"),
+) -> None:
+    """Reset a deterministic manifest task and expose its goal to the command term.
+
+    Isaac Lab applies reset events before resetting command terms.  The event
+    therefore owns task selection and stores ``_clutter_goal_pose``; the
+    manifest command copies that exact buffer later in the same reset.
+    """
+
+    # Hydra recursively serializes non-Isaac dataclasses and Enum values in
+    # environment cfgs.  Reload the already-resolved manifest once in that
+    # path, then keep runtime objects off the Hydra configuration tree.
+    scenes = _runtime_clutter_scenes(env)
+    if not scenes:
+        raise RuntimeError("env.cfg.clutter_scenes is empty")
+    env_ids = torch.as_tensor(env_ids, device=env.device, dtype=torch.long)
+    # Contact-state terms are cached within one manager step.  A reset changes
+    # target and obstacle poses without necessarily advancing that counter.
+    env._domino_affordance_state_cache = None
+    if not hasattr(env, "_clutter_episode_counts"):
+        env._clutter_episode_counts = torch.zeros(env.num_envs, device=env.device, dtype=torch.long)
+        env._clutter_scene_indices = torch.zeros(env.num_envs, device=env.device, dtype=torch.long)
+        env._clutter_task_indices = torch.zeros(env.num_envs, device=env.device, dtype=torch.long)
+        env._clutter_goal_pose = torch.zeros(env.num_envs, 7, device=env.device)
+        obstacle_count = len(scenes[0].obstacle_objects)
+        env._clutter_initial_obstacle_pose = torch.zeros(
+            env.num_envs, obstacle_count, 7, device=env.device
+        )
+
+    target: RigidObject = env.scene[target_cfg.name]
+    obstacles: RigidObjectCollection = env.scene[obstacles_cfg.name]
+    target_states = torch.zeros(len(env_ids), 13, device=env.device)
+    obstacle_states = torch.zeros(
+        len(env_ids), obstacles.num_objects, 13, device=env.device
+    )
+    for output_index, env_id_tensor in enumerate(env_ids):
+        env_id = int(env_id_tensor.item())
+        scene_index = env_id % len(scenes)
+        scene = scenes[scene_index]
+        task_index = int(env._clutter_episode_counts[env_id].item()) % len(scene.tasks)
+        task = scene.tasks[task_index]
+        target_pose = torch.tensor(task.initial_pose, device=env.device, dtype=torch.float32)
+        goal_pose = torch.tensor(task.goal_pose, device=env.device, dtype=torch.float32)
+        target_pose[:3] += env.scene.env_origins[env_id]
+        target_states[output_index, :7] = target_pose
+
+        obstacle_poses_local = torch.tensor(
+            [item.pose for item in scene.obstacle_objects],
+            device=env.device,
+            dtype=torch.float32,
+        )
+        obstacle_poses_world = obstacle_poses_local.clone()
+        obstacle_poses_world[:, :3] += env.scene.env_origins[env_id].unsqueeze(0)
+        obstacle_states[output_index, :, :7] = obstacle_poses_world
+
+        env._clutter_scene_indices[env_id] = scene_index
+        env._clutter_task_indices[env_id] = task_index
+        env._clutter_goal_pose[env_id] = goal_pose
+        env._clutter_initial_obstacle_pose[env_id] = obstacle_poses_local
+        env._clutter_episode_counts[env_id] += 1
+
+    target.write_root_state_to_sim(target_states, env_ids=env_ids)
+    obstacles.write_object_state_to_sim(obstacle_states, env_ids=env_ids)
 
 
 def reset_initial_object_position(
@@ -252,4 +410,3 @@ def randomize_terrain_material(
     # Use IsaacLab's bind_physics_material function
     import isaaclab.sim as sim_utils
     sim_utils.bind_physics_material(collision_prim.GetPrimPath(), physics_material_path)
-

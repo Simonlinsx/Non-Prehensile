@@ -62,6 +62,52 @@ def print_cmd_timers(env: "ManagerBasedRLEnv") -> None:
         print(f"  {name}: total={total:.6f}s count={count} avg={avg:.6f}s")
 
 
+class ManifestPoseCommand(CommandTerm):
+    """Goal command paired with ``reset_clutter_from_manifest``."""
+
+    cfg: "ManifestPoseCommandCfg"
+
+    def __init__(self, cfg: "ManifestPoseCommandCfg", env: ManagerBasedRLEnv):
+        super().__init__(cfg, env)
+        self._command = torch.zeros(self.num_envs, 7, device=self.device)
+        self.metrics["distance_to_goal"] = torch.zeros(self.num_envs, device=self.device)
+        self.metrics["rot_to_goal"] = torch.zeros(self.num_envs, device=self.device)
+
+    def _resample_command(self, env_ids):
+        env_ids = torch.as_tensor(env_ids, device=self.device, dtype=torch.long)
+        if not hasattr(self._env, "_clutter_goal_pose"):
+            raise RuntimeError(
+                "manifest goal buffer is missing; configure reset_clutter_from_manifest as a reset event"
+            )
+        self._command[env_ids] = self._env._clutter_goal_pose[env_ids]
+
+    def _update_command(self):
+        pass
+
+    def _update_metrics(self):
+        target: RigidObject = self._env.scene[self.cfg.target_asset_name]
+        target_pos = target.data.root_pos_w[:, :3] - self._env.scene.env_origins
+        self.metrics["distance_to_goal"] = torch.linalg.vector_norm(
+            target_pos - self._command[:, :3], dim=-1
+        )
+        quaternion_dot = torch.sum(target.data.root_quat_w * self._command[:, 3:7], dim=-1)
+        self.metrics["rot_to_goal"] = 2.0 * torch.acos(
+            torch.clamp(torch.abs(quaternion_dot), max=1.0)
+        )
+
+    @property
+    def command(self) -> torch.Tensor:
+        return self._command
+
+
+@configclass
+class ManifestPoseCommandCfg(CommandTermCfg):
+    """Configuration for deterministic manifest goals."""
+
+    class_type: type = ManifestPoseCommand
+    target_asset_name: str = "target"
+
+
 class StablePoseCommand(CommandTerm):
     """Command generator for stable object poses using trimesh."""
 

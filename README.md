@@ -1,8 +1,8 @@
 ## Project Overview
 
-This project is a Non-Prehensile Manipulation example/template built on Isaac Lab for Reinforcement Learning (RSL-RL) training and evaluation. It uses the Franka Panda arm, supports multi-asset spawning and domain randomization, tracks success rates, and provides end-to-end train/evaluate/play flows with JIT/ONNX export.
+This repository is the development codebase for reproducing [DAPL](https://pku-epic.github.io/DAPL/) (Dynamics-Aware Policy Learning) in Isaac Lab. It now contains both the legacy single-object task and a runnable manifest-backed `Isaac-Clutter6D-Franka-v0` integration task. The latter spawns one target plus multiple obstacles, applies the paper's task/reward contract, and exposes a separate `[B, 1280, 7]` physical-scene observation for world-model development.
 
-This repository is an Isaac Lab implementation and adaptation of [DyWA](https://pku-epic.github.io/DyWA/) (Dynamics-adaptive World Action Model for Generalizable Non-prehensile Manipulation).
+The existing baseline borrows components from [DyWA](https://pku-epic.github.io/DyWA/). The paper-aligned physical world model, transition collector, streaming trainer, full-split evaluator, and frozen-encoder cross-attention actor-critic are implemented and smoke-tested. This should still not be confused with a complete DAPL reproduction: full policy training, the iterative curriculum, official benchmark assets/scenes, and the sim2real student remain in progress. See [the DAPL development status](docs/DAPL_DEVELOPMENT.md) for the exact contract and roadmap.
 
 **Demo (preview)**:
 
@@ -64,28 +64,52 @@ gym.register(
 
 ## Data/Assets Paths (Important)
 
-The environment loads object assets (USD/OBJ) from local directories defined in code.
+New DAPL code resolves assets from an explicit root rather than hard-coded
+developer paths:
 
-Download the pre-converted dataset from [Hugging Face (Steve3zz/DGN_usd)](https://huggingface.co/datasets/Steve3zz/DGN_usd), unzip it on your machine, and then update the asset paths in the environment config to point to the extracted folder.
+```bash
+export DAPL_DATA_ROOT=/absolute/path/to/DAPL-dataset
+```
 
-Finally, update paths to match your machine:
+The public asset release is
+[`Steve3zz/DAPL-dataset`](https://huggingface.co/datasets/Steve3zz/DAPL-dataset).
+It is roughly 153 GB, so do not download every directory unless the full asset
+library is required. The release currently does not include Clutter6D scene
+manifests; this repository defines a versioned manifest schema for generated
+train/eval scenes.
 
-```234:248:source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/env.py
-object = RigidObjectCfg(
-    prim_path="{ENV_REGEX_NS}/Object",
-    spawn=sim_utils.MultiAssetSpawnerCfg(
-        assets_cfg=load_object_candidates("/home/steve/Downloads/DGN/yes.json", usd_dir="/home/steve/Downloads/DGN/coacd_usd_convexhull", obj_dir="/home/steve/Downloads/DGN/coacd_normalized"),
-        random_choice=False,
-        rigid_props=RigidBodyPropertiesCfg(
-            solver_position_iteration_count=16,
-            solver_velocity_iteration_count=1,
-            max_angular_velocity=1000.0,
-            max_linear_velocity=1000.0,
-            max_depenetration_velocity=5.0,
-            disable_gravity=False,
-        ),
-    ),
-)
+The legacy single-object baseline uses the pre-converted
+[DGN assets](https://huggingface.co/datasets/Steve3zz/DGN_usd). Point the
+environment at the extracted directory instead of editing source paths:
+
+```bash
+export DGN_DATA_ROOT=/absolute/path/to/DGN
+# Expected entries: yes.json, coacd_usd_convexhull/, coacd_normalized/
+```
+
+The checked-in DGN-backed Clutter6D integration fixture additionally uses:
+
+```bash
+export DAPL_CLUTTER_MANIFEST=$PWD/data/manifests/dgn_sparse_smoke_seed17.jsonl
+export DAPL_CLUTTER_ASSET_SOURCE=dgn
+python scripts/smoke_clutter6d.py --headless --num_envs 8 --steps 8
+```
+
+This fixture validates implementation plumbing only; it is not the released
+Clutter6D benchmark split.
+
+An additional `Isaac-AffordanceClutter6D-Franka-v0` task imports DOMINO/
+RoboTwin tool assets and maps their sparse contact/functional annotations to
+safe-contact and protected-functional point regions. See
+[the DOMINO affordance integration](docs/DOMINO_AFFORDANCE.md) for asset
+conversion, manifest generation, constraints, and the approximation boundary.
+
+Before downloading assets, the Isaac Lab environment and training pipeline can
+be tested with a bundled procedural cube. This mode is intentionally opt-in and
+must not be used for reported baseline or DAPL results:
+
+```bash
+export DAPL_USE_SMOKE_ASSET=1
 ```
 
 
@@ -103,15 +127,28 @@ pip install flash_attn==2.8.3 --no-build-isolation
 # Install debugging tools
 pip install icecream
 
-# Build and install PyTorch3D from source (required for KNN operations)
-git clone -b v0.7.8 --depth 1 https://github.com/facebookresearch/pytorch3d.git
-cd pytorch3d
-FORCE_CUDA=1 python setup.py bdist_wheel
-pip install dist/pytorch3d-0.7.8-cp311-cp311-linux_x86_64.whl
-cd ..
+# Build and install PyTorch3D from source (required for KNN operations).
+# The upstream repository has no v0.7.8 tag; use the next official tag.
+FORCE_CUDA=1 pip install \
+  "git+https://github.com/facebookresearch/pytorch3d.git@v0.7.9" \
+  --no-build-isolation
 ```
 
 Download the pretrained ICP encoder weights **`512-32-balanced-SAM-wd-5e-05-920`** from [Hugging Face (`imm-unicorn/corn-public`)](https://huggingface.co/imm-unicorn/corn-public/tree/main), then update `icp_weights_path` in `source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/agents/config/rsl_rl_ppo_cfg.py` (default: `./ckpts/512-32-balanced-SAM-wd-5e-05-920`) to point to your local download directory.
+
+The path can be supplied without editing source:
+
+```bash
+export DAPL_ICP_WEIGHTS=/absolute/path/to/512-32-balanced-SAM-wd-5e-05-920
+```
+
+For a pipeline-only smoke test, a randomly initialized, trainable ICP encoder
+can be selected explicitly. It is not a replacement for the released weights:
+
+```bash
+export DAPL_USE_SMOKE_ASSET=1
+export DAPL_USE_RANDOM_ICP=1
+```
 
 ### 2. Path Configuration
 
@@ -127,7 +164,7 @@ export PYTHONPATH=$HOME/IsaacLab_nonPrehensile:$PYTHONPATH
 python scripts/train.py \
   --task=Isaac-nonPrehensile-Franka-v0 \
   --experiment_name=franka_nonprehensile \
-  --num_envs=4096 \
+  --num_envs=256 \
   --video --headless
 ```
 
@@ -138,6 +175,98 @@ Common options:
 - See `scripts/cli_args.py` for shared RSL-RL args (e.g., `--logger`, `--run_name`)
 
 Training logs are saved under: `logs/rsl_rl/<experiment_name>/<time>[_run]`.
+
+To train the current target-cloud privileged Clutter6D baseline:
+
+```bash
+export DAPL_ENABLE_WORLD_MODEL_OBSERVATION=0
+python scripts/train.py \
+  --task=Isaac-Clutter6D-Franka-v0 \
+  --num_envs=128 --max_iterations=500 --seed=17 --headless
+```
+
+Omit `DAPL_ENABLE_WORLD_MODEL_OBSERVATION=0` when collecting or inspecting the
+non-concatenated physical scene tensor for world-model development.
+
+Collect aligned `t -> t + 0.1 s` world-model transitions in bounded PyTorch
+shards with:
+
+```bash
+python scripts/collect_dapl_transitions.py \
+  --headless --num-envs=8 --steps=128 \
+  --output-dir=outputs/dapl_transitions/smoke_seed17
+```
+
+For every transition, the future frame reuses the obstacle canonical-point
+indices chosen at the current frame. The shard stores both the raw 7-D
+relative-joint control and the paper-defined 3-D end-effector flow between the
+two frames. Terminal/reset-crossing samples are excluded. The default
+temporally correlated random actions are for data-pipeline development;
+policy rollouts should replace them for the full world-model dataset.
+
+For paper-aligned collection, point the scene builder at the released 256-point
+Franka hand cache and load an RSL-RL policy checkpoint. Parallel environments
+are distributed across all 16 manifest tasks by default:
+
+```bash
+export DAPL_HAND_POINTS=/path/to/embodiments/pc_npy_cache/hand_merged.npy
+python scripts/collect_dapl_transitions.py \
+  --headless --num-envs=128 --steps=469 \
+  --action-mode=policy --policy-action=sample \
+  --checkpoint=/path/to/model.pt \
+  --output-dir=outputs/dapl_transitions/policy_seed17
+```
+
+If neither `DAPL_HAND_POINTS` nor a valid cache below `DAPL_DATA_ROOT` is
+available, the scene uses an analytical two-finger fallback and records that
+fact in each shard's `rollout.hand_point_source` metadata.
+
+Train the dynamics model from the generated shards with:
+
+```bash
+python scripts/train_dapl_world_model.py \
+  --data-dir=outputs/dapl_transitions/train \
+  --output-dir=outputs/dapl_world_model/train_seed17 \
+  --device=cuda:0 --batch-size=32 --max-steps=500000
+```
+
+The defaults match the paper specification: semantic FPS/kNN patches
+`16 target / 16 obstacle / 8 end-effector` with `K=32`, 128-dimensional
+tokens, a 12-block 8-head transformer, 3-D end-effector-flow conditioning,
+and position/velocity/variance loss weights `1 / 1 / 100`. Training streams
+one shard at a time and saves normalization statistics in each checkpoint.
+The 10-step, eight-transition smoke test only validates the pipeline; a
+full experiment requires policy rollouts at the paper's data scale.
+
+Training writes an atomically replaced `world_model_best.pt` and a periodic
+step checkpoint. It also logs a no-change persistence baseline. Continue an
+interrupted run into a new output directory with `--resume=/path/to/checkpoint`;
+`--max-steps` remains the absolute target step.
+
+Evaluate the selected checkpoint on every transition in the checkpoint's
+held-out shard split (including physical-unit, component-wise, persistence,
+and zero-action diagnostics) with:
+
+```bash
+python scripts/evaluate_dapl_world_model.py \
+  --checkpoint=outputs/dapl_world_model/train_seed17/world_model_best.pt \
+  --device=cuda:0 --batch-size=32
+```
+
+After the world model is accepted, launch the paper-shaped frozen-encoder PPO
+policy by exposing the checkpoint explicitly:
+
+```bash
+export DAPL_WORLD_MODEL_CHECKPOINT=$PWD/outputs/dapl_world_model/train_seed17/world_model_best.pt
+python scripts/train.py \
+  --task=Isaac-Clutter6D-DAPL-Franka-v0 \
+  --num_envs=128 --seed=17 --headless
+```
+
+This policy consumes an 8,960-D flattened physical scene followed by the
+paper's 44-D environment state. It cross-attends the state query over 40 frozen
+dynamics tokens, uses fusion dimensions `[512, 256, 128]`, actor/critic hidden
+dimension `[64]`, and the reported PPO hyperparameters.
 
 
 ### Evaluate (success rate + per-object stats)

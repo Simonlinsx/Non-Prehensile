@@ -8,10 +8,12 @@ from __future__ import annotations
 import torch
 from typing import TYPE_CHECKING
 
-from isaaclab.assets import RigidObject
+from isaaclab.assets import RigidObject, RigidObjectCollection
 from isaaclab.managers import SceneEntityCfg, ManagerTermBase, RewardTermCfg
 from isaaclab.sensors import FrameTransformer
 from isaaclab.utils.math import combine_frame_transforms
+
+from dapl.metrics import planar_pose_success
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
@@ -160,3 +162,65 @@ def task_success_reward(
     )
 
     return reward
+
+
+def clutter_task_success_reward(
+    env: ManagerBasedRLEnv,
+    command_name: str = "target_object_pose",
+    position_threshold: float = 0.05,
+    rotation_threshold: float = 0.1,
+    maximum_obstacle_translation: float = 0.2,
+    maximum_obstacle_rotation: float = torch.pi,
+    base_reward: float = 1.0,
+    target_cfg: SceneEntityCfg = SceneEntityCfg("target"),
+    obstacles_cfg: SceneEntityCfg = SceneEntityCfg("obstacles"),
+) -> torch.Tensor:
+    """Paper success reward discounted by non-target object motion.
+
+    DAPL specifies planar target success and averages the translational and
+    angular offsets of all non-target objects.  The paper does not report the
+    two normalization constants, so they remain explicit environment
+    parameters instead of being hidden inside this term.
+    """
+
+    if maximum_obstacle_translation <= 0.0 or maximum_obstacle_rotation <= 0.0:
+        raise ValueError("obstacle-motion normalization constants must be positive")
+    if not hasattr(env, "_clutter_initial_obstacle_pose"):
+        raise RuntimeError(
+            "initial clutter poses are missing; configure reset_clutter_from_manifest"
+        )
+
+    target: RigidObject = env.scene[target_cfg.name]
+    obstacles: RigidObjectCollection = env.scene[obstacles_cfg.name]
+    command = env.command_manager.get_command(command_name)
+
+    target_pos_env = target.data.root_pos_w[:, :3] - env.scene.env_origins
+    success = planar_pose_success(
+        target_pos_env,
+        target.data.root_quat_w,
+        command,
+        position_threshold=position_threshold,
+        rotation_threshold=rotation_threshold,
+    )
+
+    initial_pose = env._clutter_initial_obstacle_pose
+    obstacle_pos_env = obstacles.data.object_pos_w - env.scene.env_origins.unsqueeze(1)
+    translation = torch.linalg.vector_norm(
+        obstacle_pos_env - initial_pose[..., :3], dim=-1
+    ).mean(dim=1)
+    obstacle_dot = torch.sum(
+        obstacles.data.object_quat_w * initial_pose[..., 3:7], dim=-1
+    )
+    rotation = (
+        2.0 * torch.acos(torch.clamp(torch.abs(obstacle_dot), max=1.0))
+    ).mean(dim=1)
+
+    normalized_translation = torch.clamp(
+        translation / maximum_obstacle_translation, min=0.0, max=1.0
+    )
+    normalized_rotation = torch.clamp(
+        rotation / maximum_obstacle_rotation, min=0.0, max=1.0
+    )
+    motion = 0.5 * (normalized_translation + normalized_rotation)
+    scale = torch.clamp(1.0 - 0.5 * motion, min=0.5, max=1.0)
+    return success.to(dtype=scale.dtype) * scale * base_reward

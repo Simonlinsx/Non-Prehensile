@@ -19,6 +19,7 @@ from rsl_rl.modules import (
     ActorCriticRecurrent,
     ActorCriticPointNet,
     ActorCriticICP,
+    ActorCriticDAPL,
     EmpiricalNormalization,
     StudentTeacher,
     StudentTeacherRecurrent,
@@ -71,7 +72,7 @@ class OnPolicyRunner:
 
         # evaluate the policy class
         policy_class = eval(self.policy_cfg.pop("class_name"))
-        policy: ActorCritic | ActorCriticRecurrent | ActorCriticICP | ActorCriticPointNet | StudentTeacher | StudentTeacherRecurrent = policy_class(
+        policy: ActorCritic | ActorCriticRecurrent | ActorCriticICP | ActorCriticDAPL | ActorCriticPointNet | StudentTeacher | StudentTeacherRecurrent = policy_class(
             num_obs, num_privileged_obs, self.env.num_actions, **self.policy_cfg
         ).to(self.device)
 

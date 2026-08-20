@@ -5,17 +5,26 @@
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
 import torch
 from typing import TYPE_CHECKING
 
-from isaaclab.assets import RigidObject
+from isaaclab.assets import RigidObject, RigidObjectCollection
 from isaaclab.managers import SceneEntityCfg
-from isaaclab.utils.math import subtract_frame_transforms, matrix_from_quat
+from isaaclab.utils.math import subtract_frame_transforms, matrix_from_quat, quat_apply
 from scipy.spatial.transform import Rotation as R
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
 from IsaacLab_nonPrehensile.tasks.manager_based.isaaclab_nonprehensile.cloud import Cloud
 import IsaacLab_nonPrehensile.tasks.manager_based.isaaclab_nonprehensile.mdp as mdp
+from dapl.representation import (
+    DAPLSceneTensorBuilder,
+    PhysicalSceneBatch,
+)
+from dapl.data import DAPL_DATA_ROOT_ENV, DAPLDataPaths
+from dapl.embodiment import DAPL_HAND_POINTS_ENV, load_dapl_hand_points
 
 # Lightweight profiling utilities for observation functions
 import time
@@ -584,6 +593,11 @@ def get_object_pointcloud(
     device = object.data.root_pos_w.device
     num_assets = len(assets_cfg)
     for asset_idx in range(num_assets):
+        # With more asset candidates than vectorized environments, no
+        # environment maps to the remaining candidates.  PyTorch 2.7 raises
+        # for arange(start > stop, positive_step), so skip them explicitly.
+        if asset_idx >= num_envs:
+            break
         # Build env indices for this asset by stepping
         env_indices_tensor = torch.arange(asset_idx, num_envs, num_assets, device=device, dtype=torch.long)
         if env_indices_tensor.numel() == 0:
@@ -598,7 +612,7 @@ def get_object_pointcloud(
         if hasattr(env, "_object_scales"):
             scales = env._object_scales[env_indices_tensor]
         else:
-            scales = mdp.get_rigid_body_scale(env, SceneEntityCfg("object"), env_indices_tensor.tolist())
+            scales = mdp.get_rigid_body_scale(env, object_cfg, env_indices_tensor.tolist())
         
         # Batch gather poses for all environments using this asset
         batch_pos_w = object.data.root_pos_w[env_indices_tensor, :3].contiguous()  # (batch,3)
@@ -659,3 +673,225 @@ def get_object_pointcloud_in_env_frame(
 
     pointcloud_env_flat = pointcloud_env.reshape(num_envs, num_points * 3)
     return pointcloud_env_flat
+
+
+@profile_obs
+def get_obstacle_pointclouds_in_env_frame(
+    env: ManagerBasedRLEnv,
+    obstacles_cfg: SceneEntityCfg = SceneEntityCfg("obstacles"),
+) -> torch.Tensor:
+    """Return canonical 512-point clouds for every obstacle as ``[B, O, 512, 3]``."""
+
+    obstacles: RigidObjectCollection = env.scene[obstacles_cfg.name]
+    num_envs = obstacles.num_instances
+    num_objects = obstacles.num_objects
+    device = obstacles.data.object_pos_w.device
+    dtype = obstacles.data.object_pos_w.dtype
+    output = torch.empty((num_envs, num_objects, 512, 3), device=device, dtype=dtype)
+
+    from IsaacLab_nonPrehensile.tasks.manager_based.isaaclab_nonprehensile.env import (
+        get_cached_cloud,
+    )
+
+    slot_cfgs = tuple(obstacles.cfg.rigid_objects.values())
+    for object_index, slot_cfg in enumerate(slot_cfgs):
+        assets_cfg = slot_cfg.spawn.assets_cfg
+        num_assets = len(assets_cfg)
+        for asset_index, asset_cfg in enumerate(assets_cfg):
+            if asset_index >= num_envs:
+                break
+            env_ids = torch.arange(
+                asset_index, num_envs, num_assets, device=device, dtype=torch.long
+            )
+            if env_ids.numel() == 0:
+                continue
+            scale_value = asset_cfg.scale or (1.0, 1.0, 1.0)
+            scales = torch.as_tensor(scale_value, device=device, dtype=dtype).expand(
+                env_ids.numel(), -1
+            )
+            cloud = get_cached_cloud(asset_cfg.obj_path)
+            points_world = cloud.get_pointcloud(
+                translation=obstacles.data.object_pos_w[env_ids, object_index],
+                rotation=obstacles.data.object_quat_w[env_ids, object_index],
+                scale=scales,
+            )
+            output[env_ids, object_index] = points_world.to(dtype=dtype)
+
+    return output - env.scene.env_origins[:, None, None, :]
+
+
+def _analytic_finger_points(device: torch.device, dtype: torch.dtype) -> torch.Tensor:
+    """Create 128 deterministic volume samples in a Franka finger frame."""
+
+    x = torch.linspace(-0.01, 0.01, 4, device=device, dtype=dtype)
+    y = torch.linspace(-0.008, 0.008, 4, device=device, dtype=dtype)
+    z = torch.linspace(-0.08, 0.0, 8, device=device, dtype=dtype)
+    return torch.stack(torch.meshgrid(x, y, z, indexing="ij"), dim=-1).reshape(128, 3)
+
+
+def _configured_hand_points_path() -> Path | None:
+    """Resolve an explicit or dataset-relative released hand point cache."""
+
+    explicit = os.environ.get(DAPL_HAND_POINTS_ENV)
+    if explicit is not None and explicit.strip():
+        return Path(explicit).expanduser().resolve()
+    data_root = os.environ.get(DAPL_DATA_ROOT_ENV)
+    if data_root is None or not data_root.strip():
+        return None
+    candidate = DAPLDataPaths.resolve(data_root).hand_points
+    return candidate if candidate.is_file() else None
+
+
+def _released_hand_points(
+    env: ManagerBasedRLEnv, device: torch.device, dtype: torch.dtype
+) -> torch.Tensor | None:
+    """Load the released cache once per environment and move it to simulation device."""
+
+    if not hasattr(env, "_dapl_released_hand_points"):
+        path = _configured_hand_points_path()
+        if path is None:
+            env._dapl_released_hand_points = None
+            env._dapl_hand_point_source = "analytic_fingers"
+        else:
+            env._dapl_released_hand_points = load_dapl_hand_points(path).to(
+                device=device, dtype=dtype
+            )
+            env._dapl_hand_point_source = str(path)
+    points = env._dapl_released_hand_points
+    if points is not None and (points.device != device or points.dtype != dtype):
+        points = points.to(device=device, dtype=dtype)
+        env._dapl_released_hand_points = points
+    return points
+
+
+@profile_obs
+def get_end_effector_pointcloud_in_env_frame(
+    env: ManagerBasedRLEnv,
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+) -> torch.Tensor:
+    """Return the released 256-point hand cloud or an analytical fallback."""
+
+    ee_frame = env.scene[ee_frame_cfg.name]
+    released = _released_hand_points(
+        env, ee_frame.data.target_pos_w.device, ee_frame.data.target_pos_w.dtype
+    )
+    if released is not None:
+        # hand_merged.npy is expressed in panda_hand coordinates.  The first
+        # configured target frame is the TCP, offset +0.1034 m along hand Z.
+        # Express the cache relative to that TCP before applying its world pose.
+        positions = ee_frame.data.target_pos_w[:, 0, :]
+        quaternions = ee_frame.data.target_quat_w[:, 0, :]
+        hand_to_tcp = released.new_tensor((0.0, 0.0, 0.1034))
+        local_tcp = released - hand_to_tcp
+        num_envs = positions.shape[0]
+        local_tcp = local_tcp.unsqueeze(0).expand(num_envs, -1, -1)
+        expanded_quat = quaternions.unsqueeze(1).expand(-1, released.shape[0], -1)
+        points_world = quat_apply(
+            expanded_quat.reshape(-1, 4), local_tcp.reshape(-1, 3)
+        ).reshape(num_envs, released.shape[0], 3)
+        return points_world + positions.unsqueeze(1) - env.scene.env_origins.unsqueeze(1)
+
+    positions = ee_frame.data.target_pos_w[:, 1:3, :]
+    quaternions = ee_frame.data.target_quat_w[:, 1:3, :]
+    num_envs = positions.shape[0]
+    local = _analytic_finger_points(positions.device, positions.dtype)
+    local = local.view(1, 1, 128, 3).expand(num_envs, 2, -1, -1)
+    expanded_quat = quaternions.unsqueeze(2).expand(-1, -1, 128, -1)
+    points_world = quat_apply(
+        expanded_quat.reshape(-1, 4), local.reshape(-1, 3)
+    ).reshape(num_envs, 2, 128, 3)
+    points_world = points_world + positions.unsqueeze(2)
+    points_env = points_world - env.scene.env_origins[:, None, None, :]
+    return points_env.reshape(num_envs, 256, 3)
+
+
+def _end_effector_mass_and_velocity(env: ManagerBasedRLEnv) -> tuple[torch.Tensor, torch.Tensor]:
+    robot = env.scene["robot"]
+    if not hasattr(env, "_dapl_finger_body_ids"):
+        body_ids, body_names = robot.find_bodies(
+            ["panda_leftfinger", "panda_rightfinger"], preserve_order=True
+        )
+        if len(body_ids) != 2:
+            raise RuntimeError(
+                f"expected two Franka finger bodies, resolved {body_names}"
+            )
+        # Articulation default masses are CPU tensors while dynamic body state
+        # lives on the simulation device.  A plain integer tuple indexes both.
+        env._dapl_finger_body_ids = tuple(body_ids)
+    body_ids = env._dapl_finger_body_ids
+    mass = robot.data.default_mass[:, body_ids].sum(dim=1)
+    velocity = robot.data.body_lin_vel_w[:, body_ids].mean(dim=1)
+    return mass, velocity
+
+
+def build_dapl_physical_scene(
+    env: ManagerBasedRLEnv,
+    target_cfg: SceneEntityCfg = SceneEntityCfg("target"),
+    obstacles_cfg: SceneEntityCfg = SceneEntityCfg("obstacles"),
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+    obstacle_source_indices: torch.Tensor | None = None,
+) -> PhysicalSceneTensor:
+    """Build a physical scene, optionally preserving an earlier obstacle selection."""
+
+    target: RigidObject = env.scene[target_cfg.name]
+    obstacles: RigidObjectCollection = env.scene[obstacles_cfg.name]
+    target_points = get_object_pointcloud_in_env_frame(env, target_cfg).reshape(
+        env.num_envs, 512, 3
+    )
+    obstacle_points = get_obstacle_pointclouds_in_env_frame(env, obstacles_cfg)
+    end_effector_points = get_end_effector_pointcloud_in_env_frame(env, ee_frame_cfg)
+    end_effector_mass, end_effector_velocity = _end_effector_mass_and_velocity(env)
+
+    if not hasattr(env, "_dapl_scene_tensor_builder"):
+        env._dapl_scene_tensor_builder = DAPLSceneTensorBuilder(validate_values=False)
+    return env._dapl_scene_tensor_builder(
+        PhysicalSceneBatch(
+            target_points=target_points,
+            target_mass=target.data.default_mass.squeeze(-1),
+            target_velocity=target.data.root_com_lin_vel_w,
+            obstacle_points=obstacle_points,
+            obstacle_masses=obstacles.data.default_mass.squeeze(-1),
+            obstacle_velocities=obstacles.data.object_com_lin_vel_w,
+            end_effector_points=end_effector_points,
+            end_effector_mass=end_effector_mass,
+            end_effector_velocity=end_effector_velocity,
+        ),
+        obstacle_source_indices=obstacle_source_indices,
+    )
+
+
+@profile_obs
+def dapl_physical_scene(
+    env: ManagerBasedRLEnv,
+    target_cfg: SceneEntityCfg = SceneEntityCfg("target"),
+    obstacles_cfg: SceneEntityCfg = SceneEntityCfg("obstacles"),
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+) -> torch.Tensor:
+    """Build the paper-defined physical input tensor with shape ``[B, 1280, 7]``."""
+
+    scene_tensor = build_dapl_physical_scene(
+        env,
+        target_cfg=target_cfg,
+        obstacles_cfg=obstacles_cfg,
+        ee_frame_cfg=ee_frame_cfg,
+    )
+    # A future-frame collector must reuse this selection to preserve point identity.
+    env._dapl_obstacle_source_indices = scene_tensor.obstacle_source_indices
+    return scene_tensor.features
+
+
+def dapl_physical_scene_flattened(
+    env: ManagerBasedRLEnv,
+    target_cfg: SceneEntityCfg = SceneEntityCfg("target"),
+    obstacles_cfg: SceneEntityCfg = SceneEntityCfg("obstacles"),
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+) -> torch.Tensor:
+    """Return the DAPL scene as the 8,960-D prefix expected by RSL-RL."""
+
+    features = dapl_physical_scene(
+        env,
+        target_cfg=target_cfg,
+        obstacles_cfg=obstacles_cfg,
+        ee_frame_cfg=ee_frame_cfg,
+    )
+    return features.reshape(env.num_envs, -1)

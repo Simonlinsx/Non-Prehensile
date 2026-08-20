@@ -13,6 +13,8 @@
 **/*.usda
 **/*.usdc
 **/*.usdz
+# DOMINO simulation assets are reproducible with the preparation script.
+/data/domino_usd/
 
 # Python
 .DS_Store
@@ -70,6 +72,8 @@ datasets
 
 # Tests
 tests/
+!tests/
+!tests/test_dapl_*.py
 
 # Docker history
 .isaac-lab-docker-history
