@@ -19,6 +19,14 @@ from .controller_fixed_impedance_delta_action import (
     DeltaJointFixedImpedanceControllerAction,
     DeltaJointFixedImpedanceControllerActionCfg,
 )
+from .latched_relative_joint_position_action import (
+    LatchedRelativeJointPositionAction,
+    LatchedRelativeJointPositionActionCfg,
+)
+from .clipped_differential_ik_action import (
+    ClippedDifferentialInverseKinematicsAction,
+    ClippedDifferentialInverseKinematicsActionCfg,
+)
 
 __all__ = [
     "FixedImpedanceResidualAction",
@@ -33,4 +41,8 @@ __all__ = [
     "DeltaJointVariableImpedanceControllerActionCfg",
     "DeltaJointFixedImpedanceControllerAction",
     "DeltaJointFixedImpedanceControllerActionCfg",
+    "LatchedRelativeJointPositionAction",
+    "LatchedRelativeJointPositionActionCfg",
+    "ClippedDifferentialInverseKinematicsAction",
+    "ClippedDifferentialInverseKinematicsActionCfg",
 ]

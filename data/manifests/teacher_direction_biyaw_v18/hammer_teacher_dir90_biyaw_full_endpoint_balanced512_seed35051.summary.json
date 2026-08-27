@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "input": "/data1/linsixu/IsaacLab-nonPrehensile/data/manifests/teacher_direction_geodesic_v17/hammer_teacher_dir90_full_endpoint_balanced512_seed34051.jsonl",
+  "output": "/data1/linsixu/IsaacLab-nonPrehensile/data/manifests/teacher_direction_biyaw_v18/hammer_teacher_dir90_biyaw_full_endpoint_balanced512_seed35051.jsonl",
+  "seed": 35051,
+  "scene_count": 512,
+  "direction_bins": 8,
+  "angle_range_deg": [
+    -90.0,
+    90.0
+  ],
+  "direction_observed_deg": [
+    -88.90657135581955,
+    89.66639159315557
+  ],
+  "yaw_magnitude_rad": [
+    0.07108327494574854,
+    0.2286725504370643
+  ],
+  "negative_yaw_count": 256,
+  "positive_yaw_count": 256,
+  "per_direction_bin": {
+    "0": {
+      "count": 96,
+      "negative": 48,
+      "positive": 48
+    },
+    "1": {
+      "count": 96,
+      "negative": 48,
+      "positive": 48
+    },
+    "2": {
+      "count": 32,
+      "negative": 16,
+      "positive": 16
+    },
+    "3": {
+      "count": 32,
+      "negative": 16,
+      "positive": 16
+    },
+    "4": {
+      "count": 32,
+      "negative": 16,
+      "positive": 16
+    },
+    "5": {
+      "count": 32,
+      "negative": 16,
+      "positive": 16
+    },
+    "6": {
+      "count": 96,
+      "negative": 48,
+      "positive": 48
+    },
+    "7": {
+      "count": 96,
+      "negative": 48,
+      "positive": 48
+    }
+  },
+  "preserved_fields": [
+    "initial_pose",
+    "goal_xyz",
+    "objects",
+    "materials",
+    "masses",
+    "support_face",
+    "obstacles"
+  ]
+}

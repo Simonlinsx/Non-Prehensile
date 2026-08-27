@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "input": "/data1/linsixu/IsaacLab-nonPrehensile/data/manifests/teacher_direction_curriculum_v10/hammer_teacher_dir90_eval128_seed11839.jsonl",
+  "output": "/data1/linsixu/IsaacLab-nonPrehensile/data/manifests/teacher_direction_biyaw_v18/hammer_teacher_dir90_biyaw_eval128_seed12839.jsonl",
+  "seed": 12839,
+  "scene_count": 128,
+  "direction_bins": 8,
+  "angle_range_deg": [
+    -90.0,
+    90.0
+  ],
+  "direction_observed_deg": [
+    -88.83823376531743,
+    89.09822214633472
+  ],
+  "yaw_magnitude_rad": [
+    0.07111816576829745,
+    0.22892950317017832
+  ],
+  "negative_yaw_count": 64,
+  "positive_yaw_count": 64,
+  "per_direction_bin": {
+    "0": {
+      "count": 16,
+      "negative": 8,
+      "positive": 8
+    },
+    "1": {
+      "count": 16,
+      "negative": 8,
+      "positive": 8
+    },
+    "2": {
+      "count": 16,
+      "negative": 8,
+      "positive": 8
+    },
+    "3": {
+      "count": 16,
+      "negative": 8,
+      "positive": 8
+    },
+    "4": {
+      "count": 16,
+      "negative": 8,
+      "positive": 8
+    },
+    "5": {
+      "count": 16,
+      "negative": 8,
+      "positive": 8
+    },
+    "6": {
+      "count": 16,
+      "negative": 8,
+      "positive": 8
+    },
+    "7": {
+      "count": 16,
+      "negative": 8,
+      "positive": 8
+    }
+  },
+  "preserved_fields": [
+    "initial_pose",
+    "goal_xyz",
+    "objects",
+    "materials",
+    "masses",
+    "support_face",
+    "obstacles"
+  ]
+}

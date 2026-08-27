@@ -30,6 +30,7 @@ class PPO:
         clip_param=0.2,
         gamma=0.998,
         lam=0.95,
+        actor_loss_coef=1.0,
         value_loss_coef=1.0,
         entropy_coef=0.0,
         learning_rate=1e-3,
@@ -104,6 +105,9 @@ class PPO:
         self.clip_param = clip_param
         self.num_learning_epochs = num_learning_epochs
         self.num_mini_batches = num_mini_batches
+        if actor_loss_coef < 0.0:
+            raise ValueError("actor_loss_coef must be non-negative")
+        self.actor_loss_coef = actor_loss_coef
         self.value_loss_coef = value_loss_coef
         self.entropy_coef = entropy_coef
         self.gamma = gamma
@@ -323,7 +327,8 @@ class PPO:
             else:
                 value_loss = (returns_batch - value_batch).pow(2).mean()
 
-            loss = surrogate_loss + self.value_loss_coef * value_loss - self.entropy_coef * entropy_batch.mean()
+            actor_loss = surrogate_loss - self.entropy_coef * entropy_batch.mean()
+            loss = self.actor_loss_coef * actor_loss + self.value_loss_coef * value_loss
 
             # Symmetry loss
             if self.symmetry:

@@ -10,12 +10,15 @@ from __future__ import annotations
 import torch
 from typing import TYPE_CHECKING
 
-from isaaclab.assets import RigidObject, RigidObjectCollection
+from isaaclab.assets import Articulation, RigidObject, RigidObjectCollection
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.utils.math import sample_uniform
 import isaaclab.sim as sim_utils
 
 from dapl.scene import ClutterScene, load_scene_manifest
+from IsaacLab_nonPrehensile.tasks.manager_based.isaaclab_nonprehensile.clutter import (
+    inactive_obstacle_parking_pose,
+)
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
@@ -33,6 +36,61 @@ def _runtime_clutter_scenes(env: ManagerBasedRLEnv) -> tuple[ClutterScene, ...]:
                 load_scene_manifest(env.cfg.clutter_manifest_path)
             )
     return env._clutter_scenes_runtime
+
+
+def _manifest_scene_index(env: ManagerBasedRLEnv, env_id: int, count: int) -> int:
+    """Map an environment to a manifest row, with an optional demo offset."""
+
+    return (int(env_id) + int(getattr(env.cfg, "clutter_scene_offset", 0))) % count
+
+
+def reset_joints_uniform_within_bounds(
+    env: ManagerBasedRLEnv,
+    env_ids: torch.Tensor,
+    position_lower: tuple[float, ...],
+    position_upper: tuple[float, ...],
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> None:
+    """Reset selected joints uniformly inside explicit absolute bounds.
+
+    DyWA initializes the Franka by uniformly sampling a published seven-joint
+    box.  Isaac Lab's standard reset helpers accept only a shared scalar
+    interval, so this small adapter preserves the per-joint contract exactly.
+    Joint velocities are reset to zero as in the reference implementation.
+    """
+
+    robot: Articulation = env.scene[asset_cfg.name]
+    env_ids = torch.as_tensor(env_ids, device=env.device, dtype=torch.long)
+    lower = torch.as_tensor(
+        position_lower, device=env.device, dtype=robot.data.joint_pos.dtype
+    )
+    upper = torch.as_tensor(
+        position_upper, device=env.device, dtype=robot.data.joint_pos.dtype
+    )
+    joint_count = len(asset_cfg.joint_ids)
+    if lower.shape != (joint_count,) or upper.shape != (joint_count,):
+        raise ValueError(
+            "position bounds must contain one value per selected joint"
+        )
+    if bool(torch.any(lower >= upper).item()):
+        raise ValueError("every joint lower bound must be below its upper bound")
+    samples = torch.rand(
+        len(env_ids), joint_count, device=env.device, dtype=lower.dtype
+    )
+    joint_position = lower.unsqueeze(0) + samples * (upper - lower).unsqueeze(0)
+    soft_limits = robot.data.soft_joint_pos_limits[env_ids][
+        :, asset_cfg.joint_ids
+    ]
+    joint_position = torch.maximum(
+        torch.minimum(joint_position, soft_limits[..., 1]), soft_limits[..., 0]
+    )
+    joint_velocity = torch.zeros_like(joint_position)
+    robot.write_joint_state_to_sim(
+        joint_position,
+        joint_velocity,
+        joint_ids=asset_cfg.joint_ids,
+        env_ids=env_ids,
+    )
 
 
 def set_clutter_material_properties_from_manifest(
@@ -61,9 +119,9 @@ def set_clutter_material_properties_from_manifest(
     target_values = torch.tensor(
         [
             (
-                scenes[env_id % len(scenes)].target_object.static_friction,
-                scenes[env_id % len(scenes)].target_object.dynamic_friction,
-                scenes[env_id % len(scenes)].target_object.restitution,
+                scenes[_manifest_scene_index(env, env_id, len(scenes))].target_object.static_friction,
+                scenes[_manifest_scene_index(env, env_id, len(scenes))].target_object.dynamic_friction,
+                scenes[_manifest_scene_index(env, env_id, len(scenes))].target_object.restitution,
             )
             for env_id in selected_env_ids.tolist()
         ],
@@ -86,7 +144,9 @@ def set_clutter_material_properties_from_manifest(
         [
             [
                 (item.static_friction, item.dynamic_friction, item.restitution)
-                for item in scenes[env_id % len(scenes)].obstacle_objects
+                for item in scenes[
+                    _manifest_scene_index(env, env_id, len(scenes))
+                ].obstacle_objects
             ]
             for env_id in selected_env_ids.tolist()
         ],
@@ -131,6 +191,9 @@ def reset_clutter_from_manifest(
     # Contact-state terms are cached within one manager step.  A reset changes
     # target and obstacle poses without necessarily advancing that counter.
     env._domino_affordance_state_cache = None
+    env._domino_affordance_state_cache_step = None
+    env._domino_affordance_geometry_cache = None
+    env._domino_robot_target_geometry_cache = None
     if not hasattr(env, "_clutter_episode_counts"):
         env._clutter_episode_counts = torch.zeros(env.num_envs, device=env.device, dtype=torch.long)
         env._clutter_scene_indices = torch.zeros(env.num_envs, device=env.device, dtype=torch.long)
@@ -143,13 +206,24 @@ def reset_clutter_from_manifest(
 
     target: RigidObject = env.scene[target_cfg.name]
     obstacles: RigidObjectCollection = env.scene[obstacles_cfg.name]
+    configured_active_count = getattr(env.cfg, "active_obstacle_count", None)
+    active_obstacle_count = (
+        obstacles.num_objects
+        if configured_active_count is None
+        else int(configured_active_count)
+    )
+    if not 0 <= active_obstacle_count <= obstacles.num_objects:
+        raise ValueError(
+            "active_obstacle_count must be between 0 and the manifest obstacle count"
+        )
+    env._clutter_active_obstacle_count = active_obstacle_count
     target_states = torch.zeros(len(env_ids), 13, device=env.device)
     obstacle_states = torch.zeros(
         len(env_ids), obstacles.num_objects, 13, device=env.device
     )
     for output_index, env_id_tensor in enumerate(env_ids):
         env_id = int(env_id_tensor.item())
-        scene_index = env_id % len(scenes)
+        scene_index = _manifest_scene_index(env, env_id, len(scenes))
         scene = scenes[scene_index]
         task_index = int(env._clutter_episode_counts[env_id].item()) % len(scene.tasks)
         task = scene.tasks[task_index]
@@ -163,6 +237,19 @@ def reset_clutter_from_manifest(
             device=env.device,
             dtype=torch.float32,
         )
+        # Early curriculum stages are physically single-object tasks.  Keep
+        # the pre-created collection for checkpoint-compatible observations,
+        # but park inactive bodies on their support faces outside the workspace.
+        # Never place dynamic colliders below an infinite ground plane: PhysX
+        # may depenetrate them upward into the visible scene.
+        for obstacle_index in range(active_obstacle_count, obstacles.num_objects):
+            obstacle_poses_local[obstacle_index] = torch.tensor(
+                inactive_obstacle_parking_pose(
+                    scene.obstacle_objects[obstacle_index], obstacle_index
+                ),
+                device=env.device,
+                dtype=torch.float32,
+            )
         obstacle_poses_world = obstacle_poses_local.clone()
         obstacle_poses_world[:, :3] += env.scene.env_origins[env_id].unsqueeze(0)
         obstacle_states[output_index, :, :7] = obstacle_poses_world
@@ -351,8 +438,17 @@ def randomize_terrain_material(
         restitution_range: Range for restitution coefficient.
         num_buckets: Number of material buckets for randomization.
     """
-    # Get terrain from scene
+    # Resolve either the legacy TerrainImporter plane or the local procedural
+    # support surface used by the non-prehensile scene.
     terrain = env.scene["terrain"]
+    if terrain is None:
+        terrain_prim_path = "/World/ground"
+        physics_material_path = f"{terrain_prim_path}/geometry/material"
+        collision_prim_path = f"{terrain_prim_path}/geometry/mesh"
+    else:
+        terrain_prim_path = terrain.cfg.prim_path + "/terrain"
+        physics_material_path = f"{terrain_prim_path}/physicsMaterial"
+        collision_prim_path = None
     
     # Generate material buckets
     static_friction_buckets = torch.linspace(
@@ -380,12 +476,6 @@ def randomize_terrain_material(
     import isaacsim.core.utils.prims as prim_utils
     from pxr import UsdPhysics
     
-    # Get the terrain prim path
-    # For plane terrain, the actual prim path is {cfg.prim_path}/terrain
-    terrain_prim_path = terrain.cfg.prim_path + "/terrain"
-    
-    # Find the physics material prim
-    physics_material_path = f"{terrain_prim_path}/physicsMaterial"
     physics_material_prim = prim_utils.get_prim_at_path(physics_material_path)
 
     # Create or get the physics material
@@ -401,11 +491,14 @@ def randomize_terrain_material(
     mesh_prim_path = f"{terrain_prim_path}/mesh"
     mesh_prim = prim_utils.get_prim_at_path(mesh_prim_path)
     
-    # Find the collision prim (Plane type) for ground plane
-    collision_prim = prim_utils.get_first_matching_child_prim(
-        terrain_prim_path, 
-        predicate=lambda x: prim_utils.get_prim_type_name(x) == "Plane"
-    )
+    if collision_prim_path is None:
+        # Find the collision prim (Plane type) for a TerrainImporter ground.
+        collision_prim = prim_utils.get_first_matching_child_prim(
+            terrain_prim_path,
+            predicate=lambda x: prim_utils.get_prim_type_name(x) == "Plane",
+        )
+    else:
+        collision_prim = prim_utils.get_prim_at_path(collision_prim_path)
     
     # Use IsaacLab's bind_physics_material function
     import isaaclab.sim as sim_utils

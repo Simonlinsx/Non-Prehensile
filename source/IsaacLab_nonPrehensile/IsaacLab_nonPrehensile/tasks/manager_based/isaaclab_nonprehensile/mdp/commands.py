@@ -71,7 +71,19 @@ class ManifestPoseCommand(CommandTerm):
         super().__init__(cfg, env)
         self._command = torch.zeros(self.num_envs, 7, device=self.device)
         self.metrics["distance_to_goal"] = torch.zeros(self.num_envs, device=self.device)
+        self.metrics["planar_distance_to_goal"] = torch.zeros(
+            self.num_envs, device=self.device
+        )
+        self.metrics["height_error_to_goal"] = torch.zeros(
+            self.num_envs, device=self.device
+        )
         self.metrics["rot_to_goal"] = torch.zeros(self.num_envs, device=self.device)
+        self.metrics["target_linear_speed"] = torch.zeros(
+            self.num_envs, device=self.device
+        )
+        self.metrics["target_angular_speed"] = torch.zeros(
+            self.num_envs, device=self.device
+        )
 
     def _resample_command(self, env_ids):
         env_ids = torch.as_tensor(env_ids, device=self.device, dtype=torch.long)
@@ -87,12 +99,21 @@ class ManifestPoseCommand(CommandTerm):
     def _update_metrics(self):
         target: RigidObject = self._env.scene[self.cfg.target_asset_name]
         target_pos = target.data.root_pos_w[:, :3] - self._env.scene.env_origins
-        self.metrics["distance_to_goal"] = torch.linalg.vector_norm(
-            target_pos - self._command[:, :3], dim=-1
+        position_delta = target_pos - self._command[:, :3]
+        self.metrics["distance_to_goal"] = torch.linalg.vector_norm(position_delta, dim=-1)
+        self.metrics["planar_distance_to_goal"] = torch.linalg.vector_norm(
+            position_delta[:, :2], dim=-1
         )
+        self.metrics["height_error_to_goal"] = torch.abs(position_delta[:, 2])
         quaternion_dot = torch.sum(target.data.root_quat_w * self._command[:, 3:7], dim=-1)
         self.metrics["rot_to_goal"] = 2.0 * torch.acos(
             torch.clamp(torch.abs(quaternion_dot), max=1.0)
+        )
+        self.metrics["target_linear_speed"] = torch.linalg.vector_norm(
+            target.data.root_lin_vel_w, dim=-1
+        )
+        self.metrics["target_angular_speed"] = torch.linalg.vector_norm(
+            target.data.root_ang_vel_w, dim=-1
         )
 
     @property

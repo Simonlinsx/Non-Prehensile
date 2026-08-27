@@ -106,7 +106,16 @@ class ClutterAsset:
 
 @dataclass(frozen=True)
 class ClutterGenerationConfig:
-    """Paper constraints plus explicit tabletop placement bounds."""
+    """DAPL paper constraints plus explicit tabletop placement bounds.
+
+    The defaults are not a curriculum or a hand-tuned proof distribution.
+    They encode the scene protocol reported in the DAPL appendix: the target
+    is sampled inside a 0.30 m by 0.60 m region centred on the table, each
+    scene contains 16 initial/goal pairs, both poses use stable orientations,
+    and their planar displacement is at least 0.15 m.  Affordance experiments
+    should use these defaults unless the resulting run is explicitly labelled
+    as an ablation.
+    """
 
     table_center: tuple[float, float] = (0.5, 0.0)
     table_x_range: tuple[float, float] = (0.18, 0.82)
@@ -115,7 +124,10 @@ class ClutterGenerationConfig:
     target_y_offset_range: tuple[float, float] = (-0.30, 0.30)
     tasks_per_scene: int = 16
     minimum_planar_displacement: float = 0.15
+    goal_xy_sampling: str = "independent"
     clearance: float = 0.008
+    target_obstacle_clearance: float | None = None
+    maximum_goal_yaw_delta: float | None = None
     placement_attempts: int = 512
     scene_attempts: int = 64
     preserve_target_support_pose: bool = False
@@ -138,12 +150,27 @@ class ClutterGenerationConfig:
             raise ValueError("task and attempt counts must be positive")
         if self.minimum_planar_displacement <= 0.0 or self.clearance < 0.0:
             raise ValueError("displacement must be positive and clearance non-negative")
+        if self.goal_xy_sampling not in {"independent", "center_ray"}:
+            raise ValueError(
+                "goal_xy_sampling must be 'independent' or 'center_ray'"
+            )
+        if self.target_obstacle_clearance is not None:
+            value = float(self.target_obstacle_clearance)
+            if not math.isfinite(value) or value < 0.0:
+                raise ValueError("target_obstacle_clearance must be finite and non-negative")
+            object.__setattr__(self, "target_obstacle_clearance", value)
+        if self.maximum_goal_yaw_delta is not None:
+            value = float(self.maximum_goal_yaw_delta)
+            if not math.isfinite(value) or not 0.0 <= value <= math.pi:
+                raise ValueError("maximum_goal_yaw_delta must be in [0, pi]")
+            object.__setattr__(self, "maximum_goal_yaw_delta", value)
 
 
 @dataclass(frozen=True)
 class _PlacedPose:
     pose: tuple[float, ...]
     footprint: tuple[float, ...]
+    yaw: float
 
 
 def _yaw_stable_pose(stable: StablePose, yaw: float) -> tuple[tuple[float, ...], tuple[float, ...]]:
@@ -177,12 +204,14 @@ def _sample_pose(
     occupied: Sequence[Sequence[float]],
     cfg: ClutterGenerationConfig,
     stable_pose: StablePose | None = None,
+    clearance: float | None = None,
+    yaw: float | None = None,
 ) -> _PlacedPose | None:
+    required_clearance = cfg.clearance if clearance is None else float(clearance)
     for _ in range(cfg.placement_attempts):
         stable = stable_pose if stable_pose is not None else rng.choice(asset.stable_poses)
-        quaternion, relative_footprint = _yaw_stable_pose(
-            stable, rng.uniform(-math.pi, math.pi)
-        )
+        sampled_yaw = rng.uniform(-math.pi, math.pi) if yaw is None else float(yaw)
+        quaternion, relative_footprint = _yaw_stable_pose(stable, sampled_yaw)
         xmin, ymin, xmax, ymax = relative_footprint
         feasible_x = (max(x_range[0], cfg.table_x_range[0] - xmin), min(x_range[1], cfg.table_x_range[1] - xmax))
         feasible_y = (max(y_range[0], cfg.table_y_range[0] - ymin), min(y_range[1], cfg.table_y_range[1] - ymax))
@@ -191,11 +220,84 @@ def _sample_pose(
         root_x = rng.uniform(*feasible_x)
         root_y = rng.uniform(*feasible_y)
         footprint = (root_x + xmin, root_y + ymin, root_x + xmax, root_y + ymax)
-        if any(_overlap(footprint, other, cfg.clearance) for other in occupied):
+        if any(_overlap(footprint, other, required_clearance) for other in occupied):
             continue
         return _PlacedPose(
             pose=(root_x, root_y, stable.support_height, *quaternion),
             footprint=footprint,
+            yaw=sampled_yaw,
+        )
+    return None
+
+
+def _sample_center_ray_goal_pose(
+    rng: random.Random,
+    asset: ClutterAsset,
+    initial: _PlacedPose,
+    occupied: Sequence[Sequence[float]],
+    cfg: ClutterGenerationConfig,
+    *,
+    stable_pose: StablePose,
+    yaw: float | None = None,
+) -> _PlacedPose | None:
+    """Sample a same-support goal on the object-to-table-centre ray.
+
+    This is the released DyWA ``arm_div_base`` XY geometry made explicit for
+    a fixed manifest: its task has ``margin_scale=0``, so ``sample_goal``
+    places the goal between the minimum separation point and the table centre.
+    Initial poses inside the minimum-separation disk are rejected so the
+    checked-in manifest retains an auditable lower displacement bound.
+    """
+
+    delta_x = cfg.table_center[0] - initial.pose[0]
+    delta_y = cfg.table_center[1] - initial.pose[1]
+    radial_distance = math.hypot(delta_x, delta_y)
+    if radial_distance + 1.0e-9 < cfg.minimum_planar_displacement:
+        return None
+    direction_x = delta_x / radial_distance
+    direction_y = delta_y / radial_distance
+    sampled_yaw = rng.uniform(-math.pi, math.pi) if yaw is None else float(yaw)
+    quaternion, relative_footprint = _yaw_stable_pose(stable_pose, sampled_yaw)
+    xmin, ymin, xmax, ymax = relative_footprint
+
+    for _ in range(cfg.placement_attempts):
+        displacement = rng.uniform(
+            cfg.minimum_planar_displacement, radial_distance
+        )
+        root_x = initial.pose[0] + displacement * direction_x
+        root_y = initial.pose[1] + displacement * direction_y
+        footprint = (
+            root_x + xmin,
+            root_y + ymin,
+            root_x + xmax,
+            root_y + ymax,
+        )
+        if (
+            footprint[0] < cfg.table_x_range[0]
+            or footprint[2] > cfg.table_x_range[1]
+            or footprint[1] < cfg.table_y_range[0]
+            or footprint[3] > cfg.table_y_range[1]
+        ):
+            continue
+        required_clearance = (
+            cfg.clearance
+            if cfg.target_obstacle_clearance is None
+            else cfg.target_obstacle_clearance
+        )
+        if any(
+            _overlap(footprint, other, required_clearance)
+            for other in occupied
+        ):
+            continue
+        return _PlacedPose(
+            pose=(
+                root_x,
+                root_y,
+                stable_pose.support_height,
+                *quaternion,
+            ),
+            footprint=footprint,
+            yaw=sampled_yaw,
         )
     return None
 
@@ -210,6 +312,10 @@ def _sample_distinct_assets(
     if len(available) < count:
         raise ValueError(f"need {count} distinct assets but only {len(available)} are available")
     selected = rng.sample(available, count)
+    # Slot order must be stable when a catalog contains exactly the requested
+    # cohort. This lets Isaac's periodic MultiAssetSpawner representation
+    # collapse repeated scene assets without changing env-to-scene alignment.
+    selected.sort(key=lambda item: item.asset_id)
     excluded.update(item.asset_id for item in selected)
     return selected
 
@@ -289,16 +395,38 @@ def _generate_one_scene(
                 occupied,
                 cfg,
                 stable_pose=shared_stable_pose,
+                clearance=cfg.target_obstacle_clearance,
             )
-            goal = _sample_pose(
-                rng,
-                target,
-                target_x_range,
-                target_y_range,
-                occupied,
-                cfg,
-                stable_pose=shared_stable_pose,
-            )
+            goal_yaw = None
+            if initial is not None and cfg.maximum_goal_yaw_delta is not None:
+                goal_yaw = initial.yaw + rng.uniform(
+                    -cfg.maximum_goal_yaw_delta, cfg.maximum_goal_yaw_delta
+                )
+            if cfg.goal_xy_sampling == "center_ray":
+                if initial is None or shared_stable_pose is None:
+                    goal = None
+                else:
+                    goal = _sample_center_ray_goal_pose(
+                        rng,
+                        target,
+                        initial,
+                        occupied,
+                        cfg,
+                        stable_pose=shared_stable_pose,
+                        yaw=goal_yaw,
+                    )
+            else:
+                goal = _sample_pose(
+                    rng,
+                    target,
+                    target_x_range,
+                    target_y_range,
+                    occupied,
+                    cfg,
+                    stable_pose=shared_stable_pose,
+                    clearance=cfg.target_obstacle_clearance,
+                    yaw=goal_yaw,
+                )
             if initial is None or goal is None:
                 continue
             planar_displacement = math.hypot(

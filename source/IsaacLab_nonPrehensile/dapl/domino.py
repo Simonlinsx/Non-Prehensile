@@ -319,6 +319,34 @@ def default_affordance_radius(annotation: DominoAffordanceAnnotation) -> float:
     return max(0.015, 0.10 * annotation.maximum_extent_m)
 
 
+def _explicit_part_affordance_features(
+    canonical_points: torch.Tensor,
+    asset_id: str,
+) -> torch.Tensor | None:
+    """Return canonical part masks for assets whose geometry has been audited.
+
+    These masks are expressed in the raw DOMINO mesh frame, so they stay
+    aligned with every fresh surface-point sample.  A neutral band separates
+    safe and protected parts to avoid making the narrow handle/head junction
+    an attractive contact target.
+    """
+
+    if asset_id != "020_hammer:0":
+        return None
+
+    # The 020 hammer is longitudinal along +Y.  Its collision mesh consists of
+    # four handle components ending near y=0.46, a neck component, and four
+    # head/claw components starting near y=0.46.  Keep the lower/main handle as
+    # robot-safe and protect the complete striking head and claw.  The gap is
+    # intentionally neutral rather than assigning uncertain boundary points.
+    y = canonical_points[..., 1]
+    z = canonical_points[..., 2]
+    safe = y <= 0.35
+    protected = (y >= 0.62) | ((y >= 0.45) & (z <= -0.20))
+    safe = safe & ~protected
+    return torch.stack((safe, protected), dim=-1).to(dtype=canonical_points.dtype)
+
+
 def domino_point_affordance_features(
     canonical_points: torch.Tensor,
     annotation: DominoAffordanceAnnotation,
@@ -326,18 +354,25 @@ def domino_point_affordance_features(
     safe_radius_m: float | None = None,
     protected_radius_m: float | None = None,
 ) -> torch.Tensor:
-    """Convert sparse anchors into aligned ``[safe, protected]`` point scores.
+    """Convert annotations into aligned ``[safe, protected]`` point scores.
 
     ``canonical_points`` are in the raw DOMINO mesh frame.  The returned
-    tensor follows the same leading shape and contains Gaussian proximity
-    scores in ``[0, 1]``.  Protected semantics take precedence in overlap
-    regions by suppressing the safe score.
+    tensor follows the same leading shape.  Audited assets use deterministic
+    canonical part masks; other assets fall back to Gaussian proximity around
+    their sparse DOMINO anchors.  Protected semantics take precedence in
+    overlap regions.
     """
 
     if canonical_points.ndim < 2 or canonical_points.shape[-1] != 3:
         raise ValueError("canonical_points must have shape [..., points, 3]")
     if not canonical_points.is_floating_point():
         raise ValueError("canonical_points must use a floating-point dtype")
+    explicit_features = _explicit_part_affordance_features(
+        canonical_points, annotation.asset_id
+    )
+    if explicit_features is not None:
+        return explicit_features
+
     default_radius = default_affordance_radius(annotation)
     safe_radius = default_radius if safe_radius_m is None else float(safe_radius_m)
     protected_radius = default_radius if protected_radius_m is None else float(protected_radius_m)

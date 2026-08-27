@@ -71,7 +71,11 @@ class WandbSummaryWriter(SummaryWriter):
         self.store_config(env_cfg, runner_cfg, alg_cfg, policy_cfg)
 
     def save_model(self, model_path, iter):
-        wandb.save(model_path, base_path=os.path.dirname(model_path))
+        # Keep scalar curves online even on machines where checkpoint uploads
+        # are unreliable.  A failed artifact upload can otherwise fill the
+        # local W&B transaction log and terminate a healthy simulation.
+        if os.environ.get("RSL_RL_WANDB_UPLOAD_CHECKPOINTS", "1") != "0":
+            wandb.save(model_path, base_path=os.path.dirname(model_path))
 
     def save_file(self, path, iter=None):
         wandb.save(path, base_path=os.path.dirname(path))

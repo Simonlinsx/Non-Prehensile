@@ -70,6 +70,7 @@ DEBUG_OBS_EVERY = 10000000
 
 _HAND_GOAL_MEAN = torch.tensor([0.5, 0.0, 0.15, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])  # z mean = 0.15
 _HAND_GOAL_STD = torch.tensor([0.4, 0.4, 0.4, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+_REL_GOAL_POSITION_STD = torch.tensor([0.10, 0.10, 0.02])
 
 def _dbg(env: "ManagerBasedRLEnv", name: str, tensor: torch.Tensor) -> torch.Tensor:
     cnt = getattr(env, "_dbg_obs_cnt", 0)
@@ -230,7 +231,10 @@ def rel_pose_goal(
     from isaaclab.utils.math import quat_from_euler_xyz, quat_mul, quat_conjugate, matrix_from_quat
 
     target_goal = env.command_manager.get_command(command_name)  # (num_envs, 7)
-    object_pose_7d = object_pose_in_env_frame(env, object_cfg)
+    # Relative pose must be computed from raw metric coordinates.  Calling the
+    # normalized object-pose observation here used to mix normalized object
+    # positions with metric goal positions and then normalize the result again.
+    object_pose_7d = object_pose_in_env_frame(env, object_cfg, normalize=False)
     obj_pos_env = object_pose_7d[:, :3]
     obj_quat_w = object_pose_7d[:, 3:7]
 
@@ -250,15 +254,46 @@ def rel_pose_goal(
     normalize = getattr(env.cfg, 'normalize_observations', True)
     
     if normalize:
-        # Use hand-specific normalization parameters for relative pose goal
+        # A relative displacement is zero-centred; do not reuse the absolute
+        # workspace mean [0.5, 0.0, 0.15].  Scale Z more tightly because this
+        # task keeps the hammer on a fixed support face.
         device = rel_pose_9d.device
-        mean = _HAND_GOAL_MEAN.to(device).view(1, 9)
-        std = _HAND_GOAL_STD.to(device).view(1, 9)
-        
-        # Z-score normalization: (x - mean) / std
-        rel_pose_9d = (rel_pose_9d - mean) / torch.clamp(std, min=1e-6)
+        rel_pose_9d = torch.cat(
+            (
+                rel_pos / _REL_GOAL_POSITION_STD.to(device).view(1, 3),
+                rot_6d,
+            ),
+            dim=1,
+        )
     
     return rel_pose_9d
+
+
+@profile_obs
+def object_twist_in_env_frame(
+    env: ManagerBasedRLEnv,
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+    linear_velocity_scale: float = 0.50,
+    angular_velocity_scale: float = 3.0,
+) -> torch.Tensor:
+    """Object linear and angular velocity as a normalized 6-D twist.
+
+    Environment frames differ from world only by translation, so world-frame
+    velocities already have the correct axes.  The scales keep normal pushing
+    velocities near unit magnitude while retaining the sign of every axis.
+    """
+
+    if linear_velocity_scale <= 0.0 or angular_velocity_scale <= 0.0:
+        raise ValueError("object twist scales must be positive")
+    object_asset: RigidObject = env.scene[object_cfg.name]
+    twist = torch.cat(
+        (
+            object_asset.data.root_lin_vel_w / linear_velocity_scale,
+            object_asset.data.root_ang_vel_w / angular_velocity_scale,
+        ),
+        dim=1,
+    )
+    return _dbg(env, "object_twist", torch.clamp(twist, min=-5.0, max=5.0))
 
 
 @profile_obs
@@ -295,13 +330,14 @@ def phys_params(
     hand_material_props = hand.root_physx_view.get_material_properties()    # Shape: (num_envs, num_bodies, 3)
     hand_friction = hand_material_props[:, -1, 0]      # Use static friction for hand (last body)
 
-    # 4. Get ground/terrain friction - read actual randomized values from USD prim
-    # Read the actual physics material values that were set by randomization
+    # 4. Read the actual randomized ground material from the local procedural
+    # support surface.  Retain the legacy TerrainImporter path for configs that
+    # explicitly provide a terrain.
     terrain = env.scene["terrain"]
-    
-    # Get the actual terrain prim path (same as in randomization)
-    terrain_prim_path = terrain.cfg.prim_path + "/terrain"
-    physics_material_path = f"{terrain_prim_path}/physicsMaterial"
+    if terrain is None:
+        physics_material_path = "/World/ground/geometry/material"
+    else:
+        physics_material_path = f"{terrain.cfg.prim_path}/terrain/physicsMaterial"
     
     import isaacsim.core.utils.prims as prim_utils
     from pxr import UsdPhysics
@@ -329,6 +365,7 @@ def phys_params(
 def object_pose_in_env_frame(
     env: ManagerBasedRLEnv,
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+    normalize: bool | None = None,
 ) -> torch.Tensor:
     """The pose of the object in the environment coordinate frame.
 
@@ -345,7 +382,8 @@ def object_pose_in_env_frame(
         visualize_object_pose_in_env(env, pose_7d)
 
     # Check normalization setting from environment config
-    normalize = getattr(env.cfg, 'normalize_observations', True)
+    if normalize is None:
+        normalize = getattr(env.cfg, 'normalize_observations', True)
     
     if normalize:
         # Use hand-specific normalization parameters for object pose
@@ -372,7 +410,7 @@ def object_pose_9d_in_env_frame(
     object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
 ) -> torch.Tensor:
     """The object's current pose in the environment frame as 9D [x,y,z, r11,r12,r13, r21,r22,r23]."""
-    pose_7d = object_pose_in_env_frame(env, object_cfg)
+    pose_7d = object_pose_in_env_frame(env, object_cfg, normalize=False)
     pos_env = pose_7d[:, :3]
     quat_wxyz = pose_7d[:, 3:7]
 

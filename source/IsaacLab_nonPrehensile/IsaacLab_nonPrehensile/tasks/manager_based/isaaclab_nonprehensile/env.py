@@ -6,6 +6,7 @@
 import math
 import os
 import json
+import importlib.util
 import torch
 from pathlib import Path
 from collections import deque
@@ -33,9 +34,6 @@ from isaaclab.utils import configclass
 from isaaclab.utils.noise import GaussianNoiseCfg
 from isaaclab_assets.robots.franka import FRANKA_PANDA_HIGH_PD_CFG, FRANKA_PANDA_CFG
 from isaaclab.envs.mdp.actions.actions_cfg import JointPositionActionCfg, RelativeJointPositionActionCfg, JointVelocityActionCfg, JointEffortActionCfg, DifferentialInverseKinematicsActionCfg
-from isaaclab.sim.spawners.from_files.from_files_cfg import GroundPlaneCfg, UsdFileCfg
-from isaaclab.terrains import TerrainImporterCfg
-from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 import IsaacLab_nonPrehensile.tasks.manager_based.isaaclab_nonprehensile.mdp as mdp
 from collections.abc import Sequence
 
@@ -221,26 +219,88 @@ custom_joint_init = {
 }
 
 
+def _local_franka_spawn_cfg() -> sim_utils.UrdfFileCfg:
+    """Build the standard Franka locally from Isaac Sim's packaged URDF.
+
+    Isaac Lab's stock Franka configuration points to a Nucleus/S3 USD.  The
+    packaged URDF is the same robot source and includes all meshes locally, so
+    using the converter removes a training-time network dependency while
+    preserving link/joint names and the existing actuator configuration.
+    """
+
+    isaacsim_spec = importlib.util.find_spec("isaacsim")
+    if isaacsim_spec is None or not isaacsim_spec.submodule_search_locations:
+        raise RuntimeError("Cannot locate the installed Isaac Sim package")
+    isaacsim_root = Path(next(iter(isaacsim_spec.submodule_search_locations)))
+    default_urdf = (
+        isaacsim_root
+        / "exts"
+        / "isaacsim.asset.importer.urdf"
+        / "data"
+        / "urdf"
+        / "robots"
+        / "franka_description"
+        / "robots"
+        / "panda_arm_hand.urdf"
+    )
+    urdf_path = Path(os.environ.get("DAPL_LOCAL_FRANKA_URDF", default_urdf))
+    if not urdf_path.is_file():
+        raise FileNotFoundError(f"Local Franka URDF not found: {urdf_path}")
+    usd_dir = os.environ.get(
+        "DAPL_LOCAL_FRANKA_USD_DIR",
+        "/tmp/IsaacLab/nonprehensile_franka_usd",
+    )
+    stock_spawn = FRANKA_PANDA_HIGH_PD_CFG.spawn
+    return sim_utils.UrdfFileCfg(
+        asset_path=str(urdf_path),
+        usd_dir=usd_dir,
+        usd_file_name="panda_arm_hand_nonprehensile.usd",
+        fix_base=True,
+        merge_fixed_joints=False,
+        convert_mimic_joints_to_normal_joints=True,
+        make_instanceable=True,
+        joint_drive=sim_utils.UrdfConverterCfg.JointDriveCfg(
+            gains=sim_utils.UrdfConverterCfg.JointDriveCfg.PDGainsCfg(
+                stiffness=0.0,
+                damping=0.0,
+            ),
+        ),
+        activate_contact_sensors=True,
+        rigid_props=stock_spawn.rigid_props.copy(),
+        articulation_props=stock_spawn.articulation_props.copy(),
+    )
+
+
 @configclass
 class NonPrehensileSceneCfg(InteractiveSceneCfg):
     """Configuration for a non-prehensile scene."""
     
     # Disable physics replication to avoid conflicts with MultiAssetSpawnerCfg
     replicate_physics: bool = False
-    # Terrain
-    terrain = TerrainImporterCfg(
+    # Keep the scene independent of the remote Isaac Sim content server.  The
+    # default plane TerrainImporter loads default_environment.usd from Nucleus,
+    # which makes headless training fail whenever that URL is unavailable.
+    # A static local cuboid has the same z=0 support surface and material
+    # contract without changing task geometry or environment origins.
+    terrain = None
+    ground = AssetBaseCfg(
         prim_path="/World/ground",
-        terrain_type="plane",  # optional: "plane", "usd", "generator"
+        init_state=AssetBaseCfg.InitialStateCfg(pos=(0.0, 0.0, -0.01)),
         collision_group=-1,
-        physics_material=sim_utils.RigidBodyMaterialCfg(
-            friction_combine_mode="multiply",
-            restitution_combine_mode="multiply",
-            static_friction=1.0,
-            dynamic_friction=1.0,
-            restitution=0.0,
+        spawn=sim_utils.CuboidCfg(
+            size=(160.0, 160.0, 0.02),
+            collision_props=sim_utils.CollisionPropertiesCfg(),
+            physics_material=sim_utils.RigidBodyMaterialCfg(
+                friction_combine_mode="multiply",
+                restitution_combine_mode="multiply",
+                static_friction=1.0,
+                dynamic_friction=1.0,
+                restitution=0.0,
+            ),
+            visual_material=sim_utils.PreviewSurfaceCfg(
+                diffuse_color=(0.5, 0.5, 0.5)
+            ),
         ),
-        visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.5, 0.5, 0.5)),
-        debug_vis=False,
     )
     # Lights
     light = AssetBaseCfg(
@@ -271,9 +331,7 @@ class NonPrehensileSceneCfg(InteractiveSceneCfg):
         init_state=ArticulationCfg.InitialStateCfg(
             joint_pos=custom_joint_init
         ),
-        spawn=FRANKA_PANDA_HIGH_PD_CFG.spawn.replace(
-            activate_contact_sensors=True
-        )
+        spawn=_local_franka_spawn_cfg(),
     )
     # end-effector sensor: will be populated by agent env cfg
     ee_frame = FrameTransformerCfg(
@@ -330,12 +388,36 @@ class CommandsCfg:
 @configclass
 class RelativeJointPositionActionsCfg:
     """Relative (delta) joint position action specifications for the MDP."""
-    # Relative joint position control: q_target = q_current + scaled_action
-    arm_action = RelativeJointPositionActionCfg(
+    # Latch q_target once per policy step instead of accumulating the same
+    # delta over every physics substep in the decimation loop.
+    arm_action = mdp.LatchedRelativeJointPositionActionCfg(
         asset_name="robot",
         joint_names=["panda_joint.*"],
         scale=0.1,
         use_zero_offset=True,
+        raw_action_clip=1.0,
+        joint_limit_margin=0.01,
+    )
+
+
+@configclass
+class CartesianDeltaPoseActionsCfg:
+    """DyWA-style bounded relative end-effector pose action."""
+
+    arm_action = mdp.ClippedDifferentialInverseKinematicsActionCfg(
+        asset_name="robot",
+        joint_names=["panda_joint.*"],
+        body_name="panda_hand",
+        body_offset=mdp.ClippedDifferentialInverseKinematicsActionCfg.OffsetCfg(
+            pos=(0.0, 0.0, 0.1034),
+        ),
+        controller=DifferentialIKControllerCfg(
+            command_type="pose",
+            use_relative_mode=True,
+            ik_method="dls",
+        ),
+        scale=(0.06, 0.06, 0.06, 0.10, 0.10, 0.10),
+        raw_action_clip=1.0,
     )
 
 @configclass

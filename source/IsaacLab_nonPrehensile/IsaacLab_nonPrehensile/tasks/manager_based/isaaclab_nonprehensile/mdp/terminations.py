@@ -151,7 +151,15 @@ def clutter_object_dropped_off_table(
     target: RigidObject = env.scene[target_cfg.name]
     obstacles: RigidObjectCollection = env.scene[obstacles_cfg.name]
     target_dropped = target.data.root_pos_w[:, 2] < minimum_height
-    obstacle_dropped = torch.any(
-        obstacles.data.object_pos_w[..., 2] < minimum_height, dim=1
+    active_obstacle_count = int(
+        getattr(env, "_clutter_active_obstacle_count", obstacles.num_objects)
     )
+    if active_obstacle_count == 0:
+        obstacle_dropped = torch.zeros_like(target_dropped)
+    else:
+        obstacle_dropped = torch.any(
+            obstacles.data.object_pos_w[:, :active_obstacle_count, 2]
+            < minimum_height,
+            dim=1,
+        )
     return target_dropped | obstacle_dropped

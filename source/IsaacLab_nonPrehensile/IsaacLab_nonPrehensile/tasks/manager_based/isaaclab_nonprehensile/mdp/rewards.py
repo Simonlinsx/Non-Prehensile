@@ -13,7 +13,11 @@ from isaaclab.managers import SceneEntityCfg, ManagerTermBase, RewardTermCfg
 from isaaclab.sensors import FrameTransformer
 from isaaclab.utils.math import combine_frame_transforms
 
-from dapl.metrics import planar_pose_success
+from dapl.metrics import (
+    dapl_combined_pose_error,
+    dapl_tanh_proximity_reward,
+    planar_pose_success,
+)
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
@@ -39,7 +43,9 @@ def object_ee_distance_tanh(
     object_ee_distance_right = torch.norm(obj_pos_w - ee_right, dim=1)
     object_ee_distance = torch.minimum(object_ee_distance_left, object_ee_distance_right)
 
-    return 1 - torch.tanh(object_ee_distance / std)
+    return dapl_tanh_proximity_reward(
+        object_ee_distance, standard_deviation=std
+    )
 
 
 def object_goal_distance_tanh(
@@ -79,9 +85,11 @@ def object_goal_distance_tanh(
     dot_product = torch.clamp(torch.abs(dot_product), max=1.0)
     ang_distance = 2 * torch.acos(dot_product)
     ang_distance = torch.clamp(ang_distance, max=torch.pi)
-    pos_distance += ang_distance / 5
+    pose_distance = dapl_combined_pose_error(pos_distance, ang_distance)
 
-    return obj_ee_dist_cond * (1 - torch.tanh(pos_distance / std))
+    return obj_ee_dist_cond * dapl_tanh_proximity_reward(
+        pose_distance, standard_deviation=std
+    )
 
 def joint_power_penalty(
     env: ManagerBasedRLEnv,

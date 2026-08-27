@@ -15,6 +15,7 @@ from isaaclab.managers import ObservationTermCfg as ObsTerm
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
+from isaaclab.sensors import ContactSensorCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.noise import GaussianNoiseCfg
 
@@ -42,6 +43,12 @@ class Clutter6DSceneCfg(NonPrehensileSceneCfg):
     object: RigidObjectCfg | None = None
     target: RigidObjectCfg | None = None
     obstacles: RigidObjectCollectionCfg | None = None
+    # Optional filtered contact reporters used by the affordance-teacher
+    # tasks.  Keeping them disabled in the base clutter task avoids changing
+    # the DAPL reproduction contract or its simulator cost.
+    robot_target_contacts: ContactSensorCfg | None = None
+    robot_obstacle_contacts: ContactSensorCfg | None = None
+    target_obstacle_contacts: ContactSensorCfg | None = None
 
 
 @configclass
@@ -175,6 +182,9 @@ class Clutter6DEventCfg:
             "obstacles_cfg": SceneEntityCfg("obstacles"),
         },
     )
+    # Enabled only by task profiles that explicitly reproduce DyWA's
+    # published Franka joint-box initialization.
+    reset_robot_joints = None
 
 
 @configclass
@@ -270,7 +280,12 @@ class Clutter6DEnvCfg(NonPrehensileEnvCfg):
     clutter_asset_source: str = "dgn"
     clutter_asset_root: str | None = None
     clutter_scenes: tuple[ClutterScene, ...] = ()
+    clutter_scene_offset: int = 0
     enable_world_model_observation: bool = True
+    activate_clutter_contact_sensors: bool = False
+    # Fixed blockers remain visible, collidable and observed, while avoiding
+    # unintended zero-action motion from mesh/support-pose discrepancies.
+    kinematic_active_obstacles: bool = False
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -302,9 +317,19 @@ class Clutter6DEnvCfg(NonPrehensileEnvCfg):
                 )
             root = os.environ.get(root_variable)
         scenes = tuple(load_scene_manifest(manifest_path))
+        offset_override = os.environ.get("DAPL_CLUTTER_SCENE_OFFSET")
+        if offset_override is not None:
+            self.clutter_scene_offset = int(offset_override)
+        if self.clutter_scene_offset < 0:
+            raise ValueError("clutter_scene_offset must be non-negative")
+        if scenes:
+            self.clutter_scene_offset %= len(scenes)
         target, obstacles = build_clutter_rigid_assets(
             scenes,
             resolver=manifest_asset_resolver(source, root=root),
+            active_obstacle_count=getattr(self, "active_obstacle_count", None),
+            kinematic_active_obstacles=self.kinematic_active_obstacles,
+            activate_contact_sensors=self.activate_clutter_contact_sensors,
         )
         self.scene.target = target
         self.scene.obstacles = obstacles

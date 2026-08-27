@@ -98,11 +98,16 @@ python scripts/smoke_clutter6d.py --headless --num_envs 8 --steps 8
 This fixture validates implementation plumbing only; it is not the released
 Clutter6D benchmark split.
 
-An additional `Isaac-AffordanceClutter6D-Franka-v0` task imports DOMINO/
-RoboTwin tool assets and maps their sparse contact/functional annotations to
-safe-contact and protected-functional point regions. See
+The four-stage affordance hammer curriculum imports DOMINO/RoboTwin tool assets
+and maps their sparse contact/functional annotations to safe-contact and
+protected-functional point regions. Its policy jointly encodes per-point
+`[x,y,z,safe,protected]`, obstacle geometry, and robot/goal state; the default
+runner uses 1,024 environments and includes a three-seed workflow. See
 [the DOMINO affordance integration](docs/DOMINO_AFFORDANCE.md) for asset
 conversion, manifest generation, constraints, and the approximation boundary.
+The frozen single-hammer result, exact three-seed acceptance table, and
+reproduction commands are summarized in
+[the accepted C1 snapshot](docs/C1_ACCEPTED_SNAPSHOT.md).
 
 Before downloading assets, the Isaac Lab environment and training pipeline can
 be tested with a bundled procedural cube. This mode is intentionally opt-in and

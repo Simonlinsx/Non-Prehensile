@@ -10,6 +10,7 @@ from .actor_critic_recurrent import ActorCriticRecurrent
 from .actor_critic_pointnet import ActorCriticPointNet
 from .actor_critic_icp import ActorCriticICP
 from .actor_critic_dapl import ActorCriticDAPL
+from .actor_critic_affordance import ActorCriticAffordance
 from .normalizer import EmpiricalNormalization
 from .rnd import RandomNetworkDistillation
 from .student_teacher import StudentTeacher
@@ -21,6 +22,7 @@ __all__ = [
     "ActorCriticPointNet",
     "ActorCriticICP",
     "ActorCriticDAPL",
+    "ActorCriticAffordance",
     "EmpiricalNormalization",
     "RandomNetworkDistillation",
     "StudentTeacher",

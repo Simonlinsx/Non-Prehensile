@@ -26,6 +26,21 @@ parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
 parser.add_argument("--max_iterations", type=int, default=None, help="RL Policy training iterations.")
 parser.add_argument(
+    "--save_interval",
+    type=int,
+    default=None,
+    help="Override the runner checkpoint interval in learning iterations.",
+)
+parser.add_argument(
+    "--weights_only",
+    action="store_true",
+    default=False,
+    help=(
+        "Restore model weights with a fresh optimizer for an "
+        "architecture-compatible curriculum transfer."
+    ),
+)
+parser.add_argument(
     "--distributed", action="store_true", default=False, help="Run training with multiple GPUs or nodes."
 )
 # append RSL-RL cli arguments
@@ -116,6 +131,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     agent_cfg.max_iterations = (
         args_cli.max_iterations if args_cli.max_iterations is not None else agent_cfg.max_iterations
     )
+    if args_cli.save_interval is not None:
+        if args_cli.save_interval <= 0:
+            raise ValueError("--save_interval must be positive")
+        agent_cfg.save_interval = args_cli.save_interval
 
     # set the environment seed
     # note: certain randomizations occur in the environment initialization so we set the seed here
@@ -153,7 +172,15 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # save resume path before creating a new log_dir
     if agent_cfg.resume or agent_cfg.algorithm.class_name == "Distillation":
-        resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
+        # Curriculum stages may live under different experiment directories.
+        # Accepting an explicit checkpoint path avoids copying or symlinking
+        # model files solely to satisfy the run-directory resolver.
+        if agent_cfg.load_checkpoint and os.path.isfile(agent_cfg.load_checkpoint):
+            resume_path = os.path.abspath(agent_cfg.load_checkpoint)
+        else:
+            resume_path = get_checkpoint_path(
+                log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint
+            )
 
     # wrap for video recording
     if args_cli.video:
@@ -169,6 +196,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # wrap around environment for rsl-rl
     env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
+    if "obstacles" in env.unwrapped.scene.keys():
+        print(
+            "[INFO] Clutter contract after initial reset: "
+            f"configured_active_obstacles={getattr(env.unwrapped.cfg, 'active_obstacle_count', None)} "
+            f"runtime_active_obstacles={getattr(env.unwrapped, '_clutter_active_obstacle_count', None)} "
+            f"spawned_obstacles={env.unwrapped.scene['obstacles'].num_objects}"
+        )
 
     # create runner from rsl-rl
     runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=log_dir, device=agent_cfg.device)
@@ -178,7 +212,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     if agent_cfg.resume or agent_cfg.algorithm.class_name == "Distillation":
         print(f"[INFO]: Loading model checkpoint from: {resume_path}")
         # load previously trained model
-        runner.load(resume_path)
+        runner.load(resume_path, load_optimizer=not args_cli.weights_only)
 
     # dump the configuration into log-directory
     dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)
