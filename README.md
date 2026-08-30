@@ -1,25 +1,132 @@
-## Project Overview
+# Affordance-Aware Non-Prehensile Manipulation
 
-This repository is the development codebase for reproducing [DAPL](https://pku-epic.github.io/DAPL/) (Dynamics-Aware Policy Learning) in Isaac Lab. It now contains both the legacy single-object task and a runnable manifest-backed `Isaac-Clutter6D-Franka-v0` integration task. The latter spawns one target plus multiple obstacles, applies the paper's task/reward contract, and exposes a separate `[B, 1280, 7]` physical-scene observation for world-model development.
+This repository develops safety-aware non-prehensile manipulation of tools in
+Isaac Lab.  The current frozen result is **C1**: a Franka must place a DOMINO
+hammer while contacting only its safe handle region.  The functional hammer
+head and claw are protected.
 
-The existing baseline borrows components from [DyWA](https://pku-epic.github.io/DyWA/). The paper-aligned physical world model, transition collector, streaming trainer, full-split evaluator, and frozen-encoder cross-attention actor-critic are implemented and smoke-tested. This should still not be confused with a complete DAPL reproduction: full policy training, the iterative curriculum, official benchmark assets/scenes, and the sim2real student remain in progress. See [the DAPL development status](docs/DAPL_DEVELOPMENT.md) for the exact contract and roadmap.
+The accepted source snapshot is tagged `c1-accepted-v30`.  The exact protocol,
+checkpoint provenance, and limitations are recorded in
+[the accepted C1 snapshot](docs/C1_ACCEPTED_SNAPSHOT.md).  Later clutter,
+C2/C3, 360-degree, world-model, and RGB-D student experiments are research
+work in progress and are not part of the accepted claim.
 
-**Demo (preview)**:
+## Current result: C1
 
-![Training video preview](asset/video.gif)
+### Task and safety contract
 
-[Download / view the full video](asset/video.mp4)
+- Target: DOMINO `020_hammer:0`, one fixed stable support orientation.
+- Goal displacement: `6.5--9.5 cm`, with planar direction in
+  `[-45 deg, +45 deg]`.
+- Initial target XY: `x=0.46--0.50 m`, `y=-0.015--0.015 m`.
+- Goal yaw delta: zero in the accepted split.  Full SO(3) is still checked, so
+  tipping or rotating the hammer away from its support pose fails.
+- Success: XY error `< 2 cm`, height error `< 1 cm`, full SO(3) error
+  `< 0.1 rad`, held for five policy steps.
+- C1: the hand may contact only the semantic safe region; hand contact with
+  neutral/protected target points or proximal-arm physical contact invalidates
+  the entire episode.
+- Active clutter: none.  C2 and C3 are explicitly outside this release.
 
-## Possible Extensions
+The actor jointly encodes 512 target points as
+`[x,y,z,safe,protected]`, an inactive 512-point obstacle block, robot/hand
+state, previous action, relative goal, and noisy target twist.  Exact dynamics
+parameters are critic-only.  The accepted controller uses seven-dimensional
+relative joint actions; this is a privileged oracle-affordance teacher, not the
+RGB-D student.
 
-This codebase is intended as a flexible template for contact-rich non-prehensile manipulation.  
-On top of this implementation, it should be straightforward to:
+### Frozen deterministic evaluation
 
-- Reproduce several recent non-prehensile manipulation papers based on this CORN-style pipeline (specific papers to be listed here).
-- Swap in alternative point-cloud encoders (e.g., PointNet, Point Transformer, MAE-style encoders) while reusing the same Isaac Lab task, reward, and evaluation pipeline.
-- Prototype new RL / IL algorithms that operate on the same observation and command interface.
+Evaluation assigns exactly one terminal episode to each of 128 disjoint
+manifest scenes.  It does not repeatedly count fast-resetting easy scenes.
 
-We plan to add concrete pointers to specific papers and corresponding configuration files in future updates.
+| Seed | Checkpoint | Constrained success | C1 violations |
+| ---: | :--- | ---: | ---: |
+| 17 | v30 `model_359.pt` | 127/128 (99.22%) | 0/128 |
+| 23 | v29 `model_498.pt` | 121/128 (94.53%) | 0/128 |
+| 41 | v29 `model_498.pt` | 125/128 (97.66%) | 0/128 |
+| **Total** | selected set | **373/384 (97.14%)** | **0/384** |
+
+Legal safe-region contact occurs in 383/384 episodes.  These checkpoints are
+short curriculum continuations of direction-competent policies; the table is
+not a claim that all three selected policies were learned in one uninterrupted
+run from random weights.
+
+### Reproduce the C1 evaluation
+
+Install Isaac Sim 5.0 and Isaac Lab 2.2.0, install this repository in editable
+mode, then provide the external DOMINO and DAPL hand-point assets:
+
+```bash
+python -m pip install -e source/IsaacLab_nonPrehensile
+
+export DOMINO_ROOT=/absolute/path/to/DOMINO
+export DOMINO_USD_ROOT=$PWD/data/domino_usd
+export DAPL_HAND_POINTS=/absolute/path/to/DAPL-dataset/embodiments/pc_npy_cache/hand_merged.npy
+
+PYTHONPATH=source/IsaacLab_nonPrehensile \
+python scripts/prepare_domino_affordance_assets.py --headless \
+  --manifest data/manifests/teacher_direction_curriculum_v10/hammer_teacher_dir45_eval128_seed9833.jsonl
+```
+
+Checkpoints are generated artifacts and are not committed to Git.  With one of
+the selected checkpoints available locally, run:
+
+```bash
+OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 \
+PROFILE=c1_frozenv7_goalwrench_dir45 \
+CHECKPOINT=/absolute/path/to/model_359.pt \
+NUM_ENVS=128 NUM_EPISODES=128 SEED=17 \
+bash scripts/evaluate_affordance_teacher.sh
+```
+
+Generate close-up videos with a translucent cyan goal and green/red semantic
+overlays using:
+
+```bash
+OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 \
+CHECKPOINT=/absolute/path/to/model_359.pt \
+OUTPUT_ROOT=outputs/teacher_demos/c1_accepted_randomized \
+bash scripts/render_c1_randomized_demos.sh
+```
+
+Training and evaluation outputs belong under ignored `logs/` and `outputs/`
+directories.  Do not commit machine-local paths, converted USD assets,
+checkpoints, W&B state, videos, or OptiX caches.
+
+## Status and roadmap
+
+| Component | Status |
+| --- | --- |
+| Oracle DOMINO safe/protected annotation | Implemented and audited |
+| Single-hammer C1 teacher | Accepted, three seeds |
+| C1 with physical clutter and wider directions | Experimental; not accepted |
+| C2 clutter-to-protected safety | Experimental; not accepted |
+| C3 robot-to-clutter avoidance | Experimental; not accepted |
+| RGB-D affordance predictor and deployable student | Planned |
+| DAPL-style dynamics model | Implemented and smoke-tested; not in C1 |
+
+The intended next stages are C1 with clutter, C2 protected-part swept-volume
+safety, C3 whole-arm obstacle avoidance, and finally an RGB-D student trained
+from the oracle teacher.  Geometric success and C1/C2/C3 constrained success
+must always be reported separately.
+
+## Broader DAPL development
+
+The repository also contains development code for reproducing
+[DAPL](https://pku-epic.github.io/DAPL/) and components adapted from
+[DyWA](https://pku-epic.github.io/DyWA/).  The physical world model, transition
+collector, streaming trainer, evaluator, and frozen-encoder policy are
+implemented and smoke-tested.  This is not yet a complete DAPL reproduction:
+full policy training, the iterative curriculum, official benchmark splits,
+and sim-to-real student remain in progress.  See
+[the DAPL development status](docs/DAPL_DEVELOPMENT.md).
+
+Legacy baseline preview:
+
+![Legacy training video preview](asset/video.gif)
+
+[Download / view the legacy full video](asset/video.mp4)
 
 
 ## Repository Structure
@@ -319,9 +426,13 @@ python scripts/random_agent.py --task=Isaac-nonPrehensile-Franka-v0
 
 
 
-## Training Results
+## Legacy upstream baseline results
 
-**Training video** — Demonstrates the learned policy performing non-prehensile manipulation:
+The media and hardware/runtime statement below belong to the original
+non-affordance baseline.  They are retained for upstream compatibility and are
+not evidence for the accepted C1 result reported at the top of this README.
+
+**Training video** — Demonstrates the legacy policy performing non-prehensile manipulation:
 
 [Download / view the full video](asset/video.mp4)
 

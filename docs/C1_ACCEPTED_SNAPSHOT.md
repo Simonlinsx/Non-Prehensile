@@ -9,8 +9,10 @@ retains the full experimental history and rejected ablations.
 - Target: one DOMINO `020_hammer:0` on a fixed support face.
 - Goal: strict planar translation, height, and full SO(3) placement with a
   five-policy-step dwell.
-- Randomization: initial target XY/yaw, goal displacement/direction/yaw,
-  friction, and held-out manifest scenes.
+- Randomization: initial target XY, goal displacement/direction, friction, and
+  held-out manifest scenes.  The accepted split keeps one stable support
+  orientation and has zero relative goal yaw; full SO(3) is therefore a
+  stability constraint rather than an independently randomized yaw objective.
 - No active clutter.  C2 and C3 code is experimental and has no accepted claim
   in this snapshot.
 
@@ -20,6 +22,11 @@ manifest is
 `data/manifests/teacher_direction_curriculum_v10/hammer_teacher_dir45_eval128_seed9833.jsonl`.
 Evaluation uses one first terminal episode from each of 128 environments; it
 must not repeatedly count fast-resetting easy environments.
+
+The checked-in train/eval manifests use initial `x=0.46--0.50 m`, initial
+`y=-0.015--0.015 m`, goal displacement `0.065--0.095 m`, and direction
+`-45--+45 deg`.  These measured manifest bounds, rather than a broader planned
+distribution, define the accepted claim.
 
 ## Policy and safety contract
 
@@ -33,6 +40,10 @@ The actor observation has 4,141 recoverable values:
 The critic additionally receives five exact dynamics scalars and is discarded
 at deployment.  Simulator contacts, exact mass/friction, future state, and
 reward-only route variables are not actor inputs.
+
+The accepted controller outputs seven relative Franka joint-position actions.
+Later six-dimensional Cartesian-control experiments are not checkpoint-
+compatible with this frozen snapshot and are not part of the accepted result.
 
 C1 is an episode violation if the hand contacts a non-safe target region or a
 proximal Franka link physically contacts the target.  The dense soft term is a
@@ -56,6 +67,18 @@ Acceptance requires, for every seed, at least 85% constrained success, at most
 Legal safe-region contact occurs in 383/384 episodes.  These numbers are C1
 evidence only; they do not imply clutter, C2, C3, perception, or sim-to-real
 performance.
+
+The selected local checkpoint SHA-256 digests are:
+
+| Seed | SHA-256 |
+|---:|:---|
+| 17 | `1df2e13f7a9b7457eafe0fc0fe005c09e946ea2652eddc67d61f94753332268e` |
+| 23 | `00f02714c31d57d3308a9e03781833a6a7dd498f5c62eba75a0db4e351610095` |
+| 41 | `acc025fca5d78856188486df86cef249f600347556617a74f6d9f2e3aa5e8666` |
+
+The checkpoint binaries remain ignored generated artifacts; the digests make
+an externally distributed copy verifiable without embedding machine-local
+training directories in Git.
 
 ## Reproduction entry points
 

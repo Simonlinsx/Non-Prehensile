@@ -79,6 +79,7 @@ tests/
 .isaac-lab-docker-history
 
 nv_shadercache/
+/optix7cache.db*
 out.out
 assets/source/
 *.bin
