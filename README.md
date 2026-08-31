@@ -90,6 +90,30 @@ OUTPUT_ROOT=outputs/teacher_demos/c1_accepted_randomized \
 bash scripts/render_c1_randomized_demos.sh
 ```
 
+## Contact-planner branch (M1)
+
+The alternative VLM/perception + motion-planning route now has an M1 oracle
+contact planner.  It explicitly samples contacts on the safe handle, separates
+surface approach from push direction, solves Pinocchio IK, rejects unsafe
+swept paths, performs short event-triggered pushes, and replans from observed
+state.  No RL checkpoint is used.
+
+Algorithmically this is **semantic contact sampling with receding-horizon
+execution**, between the Sampling and SCSP rows of our method comparison.  It
+is not yet full SCSP/CI-MPC: the current one-step translation/yaw proxy is not
+reliable enough for accepted simultaneous XY+yaw convergence.  Contact/IK/C1
+are the M1 claims; full-pose robustness, clutter, C2, C3, and RGB-D perception
+remain later milestones.  See the exact interface, defaults, evidence, and
+commands in [Contact Planner M1](docs/CONTACT_PLANNER_M1.md).
+
+```bash
+OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 NUM_ENVS=8 \
+  bash scripts/run_contact_planner_m1.sh
+
+OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 VIDEO=1 \
+  bash scripts/run_contact_planner_m1.sh
+```
+
 Training and evaluation outputs belong under ignored `logs/` and `outputs/`
 directories.  Do not commit machine-local paths, converted USD assets,
 checkpoints, W&B state, videos, or OptiX caches.
