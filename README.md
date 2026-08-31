@@ -90,7 +90,7 @@ OUTPUT_ROOT=outputs/teacher_demos/c1_accepted_randomized \
 bash scripts/render_c1_randomized_demos.sh
 ```
 
-## Contact-planner branch (M1)
+## Contact-planner branch (M1/M2)
 
 The alternative VLM/perception + motion-planning route now has an M1 oracle
 contact planner.  It explicitly samples contacts on the safe handle, separates
@@ -106,12 +106,22 @@ are the M1 claims; full-pose robustness, clutter, C2, C3, and RGB-D perception
 remain later milestones.  See the exact interface, defaults, evidence, and
 commands in [Contact Planner M1](docs/CONTACT_PLANNER_M1.md).
 
+An experimental M2 now ranks contact-direction-distance candidates with
+restored Isaac physics rollouts and a short shooting horizon.  Its C1 safety
+checks pass, but strict simultaneous XY+orientation success is **not yet
+accepted**; current evidence points to the straight-push primitive rather than
+another scalar scoring problem.  See [Contact Planner M2](docs/CONTACT_PLANNER_M2.md)
+for exact negative results and the contact-trajectory optimization next step.
+
 ```bash
 OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 NUM_ENVS=8 \
   bash scripts/run_contact_planner_m1.sh
 
 OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 VIDEO=1 \
   bash scripts/run_contact_planner_m1.sh
+
+OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 NUM_ENVS=1 \
+  bash scripts/run_contact_planner_m2.sh
 ```
 
 Training and evaluation outputs belong under ignored `logs/` and `outputs/`

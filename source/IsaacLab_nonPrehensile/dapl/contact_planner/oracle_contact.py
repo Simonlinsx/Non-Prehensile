@@ -29,6 +29,7 @@ class OracleContactPlannerConfig:
     contact_penetration_m: float = 0.0
     minimum_push_distance_m: float = 0.008
     maximum_push_distance_m: float = 0.015
+    push_distance_samples: int = 1
     push_overshoot_m: float = 0.004
     translation_efficiency: float = 0.35
     rotation_efficiency: float = 0.40
@@ -47,6 +48,7 @@ class OracleContactPlannerConfig:
     yaw_weight_m_per_rad: float = 2.00
     direction_deviation_weight_m_per_rad: float = 0.10
     hand_yaw_deviation_weight_m_per_rad: float = 0.03
+    moment_arm_neutral_band_m: float = 0.002
 
     def __post_init__(self) -> None:
         if not 0.0 <= self.safe_threshold <= 1.0:
@@ -68,6 +70,8 @@ class OracleContactPlannerConfig:
                 raise ValueError(f"{name} must be positive")
         if self.contact_penetration_m < 0.0:
             raise ValueError("contact_penetration_m must be non-negative")
+        if self.moment_arm_neutral_band_m < 0.0:
+            raise ValueError("moment_arm_neutral_band_m must be non-negative")
         if self.support_clearance_m < 0.0:
             raise ValueError("support_clearance_m must be non-negative")
         if self.minimum_push_distance_m > self.maximum_push_distance_m:
@@ -76,6 +80,7 @@ class OracleContactPlannerConfig:
             "safe_point_candidates",
             "hand_point_candidates",
             "push_direction_samples",
+            "push_distance_samples",
             "hand_yaw_samples",
             "path_samples",
             "output_candidates",
@@ -84,8 +89,8 @@ class OracleContactPlannerConfig:
                 raise ValueError(f"{name} must be positive")
         if self.path_samples < 2:
             raise ValueError("path_samples must be at least two")
-        if self.push_direction_span_deg < 0.0 or self.push_direction_span_deg > 90.0:
-            raise ValueError("push_direction_span_deg must be in [0, 90]")
+        if self.push_direction_span_deg < 0.0 or self.push_direction_span_deg > 180.0:
+            raise ValueError("push_direction_span_deg must be in [0, 180]")
         if self.hand_yaw_span_deg < 0.0 or self.hand_yaw_span_deg > 180.0:
             raise ValueError("hand_yaw_span_deg must be in [0, 180]")
 
@@ -523,6 +528,8 @@ class OracleSafeContactPlanner:
                                 candidate_index
                             ],
                             "approach_clearance": approach_clearance,
+                            "push_distance": push_distance[env_id],
+                            "distance_index": 0,
                             "predicted_planar_error": predicted_planar_error[
                                 candidate_index
                             ],
@@ -531,11 +538,98 @@ class OracleSafeContactPlanner:
                         }
                     )
 
+            if cfg.push_distance_samples > 1 and kept:
+                maximum_distance = float(push_distance[env_id].item())
+                if maximum_distance > cfg.minimum_push_distance_m + 1.0e-8:
+                    distance_variants = torch.linspace(
+                        cfg.minimum_push_distance_m,
+                        maximum_distance,
+                        cfg.push_distance_samples,
+                        device=device,
+                        dtype=dtype,
+                    )
+                    expanded: list[dict[str, object]] = []
+                    for candidate in kept:
+                        geometry_score = (
+                            float(candidate["score"])
+                            - cfg.goal_weight
+                            * float(candidate["predicted_planar_error"])
+                            - cfg.yaw_weight_m_per_rad
+                            * float(candidate["predicted_yaw_error"])
+                        )
+                        direction = candidate["direction"]
+                        moment_arm = candidate["moment_arm"]
+                        for distance_index, distance in enumerate(
+                            distance_variants
+                        ):
+                            predicted_translation_delta = (
+                                cfg.translation_efficiency
+                                * distance
+                                * direction[:2]
+                            )
+                            predicted_planar_error = torch.linalg.vector_norm(
+                                goal_delta[env_id, :2]
+                                - predicted_translation_delta
+                            )
+                            predicted_yaw_delta = (
+                                cfg.rotation_efficiency
+                                * distance
+                                * moment_arm
+                                / planar_gyration_sq
+                            )
+                            predicted_yaw_error = torch.abs(
+                                yaw_error[env_id] - predicted_yaw_delta
+                            )
+                            variant = dict(candidate)
+                            variant["distance_index"] = distance_index
+                            variant["push_distance"] = distance
+                            variant["predicted_planar_error"] = (
+                                predicted_planar_error
+                            )
+                            variant["predicted_yaw_error"] = predicted_yaw_error
+                            variant["score"] = float(
+                                geometry_score
+                                + cfg.goal_weight * predicted_planar_error
+                                + cfg.yaw_weight_m_per_rad
+                                * predicted_yaw_error
+                            )
+                            expanded.append(variant)
+                    kept = expanded
+
             kept.sort(key=lambda item: float(item["score"]))
-            # Preserve contact-mode diversity.  Without this pass the top-K
-            # can be eight nearly identical hand samples from one direction,
-            # leaving downstream IK no meaningful fallback when that approach
-            # is blocked by the current arm configuration.
+            # Preserve both force-direction and torque-mode diversity.
+            # Physics can disagree with the analytic moment-arm sign, so
+            # downstream rollout ranking must receive positive, near-zero,
+            # and negative torque hypotheses instead of a top-K containing
+            # only the analytically preferred sign.
+            def moment_bin(candidate: dict[str, object]) -> int:
+                moment = float(candidate["moment_arm"])
+                if moment < -cfg.moment_arm_neutral_band_m:
+                    return -1
+                if moment > cfg.moment_arm_neutral_band_m:
+                    return 1
+                return 0
+
+            best_per_moment: list[dict[str, object]] = []
+            seen_moments: set[int] = set()
+            for candidate in kept:
+                bin_id = moment_bin(candidate)
+                if bin_id in seen_moments:
+                    continue
+                seen_moments.add(bin_id)
+                best_per_moment.append(candidate)
+
+            best_per_distance: list[dict[str, object]] = []
+            seen_distances: set[int] = set()
+            for candidate in kept:
+                distance_index = int(candidate["distance_index"])
+                if distance_index in seen_distances:
+                    continue
+                seen_distances.add(distance_index)
+                best_per_distance.append(candidate)
+
+            # Without direction diversity, the top-K can still be many hand
+            # samples for one push axis, leaving IK no useful fallback.
             best_per_direction: list[dict[str, object]] = []
             seen_directions: set[int] = set()
             for candidate in kept:
@@ -544,8 +638,22 @@ class OracleSafeContactPlanner:
                     continue
                 seen_directions.add(direction_index)
                 best_per_direction.append(candidate)
-            best_per_direction.sort(key=lambda item: float(item["score"]))
-            selected = best_per_direction[: cfg.output_candidates]
+            selected: list[dict[str, object]] = []
+            seeded_ids: set[int] = set()
+            # Torque and push magnitude are the primary physics hypotheses;
+            # reserve their representatives before spending the remaining
+            # budget on force-direction diversity.
+            for group in (best_per_moment, best_per_distance, best_per_direction):
+                group.sort(key=lambda item: float(item["score"]))
+                for candidate in group:
+                    if id(candidate) in seeded_ids:
+                        continue
+                    selected.append(candidate)
+                    seeded_ids.add(id(candidate))
+                    if len(selected) >= cfg.output_candidates:
+                        break
+                if len(selected) >= cfg.output_candidates:
+                    break
             selected_ids = {id(candidate) for candidate in selected}
             for candidate in kept:
                 if len(selected) >= cfg.output_candidates:
@@ -559,9 +667,10 @@ class OracleSafeContactPlanner:
                 output.valid[env_id, rank] = True
                 output.contact_tcp[env_id, rank] = candidate["contact_tcp"]
                 output.precontact_tcp[env_id, rank] = candidate["precontact_tcp"]
+                candidate_push_distance = candidate["push_distance"]
                 output.push_tcp[env_id, rank] = (
                     candidate["contact_tcp"]
-                    + push_distance[env_id] * candidate["direction"]
+                    + candidate_push_distance * candidate["direction"]
                 )
                 output.push_direction[env_id, rank] = candidate["direction"]
                 output.approach_direction[env_id, rank] = candidate[
@@ -571,7 +680,7 @@ class OracleSafeContactPlanner:
                     "hand_yaw_offset"
                 ]
                 output.hand_rotation[env_id, rank] = candidate["rotation"]
-                output.push_distance[env_id, rank] = push_distance[env_id]
+                output.push_distance[env_id, rank] = candidate_push_distance
                 output.score[env_id, rank] = candidate["score"]
                 output.target_point_index[env_id, rank] = candidate["target_index"]
                 output.contact_point[env_id, rank] = candidate["contact_point"]

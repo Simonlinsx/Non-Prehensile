@@ -152,6 +152,23 @@ def test_short_horizon_push_is_bounded_and_predictive() -> None:
     assert candidates.predicted_planar_error[0, 0].item() == pytest.approx(0.056)
 
 
+def test_planner_preserves_multiple_push_distance_hypotheses() -> None:
+    cfg = OracleContactPlannerConfig(
+        minimum_push_distance_m=0.004,
+        maximum_push_distance_m=0.012,
+        push_distance_samples=4,
+        translation_efficiency=0.8,
+        push_overshoot_m=0.0,
+        output_candidates=32,
+    )
+    candidates = OracleSafeContactPlanner(cfg).plan(_scene(yaw_error=0.1))
+    distances = candidates.push_distance[0, candidates.valid[0]]
+    unique_distances = torch.unique(torch.round(distances * 1.0e6) / 1.0e6)
+    assert unique_distances.numel() == 4
+    assert unique_distances.min().item() == pytest.approx(0.004)
+    assert unique_distances.max().item() == pytest.approx(0.012)
+
+
 def test_yaw_error_selects_contact_with_correct_moment_sign() -> None:
     positive = OracleSafeContactPlanner().plan(_scene(yaw_error=0.15))
     negative = OracleSafeContactPlanner().plan(_scene(yaw_error=-0.15))
@@ -159,6 +176,35 @@ def test_yaw_error_selects_contact_with_correct_moment_sign() -> None:
     assert negative.contact_moment_arm[0, 0] < 0.0
     assert positive.predicted_yaw_error[0, 0] < 0.15
     assert negative.predicted_yaw_error[0, 0] < 0.15
+
+
+def test_output_preserves_positive_neutral_and_negative_torque_modes() -> None:
+    cfg = OracleContactPlannerConfig(
+        output_candidates=16, moment_arm_neutral_band_m=0.002
+    )
+    candidates = OracleSafeContactPlanner(cfg).plan(_scene(yaw_error=0.15))
+    moment = candidates.contact_moment_arm[0, candidates.valid[0]]
+    assert torch.any(moment < -cfg.moment_arm_neutral_band_m)
+    assert torch.any(torch.abs(moment) <= cfg.moment_arm_neutral_band_m)
+    assert torch.any(moment > cfg.moment_arm_neutral_band_m)
+
+
+def test_planner_supports_full_circle_push_direction_search() -> None:
+    cfg = OracleContactPlannerConfig(
+        push_direction_samples=13,
+        push_direction_span_deg=180.0,
+        output_candidates=16,
+    )
+    candidates = OracleSafeContactPlanner(cfg).plan(_scene(yaw_error=0.15))
+    directions = candidates.push_direction[0, candidates.valid[0], :2]
+    assert bool(candidates.any_valid[0])
+    assert torch.any(directions[:, 0] > 0.9)
+    assert torch.any(directions[:, 0] < -0.9)
+
+
+def test_planner_rejects_direction_search_over_full_circle() -> None:
+    with pytest.raises(ValueError, match="push_direction_span_deg"):
+        OracleContactPlannerConfig(push_direction_span_deg=181.0)
 
 
 def test_scene_validation_rejects_invalid_probabilities() -> None:

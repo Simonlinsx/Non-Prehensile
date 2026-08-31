@@ -14,7 +14,7 @@ import argparse
 import json
 import math
 import traceback
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from isaaclab.app import AppLauncher
@@ -44,6 +44,8 @@ parser.add_argument("--ik-position-tolerance-m", type=float, default=0.0015)
 parser.add_argument("--ik-rotation-tolerance-rad", type=float, default=0.015)
 parser.add_argument("--path-samples", type=int, default=11)
 parser.add_argument("--output-candidates", type=int, default=16)
+parser.add_argument("--push-direction-samples", type=int, default=7)
+parser.add_argument("--push-direction-span-deg", type=float, default=60.0)
 parser.add_argument("--hand-yaw-samples", type=int, default=5)
 parser.add_argument("--hand-yaw-span-deg", type=float, default=60.0)
 parser.add_argument("--contact-distance-m", type=float, default=0.010)
@@ -55,6 +57,7 @@ parser.add_argument("--precontact-standoff-m", type=float, default=0.050)
 parser.add_argument("--contact-penetration-m", type=float, default=0.0)
 parser.add_argument("--minimum-push-distance-m", type=float, default=0.008)
 parser.add_argument("--maximum-push-distance-m", type=float, default=0.015)
+parser.add_argument("--push-distance-samples", type=int, default=1)
 parser.add_argument("--translation-efficiency", type=float, default=0.35)
 parser.add_argument("--rotation-efficiency", type=float, default=0.40)
 parser.add_argument("--adaptive-dynamics-alpha", type=float, default=0.0)
@@ -62,6 +65,24 @@ parser.add_argument("--yaw-weight-m-per-rad", type=float, default=2.00)
 parser.add_argument("--inside-yaw-weight-m-per-rad", type=float, default=0.35)
 parser.add_argument("--predicted-yaw-guard-rad", type=float, default=0.09)
 parser.add_argument("--yaw-guard-penalty-m-per-rad", type=float, default=10.0)
+parser.add_argument(
+    "--physics-rollout-candidates",
+    type=int,
+    default=0,
+    help=(
+        "Evaluate this many executable contacts through restored Isaac "
+        "rollouts before each real push; zero preserves the M1 analytic ranker."
+    ),
+)
+parser.add_argument("--rollout-predicate-violation-weight", type=float, default=1.0)
+parser.add_argument("--rollout-mean-ratio-weight", type=float, default=0.25)
+parser.add_argument("--rollout-minimum-cost-improvement", type=float, default=0.02)
+parser.add_argument(
+    "--rollout-lookahead-steps", type=int, choices=(1, 2), default=1
+)
+parser.add_argument("--rollout-lookahead-intermediate-weight", type=float, default=0.25)
+parser.add_argument("--rollout-restore-position-tolerance-m", type=float, default=1e-5)
+parser.add_argument("--rollout-restore-rotation-tolerance-rad", type=float, default=1e-4)
 parser.add_argument("--output", type=Path, required=True)
 parser.add_argument(
     "--video",
@@ -129,6 +150,10 @@ from dapl.contact_planner import (
     OracleContactPlannerConfig,
     OraclePlanningScene,
     OracleSafeContactPlanner,
+    PhysicsRolloutScoringConfig,
+    joint_threshold_cost,
+    rank_physics_rollout_pairs,
+    rank_physics_rollouts,
 )
 from dapl.contact_planner.isaac_visualization import (
     M1MarkerUpdateWrapper,
@@ -147,6 +172,22 @@ FRANKA_URDF = str(
     / "controllers/config/data/lula_franka_gen.urdf"
 )
 PANDA_HAND_TO_TCP_M = 0.1034
+
+
+@dataclass
+class ExecutableCandidatePlan:
+    """A semantic/IK-valid macro-action awaiting analytic or physics ranking."""
+
+    candidate_rank: int
+    q_precontact: np.ndarray
+    q_contact: np.ndarray
+    q_push: np.ndarray
+    q_retreat: np.ndarray
+    bridge: tuple[pin.SE3, np.ndarray, np.ndarray]
+    raw_yaw_response: float
+    push_direction_xy: np.ndarray
+    push_distance_m: float
+    diagnostic: dict[str, object]
 
 
 def _never_terminate(env) -> torch.Tensor:
@@ -456,6 +497,42 @@ def _preflight_candidate(
     return valid, values
 
 
+def _quaternion_distance(
+    first: torch.Tensor, second: torch.Tensor
+) -> torch.Tensor:
+    """Sign-invariant quaternion geodesic without ``acos(1-eps)`` noise."""
+
+    first = torch.nn.functional.normalize(first, dim=-1)
+    second = torch.nn.functional.normalize(second, dim=-1)
+    chord = torch.minimum(
+        torch.linalg.vector_norm(first - second, dim=-1),
+        torch.linalg.vector_norm(first + second, dim=-1),
+    )
+    return 2.0 * torch.asin(torch.clamp(0.5 * chord, max=1.0))
+
+
+def _quaternion_multiply(first: torch.Tensor, second: torch.Tensor) -> torch.Tensor:
+    """Hamilton product for Isaac Lab ``wxyz`` quaternions."""
+
+    w1, x1, y1, z1 = first.unbind(dim=-1)
+    w2, x2, y2, z2 = second.unbind(dim=-1)
+    return torch.stack(
+        (
+            w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
+            w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
+            w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
+            w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
+        ),
+        dim=-1,
+    )
+
+
+def _quaternion_conjugate(quaternion: torch.Tensor) -> torch.Tensor:
+    result = quaternion.clone()
+    result[..., 1:] = -result[..., 1:]
+    return result
+
+
 def _pose_errors(base) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     target = base.scene["target"]
     goal = base.command_manager.get_command("target_object_pose")
@@ -463,8 +540,7 @@ def _pose_errors(base) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     delta = goal[:, :3] - position
     planar = torch.linalg.vector_norm(delta[:, :2], dim=1)
     height = torch.abs(delta[:, 2])
-    quaternion_dot = torch.sum(target.data.root_quat_w * goal[:, 3:7], dim=1)
-    rotation = 2.0 * torch.acos(torch.clamp(torch.abs(quaternion_dot), max=1.0))
+    rotation = _quaternion_distance(target.data.root_quat_w, goal[:, 3:7])
     return planar, height, rotation
 
 
@@ -510,6 +586,24 @@ def main() -> None:
         raise ValueError("--video requires --num-envs 1")
     if args_cli.video_length < 0:
         raise ValueError("--video-length must be non-negative")
+    if args_cli.physics_rollout_candidates < 0:
+        raise ValueError("--physics-rollout-candidates must be non-negative")
+    if args_cli.physics_rollout_candidates > args_cli.output_candidates:
+        raise ValueError(
+            "--physics-rollout-candidates cannot exceed --output-candidates"
+        )
+    if args_cli.physics_rollout_candidates > 0 and args_cli.video:
+        raise ValueError(
+            "physics rollout and video cannot share one environment; run the "
+            "quantitative rollout evaluator first and replay selected actions later"
+        )
+    if (
+        args_cli.rollout_restore_position_tolerance_m <= 0.0
+        or args_cli.rollout_restore_rotation_tolerance_rad <= 0.0
+    ):
+        raise ValueError("rollout restore tolerances must be positive")
+    if args_cli.rollout_lookahead_intermediate_weight < 0.0:
+        raise ValueError("rollout lookahead intermediate weight must be non-negative")
     if (
         args_cli.inside_yaw_weight_m_per_rad < 0.0
         or args_cli.predicted_yaw_guard_rad <= 0.0
@@ -526,15 +620,25 @@ def main() -> None:
         contact_penetration_m=args_cli.contact_penetration_m,
         minimum_push_distance_m=args_cli.minimum_push_distance_m,
         maximum_push_distance_m=args_cli.maximum_push_distance_m,
+        push_distance_samples=args_cli.push_distance_samples,
         translation_efficiency=args_cli.translation_efficiency,
         rotation_efficiency=args_cli.rotation_efficiency,
         yaw_weight_m_per_rad=args_cli.yaw_weight_m_per_rad,
         path_samples=args_cli.path_samples,
         output_candidates=args_cli.output_candidates,
+        push_direction_samples=args_cli.push_direction_samples,
+        push_direction_span_deg=args_cli.push_direction_span_deg,
         hand_yaw_samples=args_cli.hand_yaw_samples,
         hand_yaw_span_deg=args_cli.hand_yaw_span_deg,
     )
     planner = OracleSafeContactPlanner(planner_cfg)
+    rollout_scoring_cfg = PhysicsRolloutScoringConfig(
+        predicate_violation_weight=(
+            args_cli.rollout_predicate_violation_weight
+        ),
+        mean_ratio_weight=args_cli.rollout_mean_ratio_weight,
+        minimum_cost_improvement=args_cli.rollout_minimum_cost_improvement,
+    )
     ik = FrankaEndpointIK(args_cli.ik_max_evaluations)
 
     env_cfg = parse_env_cfg(
@@ -705,6 +809,16 @@ def main() -> None:
             minimum_planar_error, torch.inf
         )
         minimum_safe_distance = torch.full_like(minimum_planar_error, torch.inf)
+        rollout_candidate_evaluations = torch.zeros_like(dwell)
+        rollout_legal_evaluations = torch.zeros_like(dwell)
+        rollout_selected_actions = torch.zeros_like(dwell)
+        rollout_transition_position_error_sum = torch.zeros_like(
+            minimum_planar_error
+        )
+        rollout_transition_rotation_error_sum = torch.zeros_like(
+            minimum_planar_error
+        )
+        rollout_transition_comparisons = torch.zeros_like(dwell)
         plan_diagnostics: list[list[dict[str, object]]] = [
             [] for _ in range(base.num_envs)
         ]
@@ -914,6 +1028,219 @@ def main() -> None:
                 forbidden_distance_at_gate,
             )
 
+        def restore_rollout_snapshot(
+            snapshot: dict,
+            expected_joint_position: torch.Tensor,
+            expected_target_pose: torch.Tensor,
+        ) -> tuple[float, float, float]:
+            """Restore simulator state and verify that the reset is lossless."""
+
+            base.scene.reset()
+            base.scene.reset_to(snapshot, is_relative=False)
+            base.sim.forward()
+            base.scene.update(0.0)
+            # ``InteractiveScene`` snapshots do not include manager-owned
+            # controller buffers.  The latched relative action term must be
+            # synchronized with the restored joints before another rollout.
+            base.action_manager.reset()
+            restored_joint_position = robot.data.joint_pos[:, joint_ids]
+            restored_target_pose = base.scene["target"].data.root_pose_w
+            joint_error = float(
+                torch.max(
+                    torch.abs(restored_joint_position - expected_joint_position)
+                ).item()
+            )
+            position_error = float(
+                torch.max(
+                    torch.linalg.vector_norm(
+                        restored_target_pose[:, :3] - expected_target_pose[:, :3],
+                        dim=1,
+                    )
+                ).item()
+            )
+            rotation_error = float(
+                torch.max(
+                    _quaternion_distance(
+                        restored_target_pose[:, 3:7],
+                        expected_target_pose[:, 3:7],
+                    )
+                ).item()
+            )
+            if (
+                joint_error > args_cli.rollout_restore_position_tolerance_m
+                or position_error > args_cli.rollout_restore_position_tolerance_m
+                or rotation_error
+                > args_cli.rollout_restore_rotation_tolerance_rad
+            ):
+                raise RuntimeError(
+                    "physics rollout restore exceeded tolerance: "
+                    f"joint={joint_error:.3e} rad, "
+                    f"position={position_error:.3e} m, "
+                    f"rotation={rotation_error:.3e} rad"
+                )
+            return joint_error, position_error, rotation_error
+
+        def rollout_contact_state() -> dict[str, torch.Tensor]:
+            return mdp.domino_affordance_contact_state(
+                base,
+                contact_distance_m=args_cli.contact_distance_m,
+                evaluate_protected=False,
+            )
+
+        def execute_rollout_phase(
+            q_start: torch.Tensor,
+            q_end: torch.Tensor,
+            steps: int,
+            enabled: torch.Tensor,
+            c1_violation: torch.Tensor,
+            *,
+            endpoint_hold_steps: int = 0,
+        ) -> None:
+            """Execute a shadow phase without touching official M1 metrics."""
+
+            for phase_step in range(steps + endpoint_hold_steps):
+                if phase_step < steps:
+                    alpha = (phase_step + 1) / steps
+                    alpha = alpha * alpha * (3.0 - 2.0 * alpha)
+                    desired_endpoint = q_start + alpha * (q_end - q_start)
+                else:
+                    desired_endpoint = q_end
+                current = robot.data.joint_pos[:, joint_ids]
+                moving = enabled & ~c1_violation
+                desired = torch.where(moving[:, None], desired_endpoint, current)
+                action = torch.clamp(
+                    args_cli.servo_gain * (desired - current) / action_scale,
+                    min=-1.0,
+                    max=1.0,
+                )
+                env.step(action)
+                state = rollout_contact_state()
+                c1_violation.logical_or_(
+                    enabled & state["forbidden_robot_contact"]
+                )
+
+        def execute_rollout_until_contact(
+            q_start: torch.Tensor,
+            q_end: torch.Tensor,
+            enabled: torch.Tensor,
+            c1_violation: torch.Tensor,
+        ) -> tuple[torch.Tensor, torch.Tensor]:
+            """Latch the first strict legal contact during a shadow rollout."""
+
+            contact_latched = torch.zeros_like(enabled)
+            q_at_contact = robot.data.joint_pos[:, joint_ids].clone()
+            total_steps = args_cli.contact_steps + args_cli.endpoint_hold_steps
+            for contact_step in range(total_steps):
+                if contact_step < args_cli.contact_steps:
+                    alpha = (contact_step + 1) / args_cli.contact_steps
+                    alpha = alpha * alpha * (3.0 - 2.0 * alpha)
+                    desired_endpoint = q_start + alpha * (q_end - q_start)
+                else:
+                    desired_endpoint = q_end
+                current = robot.data.joint_pos[:, joint_ids]
+                moving = enabled & ~contact_latched & ~c1_violation
+                desired = torch.where(moving[:, None], desired_endpoint, current)
+                action = torch.clamp(
+                    args_cli.servo_gain * (desired - current) / action_scale,
+                    min=-1.0,
+                    max=1.0,
+                )
+                env.step(action)
+                state = rollout_contact_state()
+                c1_violation.logical_or_(
+                    enabled & state["forbidden_robot_contact"]
+                )
+                legal_now = (
+                    enabled
+                    & state["legal_safe_robot_contact"]
+                    & ~c1_violation
+                )
+                newly_latched = legal_now & ~contact_latched
+                if bool(newly_latched.any()):
+                    q_at_contact[newly_latched] = robot.data.joint_pos[
+                        newly_latched
+                    ][:, joint_ids]
+                    contact_latched.logical_or_(newly_latched)
+                if bool(
+                    (
+                        ~enabled
+                        | contact_latched
+                        | c1_violation
+                    ).all()
+                ):
+                    break
+            return contact_latched, q_at_contact
+
+        def execute_physics_rollout(
+            *,
+            q_start: torch.Tensor,
+            q_precontact: torch.Tensor,
+            q_contact: torch.Tensor,
+            q_push: torch.Tensor,
+            q_retreat: torch.Tensor,
+            enabled: torch.Tensor,
+        ) -> dict[str, torch.Tensor]:
+            """Run one candidate macro-action and measure its true outcome."""
+
+            c1_violation = torch.zeros_like(enabled)
+            execute_rollout_phase(
+                q_start,
+                q_precontact,
+                args_cli.approach_steps,
+                enabled,
+                c1_violation,
+                endpoint_hold_steps=args_cli.endpoint_hold_steps,
+            )
+            contact_ready, q_contact_actual = execute_rollout_until_contact(
+                q_precontact,
+                q_contact,
+                enabled,
+                c1_violation,
+            )
+            execute_rollout_phase(
+                q_contact_actual,
+                q_push,
+                args_cli.push_steps,
+                contact_ready,
+                c1_violation,
+            )
+            retreat_start = torch.where(
+                contact_ready[:, None], q_push, q_contact_actual
+            )
+            retreat_target = torch.where(
+                contact_ready[:, None], q_retreat, q_precontact
+            )
+            execute_rollout_phase(
+                retreat_start,
+                retreat_target,
+                args_cli.retreat_steps,
+                enabled,
+                c1_violation,
+            )
+            for _ in range(args_cli.inter_push_settle_steps):
+                env.step(zero_action)
+                state = rollout_contact_state()
+                c1_violation.logical_or_(
+                    enabled & state["forbidden_robot_contact"]
+                )
+            planar, height, rotation = _pose_errors(base)
+            target_pose = torch.cat(
+                (
+                    base.scene["target"].data.root_pos_w[:, :3]
+                    - base.scene.env_origins,
+                    base.scene["target"].data.root_quat_w,
+                ),
+                dim=1,
+            ).clone()
+            return {
+                "contact_ready": contact_ready,
+                "c1_violation": c1_violation,
+                "planar_error": planar.clone(),
+                "height_error": height.clone(),
+                "rotation_error": rotation.clone(),
+                "target_pose": target_pose,
+            }
+
         for replan_index in range(args_cli.max_replans):
             active = ~success & ~forbidden_contact_ever & ~exhausted
             if not bool(active.any()):
@@ -978,6 +1305,19 @@ def main() -> None:
             bridges: list[tuple[pin.SE3, np.ndarray, np.ndarray] | None] = [
                 None for _ in range(base.num_envs)
             ]
+            executable_options: list[list[ExecutableCandidatePlan]] = [
+                [] for _ in range(base.num_envs)
+            ]
+            selected_rollout_target_pose = torch.full(
+                (base.num_envs, 7),
+                torch.nan,
+                device=base.device,
+                dtype=target_position.dtype,
+            )
+            selected_rollout_score = torch.full(
+                (base.num_envs,), torch.inf, device=base.device
+            )
+            option_limit = max(args_cli.physics_rollout_candidates, 1)
 
             for env_id in torch.nonzero(active, as_tuple=False).flatten().tolist():
                 q_current_np = current_q[env_id].detach().cpu().numpy()
@@ -1009,7 +1349,6 @@ def main() -> None:
                 )
                 hand_local_np = local_hand[env_id].detach().cpu().numpy()
                 candidate_attempts = 0
-                selected = False
                 adaptive_scores: dict[int, float] = {}
                 for candidate_rank in range(candidates.valid.shape[1]):
                     if not bool(candidates.valid[env_id, candidate_rank]):
@@ -1070,7 +1409,62 @@ def main() -> None:
                         + 0.05
                         * float(candidates.score[env_id, candidate_rank].item())
                     )
-                rank_order = sorted(adaptive_scores, key=adaptive_scores.get)
+                analytic_rank_order = sorted(
+                    adaptive_scores, key=adaptive_scores.get
+                )
+                if args_cli.physics_rollout_candidates > 0:
+                    moment_representatives: list[int] = []
+                    for moment_bin in (-1, 0, 1):
+                        members: list[int] = []
+                        for rank in analytic_rank_order:
+                            moment = float(
+                                candidates.contact_moment_arm[
+                                    env_id, rank
+                                ].item()
+                            )
+                            candidate_bin = (
+                                -1
+                                if moment
+                                < -planner_cfg.moment_arm_neutral_band_m
+                                else (
+                                    1
+                                    if moment
+                                    > planner_cfg.moment_arm_neutral_band_m
+                                    else 0
+                                )
+                            )
+                            if candidate_bin == moment_bin:
+                                members.append(rank)
+                        if members:
+                            moment_representatives.append(
+                                min(members, key=adaptive_scores.get)
+                            )
+                    moment_representatives.sort(key=adaptive_scores.get)
+                    distance_representatives: list[int] = []
+                    seen_distances: set[float] = set()
+                    for rank in analytic_rank_order:
+                        distance_key = round(
+                            float(candidates.push_distance[env_id, rank].item()),
+                            6,
+                        )
+                        if distance_key in seen_distances:
+                            continue
+                        seen_distances.add(distance_key)
+                        distance_representatives.append(rank)
+                    representatives = list(
+                        dict.fromkeys(
+                            moment_representatives + distance_representatives
+                        )
+                    )
+                    representatives.sort(key=adaptive_scores.get)
+                    representative_set = set(representatives)
+                    rank_order = representatives + [
+                        rank
+                        for rank in analytic_rank_order
+                        if rank not in representative_set
+                    ]
+                else:
+                    rank_order = analytic_rank_order
 
                 for rank in rank_order:
                     if not bool(candidates.valid[env_id, rank]):
@@ -1136,6 +1530,9 @@ def main() -> None:
                         "hand_yaw_offset_rad": float(
                             candidates.hand_yaw_offset[env_id, rank].item()
                         ),
+                        "push_distance_m": float(
+                            candidates.push_distance[env_id, rank].item()
+                        ),
                         "predicted_yaw_error_rad": float(
                             candidates.predicted_yaw_error[env_id, rank].item()
                         ),
@@ -1188,41 +1585,42 @@ def main() -> None:
                     if not preflight_valid:
                         continue
 
-                    q_pre[env_id] = torch.as_tensor(
-                        solved[0], device=base.device, dtype=current_q.dtype
+                    diagnostic["executable_option_index"] = len(
+                        executable_options[env_id]
                     )
-                    q_contact[env_id] = torch.as_tensor(
-                        solved[1], device=base.device, dtype=current_q.dtype
+                    executable_options[env_id].append(
+                        ExecutableCandidatePlan(
+                            candidate_rank=rank,
+                            q_precontact=solved[0],
+                            q_contact=solved[1],
+                            q_push=solved[2],
+                            q_retreat=solved[3],
+                            bridge=bridge,
+                            raw_yaw_response=float(
+                                candidates.push_distance[env_id, rank].item()
+                                * candidates.contact_moment_arm[
+                                    env_id, rank
+                                ].item()
+                                / planar_gyration_sq
+                            ),
+                            push_direction_xy=(
+                                candidates.push_direction[env_id, rank, :2]
+                                .detach()
+                                .cpu()
+                                .numpy()
+                            ),
+                            push_distance_m=float(
+                                candidates.push_distance[env_id, rank].item()
+                            ),
+                            diagnostic=diagnostic,
+                        )
                     )
-                    q_push[env_id] = torch.as_tensor(
-                        solved[2], device=base.device, dtype=current_q.dtype
-                    )
-                    # Withdraw from the translated push endpoint along the
-                    # contact's outward normal.  Returning to the original
-                    # pre-contact pose would reverse the push through the
-                    # object and can create a second, unplanned impact.
-                    q_retreat[env_id] = torch.as_tensor(
-                        solved[3], device=base.device, dtype=current_q.dtype
-                    )
-                    bridges[env_id] = bridge
-                    selected_raw_yaw_response[env_id] = (
-                        candidates.push_distance[env_id, rank]
-                        * candidates.contact_moment_arm[env_id, rank]
-                        / planar_gyration_sq
-                    )
-                    selected_push_direction[env_id] = candidates.push_direction[
-                        env_id, rank, :2
-                    ]
-                    selected_push_distance[env_id] = candidates.push_distance[
-                        env_id, rank
-                    ]
-                    plan_enabled[env_id] = True
-                    selected_rank[env_id] = rank
-                    selected = True
-                    break
+                    if len(executable_options[env_id]) >= option_limit:
+                        break
 
-                ik_plan_ever[env_id] |= selected
-                if not selected:
+                has_executable = bool(executable_options[env_id])
+                ik_plan_ever[env_id] |= has_executable
+                if not has_executable:
                     exhausted[env_id] = True
                     plan_diagnostics[env_id].append(
                         {
@@ -1234,6 +1632,354 @@ def main() -> None:
                             "failure": "no_ik_and_semantic_path_valid_candidate",
                         }
                     )
+
+            def select_executable_option(
+                env_id: int, option: ExecutableCandidatePlan
+            ) -> None:
+                q_pre[env_id] = torch.as_tensor(
+                    option.q_precontact,
+                    device=base.device,
+                    dtype=current_q.dtype,
+                )
+                q_contact[env_id] = torch.as_tensor(
+                    option.q_contact,
+                    device=base.device,
+                    dtype=current_q.dtype,
+                )
+                q_push[env_id] = torch.as_tensor(
+                    option.q_push,
+                    device=base.device,
+                    dtype=current_q.dtype,
+                )
+                # Retreat outwards from the translated endpoint.  Reversing
+                # the original pre-contact path can strike the object twice.
+                q_retreat[env_id] = torch.as_tensor(
+                    option.q_retreat,
+                    device=base.device,
+                    dtype=current_q.dtype,
+                )
+                bridges[env_id] = option.bridge
+                selected_raw_yaw_response[env_id] = option.raw_yaw_response
+                selected_push_direction[env_id] = torch.as_tensor(
+                    option.push_direction_xy,
+                    device=base.device,
+                    dtype=selected_push_direction.dtype,
+                )
+                selected_push_distance[env_id] = option.push_distance_m
+                selected_rank[env_id] = option.candidate_rank
+                plan_enabled[env_id] = True
+
+            if args_cli.physics_rollout_candidates == 0:
+                for env_id in torch.nonzero(
+                    active & ~exhausted, as_tuple=False
+                ).flatten().tolist():
+                    select_executable_option(
+                        env_id, executable_options[env_id][0]
+                    )
+            else:
+                rollout_count = args_cli.physics_rollout_candidates
+                current_planar, current_height, current_rotation = _pose_errors(
+                    base
+                )
+                rollout_planar = current_planar[:, None].repeat(1, rollout_count)
+                rollout_height = current_height[:, None].repeat(1, rollout_count)
+                rollout_rotation = current_rotation[:, None].repeat(
+                    1, rollout_count
+                )
+                rollout_enabled = torch.zeros(
+                    (base.num_envs, rollout_count),
+                    device=base.device,
+                    dtype=torch.bool,
+                )
+                rollout_contact = torch.zeros_like(rollout_enabled)
+                rollout_c1 = torch.zeros_like(rollout_enabled)
+                rollout_target_pose = torch.full(
+                    (base.num_envs, rollout_count, 7),
+                    torch.nan,
+                    device=base.device,
+                    dtype=target_position.dtype,
+                )
+                snapshot = base.scene.get_state(is_relative=False)
+                expected_target_pose = base.scene["target"].data.root_pose_w.clone()
+                for option_index in range(rollout_count):
+                    enabled = torch.as_tensor(
+                        [
+                            bool(active[env_id])
+                            and option_index < len(executable_options[env_id])
+                            for env_id in range(base.num_envs)
+                        ],
+                        device=base.device,
+                        dtype=torch.bool,
+                    )
+                    if not bool(enabled.any()):
+                        continue
+                    before_restore = restore_rollout_snapshot(
+                        snapshot,
+                        current_q,
+                        expected_target_pose,
+                    )
+                    rollout_q_pre = current_q.clone()
+                    rollout_q_contact = current_q.clone()
+                    rollout_q_push = current_q.clone()
+                    rollout_q_retreat = current_q.clone()
+                    for env_id in torch.nonzero(
+                        enabled, as_tuple=False
+                    ).flatten().tolist():
+                        option = executable_options[env_id][option_index]
+                        rollout_q_pre[env_id] = torch.as_tensor(
+                            option.q_precontact,
+                            device=base.device,
+                            dtype=current_q.dtype,
+                        )
+                        rollout_q_contact[env_id] = torch.as_tensor(
+                            option.q_contact,
+                            device=base.device,
+                            dtype=current_q.dtype,
+                        )
+                        rollout_q_push[env_id] = torch.as_tensor(
+                            option.q_push,
+                            device=base.device,
+                            dtype=current_q.dtype,
+                        )
+                        rollout_q_retreat[env_id] = torch.as_tensor(
+                            option.q_retreat,
+                            device=base.device,
+                            dtype=current_q.dtype,
+                        )
+                    outcome = execute_physics_rollout(
+                        q_start=current_q,
+                        q_precontact=rollout_q_pre,
+                        q_contact=rollout_q_contact,
+                        q_push=rollout_q_push,
+                        q_retreat=rollout_q_retreat,
+                        enabled=enabled,
+                    )
+                    rollout_enabled[:, option_index] = enabled
+                    rollout_contact[:, option_index] = outcome["contact_ready"]
+                    rollout_c1[:, option_index] = outcome["c1_violation"]
+                    rollout_planar[:, option_index] = outcome["planar_error"]
+                    rollout_height[:, option_index] = outcome["height_error"]
+                    rollout_rotation[:, option_index] = outcome["rotation_error"]
+                    rollout_target_pose[:, option_index] = outcome["target_pose"]
+                    rollout_candidate_evaluations += enabled.long()
+                    rollout_legal_evaluations += (
+                        enabled
+                        & outcome["contact_ready"]
+                        & ~outcome["c1_violation"]
+                    ).long()
+                    after_restore = restore_rollout_snapshot(
+                        snapshot,
+                        current_q,
+                        expected_target_pose,
+                    )
+                    for env_id in torch.nonzero(
+                        enabled, as_tuple=False
+                    ).flatten().tolist():
+                        diagnostic = executable_options[env_id][
+                            option_index
+                        ].diagnostic
+                        diagnostic.update(
+                            {
+                                "physics_rollout_option": option_index,
+                                "physics_rollout_contact": bool(
+                                    outcome["contact_ready"][env_id].item()
+                                ),
+                                "physics_rollout_c1_violation": bool(
+                                    outcome["c1_violation"][env_id].item()
+                                ),
+                                "physics_rollout_planar_error_m": float(
+                                    outcome["planar_error"][env_id].item()
+                                ),
+                                "physics_rollout_height_error_m": float(
+                                    outcome["height_error"][env_id].item()
+                                ),
+                                "physics_rollout_rotation_error_rad": float(
+                                    outcome["rotation_error"][env_id].item()
+                                ),
+                                "restore_before_joint_error_rad": before_restore[0],
+                                "restore_before_position_error_m": before_restore[1],
+                                "restore_before_rotation_error_rad": before_restore[2],
+                                "restore_after_joint_error_rad": after_restore[0],
+                                "restore_after_position_error_m": after_restore[1],
+                                "restore_after_rotation_error_rad": after_restore[2],
+                            }
+                        )
+
+                raw_rollout_cost = joint_threshold_cost(
+                    rollout_planar,
+                    rollout_height,
+                    rollout_rotation,
+                    rollout_scoring_cfg,
+                )
+                best_option, has_improving, rollout_scores = (
+                    rank_physics_rollouts(
+                        current_planar_error=current_planar,
+                        current_height_error=current_height,
+                        current_rotation_error=current_rotation,
+                        rollout_planar_error=rollout_planar,
+                        rollout_height_error=rollout_height,
+                        rollout_rotation_error=rollout_rotation,
+                        enabled=rollout_enabled,
+                        legal_safe_contact=rollout_contact,
+                        c1_violation=rollout_c1,
+                        cfg=rollout_scoring_cfg,
+                    )
+                )
+                lookahead_first = torch.full_like(best_option, -1)
+                lookahead_second = torch.full_like(best_option, -1)
+                has_lookahead = torch.zeros_like(has_improving)
+                lookahead_scores = torch.full(
+                    (
+                        base.num_envs,
+                        rollout_count,
+                        rollout_count,
+                    ),
+                    torch.inf,
+                    device=base.device,
+                    dtype=raw_rollout_cost.dtype,
+                )
+                if args_cli.rollout_lookahead_steps == 2:
+                    current_target_pose = torch.cat(
+                        (
+                            target_position,
+                            base.scene["target"].data.root_quat_w,
+                        ),
+                        dim=1,
+                    )
+                    finite_rollout_pose = torch.where(
+                        rollout_enabled[..., None],
+                        rollout_target_pose,
+                        current_target_pose[:, None, :],
+                    )
+                    rollout_translation = finite_rollout_pose[..., :3]
+                    local_translation_effect = (
+                        rollout_translation - current_target_pose[:, None, :3]
+                    )
+                    predicted_pair_position = (
+                        rollout_translation[:, :, None, :]
+                        + local_translation_effect[:, None, :, :]
+                    )
+                    current_target_quaternion = current_target_pose[:, 3:7]
+                    local_rotation_effect = _quaternion_multiply(
+                        finite_rollout_pose[..., 3:7],
+                        _quaternion_conjugate(
+                            current_target_quaternion[:, None, :]
+                        ),
+                    )
+                    predicted_pair_quaternion = _quaternion_multiply(
+                        local_rotation_effect[:, None, :, :],
+                        finite_rollout_pose[:, :, None, 3:7],
+                    )
+                    predicted_pair_planar = torch.linalg.vector_norm(
+                        goal[:, None, None, :2]
+                        - predicted_pair_position[..., :2],
+                        dim=-1,
+                    )
+                    predicted_pair_height = torch.abs(
+                        goal[:, None, None, 2]
+                        - predicted_pair_position[..., 2]
+                    )
+                    predicted_pair_rotation = _quaternion_distance(
+                        predicted_pair_quaternion,
+                        goal[:, None, None, 3:7],
+                    )
+                    predicted_pair_cost = joint_threshold_cost(
+                        predicted_pair_planar,
+                        predicted_pair_height,
+                        predicted_pair_rotation,
+                        rollout_scoring_cfg,
+                    )
+                    current_rollout_cost = joint_threshold_cost(
+                        current_planar,
+                        current_height,
+                        current_rotation,
+                        rollout_scoring_cfg,
+                    )
+                    (
+                        lookahead_first,
+                        lookahead_second,
+                        has_lookahead,
+                        lookahead_scores,
+                    ) = rank_physics_rollout_pairs(
+                        current_cost=current_rollout_cost,
+                        one_step_cost=raw_rollout_cost,
+                        pair_cost=predicted_pair_cost,
+                        legal_safe_contact=(
+                            rollout_enabled & rollout_contact & ~rollout_c1
+                        ),
+                        minimum_cost_improvement=(
+                            rollout_scoring_cfg.minimum_cost_improvement
+                        ),
+                        intermediate_cost_weight=(
+                            args_cli.rollout_lookahead_intermediate_weight
+                        ),
+                    )
+                use_lookahead = has_lookahead
+                selected_option = torch.where(
+                    use_lookahead, lookahead_first, best_option
+                )
+                has_selection = has_improving | use_lookahead
+                print(
+                    "M2_ROLLOUT",
+                    f"replan={replan_index}",
+                    f"evaluated={int(rollout_enabled.sum().item())}",
+                    f"legal={int((rollout_enabled & rollout_contact & ~rollout_c1).sum().item())}",
+                    f"one_step={int(has_improving.sum().item())}",
+                    f"lookahead={int(use_lookahead.sum().item())}",
+                    flush=True,
+                )
+                for env_id in torch.nonzero(active, as_tuple=False).flatten().tolist():
+                    for option_index, option in enumerate(
+                        executable_options[env_id]
+                    ):
+                        option.diagnostic["physics_rollout_raw_cost"] = float(
+                            raw_rollout_cost[env_id, option_index].item()
+                        )
+                        option.diagnostic["physics_rollout_improving"] = bool(
+                            torch.isfinite(
+                                rollout_scores[env_id, option_index]
+                            ).item()
+                        )
+                    if not bool(has_selection[env_id]):
+                        exhausted[env_id] = True
+                        plan_diagnostics[env_id].append(
+                            {
+                                "replan": replan_index,
+                                "failure": (
+                                    "no_safe_physics_rollout_or_pair_improves_joint_pose"
+                                ),
+                                "physics_rollout_candidates": len(
+                                    executable_options[env_id]
+                                ),
+                            }
+                        )
+                        continue
+                    option_index = int(selected_option[env_id].item())
+                    option = executable_options[env_id][option_index]
+                    option.diagnostic["physics_rollout_selected"] = True
+                    if bool(use_lookahead[env_id]):
+                        second_index = int(lookahead_second[env_id].item())
+                        option.diagnostic.update(
+                            {
+                                "physics_rollout_lookahead_selected": True,
+                                "physics_rollout_lookahead_second_option": (
+                                    second_index
+                                ),
+                                "physics_rollout_lookahead_score": float(
+                                    lookahead_scores[
+                                        env_id, option_index, second_index
+                                    ].item()
+                                ),
+                            }
+                        )
+                    select_executable_option(env_id, option)
+                    selected_rollout_target_pose[env_id] = rollout_target_pose[
+                        env_id, option_index
+                    ]
+                    selected_rollout_score[env_id] = raw_rollout_cost[
+                        env_id, option_index
+                    ]
+                    rollout_selected_actions[env_id] += 1
 
             if (
                 video_markers is not None
@@ -1250,7 +1996,11 @@ def main() -> None:
                 )
 
             print(
-                "M1_REPLAN",
+                (
+                    "M2_REPLAN"
+                    if args_cli.physics_rollout_candidates > 0
+                    else "M1_REPLAN"
+                ),
                 f"index={replan_index}",
                 f"active={int(active.sum().item())}",
                 f"geometric={int((candidates.any_valid & active).sum().item())}",
@@ -1382,6 +2132,55 @@ def main() -> None:
                 - base.scene.env_origins
             )
             push_end_yaw_error = _signed_yaw_error(base)
+            if args_cli.physics_rollout_candidates > 0:
+                actual_target_pose = torch.cat(
+                    (
+                        push_end_target_position,
+                        base.scene["target"].data.root_quat_w,
+                    ),
+                    dim=1,
+                )
+                comparison_valid = plan_enabled & torch.isfinite(
+                    selected_rollout_target_pose
+                ).all(dim=1)
+                transition_position_error = torch.linalg.vector_norm(
+                    actual_target_pose[:, :3]
+                    - selected_rollout_target_pose[:, :3],
+                    dim=1,
+                )
+                transition_rotation_error = _quaternion_distance(
+                    actual_target_pose[:, 3:7],
+                    selected_rollout_target_pose[:, 3:7],
+                )
+                rollout_transition_position_error_sum += torch.where(
+                    comparison_valid,
+                    transition_position_error,
+                    torch.zeros_like(transition_position_error),
+                )
+                rollout_transition_rotation_error_sum += torch.where(
+                    comparison_valid,
+                    transition_rotation_error,
+                    torch.zeros_like(transition_rotation_error),
+                )
+                rollout_transition_comparisons += comparison_valid.long()
+                for env_id in torch.nonzero(
+                    comparison_valid, as_tuple=False
+                ).flatten().tolist():
+                    plan_diagnostics[env_id].append(
+                        {
+                            "replan": replan_index,
+                            "event": "physics_rollout_real_agreement",
+                            "selected_rollout_cost": float(
+                                selected_rollout_score[env_id].item()
+                            ),
+                            "target_position_error_m": float(
+                                transition_position_error[env_id].item()
+                            ),
+                            "target_rotation_error_rad": float(
+                                transition_rotation_error[env_id].item()
+                            ),
+                        }
+                    )
             observed_target_translation = (
                 push_end_target_position[:, :2]
                 - push_start_target_position[:, :2]
@@ -1486,6 +2285,31 @@ def main() -> None:
                         selected_pushes[env_id].item()
                         / max(planned_contact_attempts[env_id].item(), 1)
                     ),
+                    "physics_rollout_candidate_evaluations": int(
+                        rollout_candidate_evaluations[env_id].item()
+                    ),
+                    "physics_rollout_legal_evaluations": int(
+                        rollout_legal_evaluations[env_id].item()
+                    ),
+                    "physics_rollout_selected_actions": int(
+                        rollout_selected_actions[env_id].item()
+                    ),
+                    "physics_rollout_real_position_error_mean_m": (
+                        float(
+                            rollout_transition_position_error_sum[env_id].item()
+                            / rollout_transition_comparisons[env_id].item()
+                        )
+                        if rollout_transition_comparisons[env_id].item() > 0
+                        else None
+                    ),
+                    "physics_rollout_real_rotation_error_mean_rad": (
+                        float(
+                            rollout_transition_rotation_error_sum[env_id].item()
+                            / rollout_transition_comparisons[env_id].item()
+                        )
+                        if rollout_transition_comparisons[env_id].item() > 0
+                        else None
+                    ),
                     "safe_contact": bool(safe_contact_ever[env_id].item()),
                     "forbidden_contact": bool(forbidden_contact_ever[env_id].item()),
                     "forbidden_hand_contact": bool(
@@ -1550,10 +2374,41 @@ def main() -> None:
                 selected_pushes.sum().item()
                 / max(planned_contact_attempts.sum().item(), 1)
             ),
+            "physics_rollout_candidate_evaluations": int(
+                rollout_candidate_evaluations.sum().item()
+            ),
+            "physics_rollout_legal_evaluations": int(
+                rollout_legal_evaluations.sum().item()
+            ),
+            "physics_rollout_selected_actions": int(
+                rollout_selected_actions.sum().item()
+            ),
+            "physics_rollout_real_comparisons": int(
+                rollout_transition_comparisons.sum().item()
+            ),
+            "physics_rollout_real_position_error_mean_m": (
+                float(
+                    rollout_transition_position_error_sum.sum().item()
+                    / rollout_transition_comparisons.sum().item()
+                )
+                if rollout_transition_comparisons.sum().item() > 0
+                else None
+            ),
+            "physics_rollout_real_rotation_error_mean_rad": (
+                float(
+                    rollout_transition_rotation_error_sum.sum().item()
+                    / rollout_transition_comparisons.sum().item()
+                )
+                if rollout_transition_comparisons.sum().item() > 0
+                else None
+            ),
             "steps": global_step,
         }
+        milestone = (
+            "M2" if args_cli.physics_rollout_candidates > 0 else "M1"
+        )
         payload = {
-            "milestone": "M1",
+            "milestone": milestone,
             "scope": "single DOMINO hammer, no clutter, oracle pose and affordance",
             "task": args_cli.task,
             "seed": args_cli.seed,
@@ -1577,6 +2432,16 @@ def main() -> None:
                 "push_steps": args_cli.push_steps,
                 "retreat_steps": args_cli.retreat_steps,
                 "dwell_steps": args_cli.dwell_steps,
+                "physics_rollout_candidates": (
+                    args_cli.physics_rollout_candidates
+                ),
+                "physics_rollout_lookahead_steps": (
+                    args_cli.rollout_lookahead_steps
+                ),
+                "physics_rollout_lookahead_intermediate_weight": (
+                    args_cli.rollout_lookahead_intermediate_weight
+                ),
+                "physics_rollout_scoring": asdict(rollout_scoring_cfg),
                 "video": args_cli.video,
             },
             "summary": summary,
@@ -1588,8 +2453,12 @@ def main() -> None:
             json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n",
             encoding="utf-8",
         )
-        print("M1_SUMMARY", json.dumps(summary, sort_keys=True), flush=True)
-        print(f"M1_OUTPUT path={output_path}", flush=True)
+        print(
+            f"{milestone}_SUMMARY",
+            json.dumps(summary, sort_keys=True),
+            flush=True,
+        )
+        print(f"{milestone}_OUTPUT path={output_path}", flush=True)
     finally:
         env.close()
 
