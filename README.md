@@ -90,7 +90,7 @@ OUTPUT_ROOT=outputs/teacher_demos/c1_accepted_randomized \
 bash scripts/render_c1_randomized_demos.sh
 ```
 
-## Contact-planner branch (M1/M2)
+## Contact-planner branch (M1/M2/M3)
 
 The alternative VLM/perception + motion-planning route now has an M1 oracle
 contact planner.  It explicitly samples contacts on the safe handle, separates
@@ -112,6 +112,17 @@ checks pass, but strict simultaneous XY+orientation success is **not yet
 accepted**; current evidence points to the straight-push primitive rather than
 another scalar scoring problem.  See [Contact Planner M2](docs/CONTACT_PLANNER_M2.md)
 for exact negative results and the contact-trajectory optimization next step.
+
+M3 adopts the open-source Push Anything sampling + C3+ controller as that
+contact-trajectory backbone instead of extending M2's fixed straight-push
+family.  The upstream `dairlib`, C3, and Drake revisions are pinned; a
+conservative exporter partitions DOMINO triangles into mutually-exclusive
+safe/protected/neutral meshes, and a repository-owned upstream patch adds a
+safe-only global sampling mesh without deleting physical protected geometry.
+The real hammer export contains 2,233 safe, 2,229 protected, and 172 neutral
+faces.  C3+ has not yet been built on this host because Docker and Bazel are
+unavailable, so M3 is an integration milestone, not a success claim.  See
+[Contact Planner M3](docs/CONTACT_PLANNER_M3_C3PLUS.md).
 
 ```bash
 OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 NUM_ENVS=8 \
@@ -137,13 +148,15 @@ checkpoints, W&B state, videos, or OptiX caches.
 | C1 with physical clutter and wider directions | Experimental; not accepted |
 | C2 clutter-to-protected safety | Experimental; not accepted |
 | C3 robot-to-clutter avoidance | Experimental; not accepted |
+| Semantic C3+ planner integration | Face-semantic bridge implemented; upstream build pending |
 | RGB-D affordance predictor and deployable student | Planned |
 | DAPL-style dynamics model | Implemented and smoke-tested; not in C1 |
 
-The intended next stages are C1 with clutter, C2 protected-part swept-volume
-safety, C3 whole-arm obstacle avoidance, and finally an RGB-D student trained
-from the oracle teacher.  Geometric success and C1/C2/C3 constrained success
-must always be reported separately.
+The planning route now first reproduces Push Anything on one hammer, adds C1
+over the entire optimized contact trajectory, and only then adds C2 protected-
+part and C3 whole-arm constraints in clutter.  RGB-D affordance prediction is
+the final perception front-end.  Geometric success and C1/C2/C3 constrained
+success must always be reported separately.
 
 ## Broader DAPL development
 

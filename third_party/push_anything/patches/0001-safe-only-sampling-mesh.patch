@@ -1,0 +1,52 @@
+diff --git a/examples/sampling_c3/anything/README.md b/examples/sampling_c3/anything/README.md
+index 19df6a6..bfed0c5 100644
+--- a/examples/sampling_c3/anything/README.md
++++ b/examples/sampling_c3/anything/README.md
+@@ -87,0 +88,8 @@ When you start an experiment, `multi_rewrite` reads `base_names` and updates the
++An optional `sampling_meshes` list in
++`parameters/sampling_c3_controller_params.yaml` can override only the meshes
++used for global surface sampling.  It must have the same order and length as
++`base_names`.  The complete `object_models` are still used for dynamics and
++contact geometry.  This hook supports safe-only semantic sampling without
++removing protected/neutral geometry from the physical model.  Omitting the key
++preserves the original behavior.
++
+diff --git a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+index 4daa352..50a87cd 100644
+--- a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
++++ b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+@@ -2,0 +3,3 @@
++#include <optional>
++#include <stdexcept>
++
+@@ -30,0 +34,4 @@ struct SamplingC3ControllerParams {
++  // Optional per-object meshes used only by the global surface sampler.  The
++  // complete object_models remain unchanged for dynamics and contact.  This
++  // lets a semantic planner sample from a conservative safe-only surface.
++  std::optional<std::vector<std::string>> sampling_meshes;
+@@ -64,0 +72,7 @@ struct SamplingC3ControllerParams {
++    a->Visit(DRAKE_NVP(sampling_meshes));
++
++    if (sampling_meshes.has_value() && !sampling_meshes->empty() &&
++        sampling_meshes->size() != base_names.size()) {
++      throw std::runtime_error(
++          "sampling_meshes must be absent/empty or match base_names size");
++    }
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+index 1dce069..4ae286c 100644
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -431,4 +431,9 @@ SamplingC3Controller::SamplingC3Controller(
+-    for (std::string base_name : controller_params_.base_names) {
+-      std::string path =
+-          "examples/sampling_c3/urdf/" + base_name + "/" + base_name + ".obj";
+-      mesh_paths.push_back(path);
++    if (controller_params_.sampling_meshes.has_value() &&
++        !controller_params_.sampling_meshes->empty()) {
++      mesh_paths = controller_params_.sampling_meshes.value();
++    } else {
++      for (const std::string& base_name : controller_params_.base_names) {
++        std::string path = "examples/sampling_c3/urdf/" + base_name + "/" +
++                           base_name + ".obj";
++        mesh_paths.push_back(path);
++      }

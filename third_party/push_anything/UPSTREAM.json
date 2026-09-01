@@ -1,0 +1,15 @@
+{
+  "name": "Push Anything",
+  "dairlib_repository": "https://github.com/DAIRLab/dairlib.git",
+  "dairlib_branch": "push_anything_dev",
+  "dairlib_commit": "9d988c835d6e99330397701487fce5ce4ceafa3c",
+  "c3_repository": "https://github.com/DAIRLab/c3.git",
+  "c3_commit": "5c08cb2e14b1ab10e024cb46e8504970cffcd5ea",
+  "drake_version": "v1.51.1",
+  "container_image": "xuanhien070594/push-anything-env:latest",
+  "license": "MIT",
+  "patches": [
+    "patches/0001-safe-only-sampling-mesh.patch"
+  ],
+  "retrieved_utc": "2026-09-01"
+}

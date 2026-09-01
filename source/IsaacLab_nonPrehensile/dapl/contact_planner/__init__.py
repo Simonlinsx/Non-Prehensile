@@ -13,6 +13,12 @@ from .rollout_scoring import (
     rank_physics_rollout_pairs,
     rank_physics_rollouts,
 )
+from .semantic_mesh import (
+    FaceSemantic,
+    SemanticFacePartition,
+    partition_mesh_faces,
+    triangle_semantic_samples,
+)
 
 __all__ = [
     "OracleContactCandidateBatch",
@@ -24,4 +30,8 @@ __all__ = [
     "joint_threshold_cost",
     "rank_physics_rollout_pairs",
     "rank_physics_rollouts",
+    "FaceSemantic",
+    "SemanticFacePartition",
+    "partition_mesh_faces",
+    "triangle_semantic_samples",
 ]
