@@ -107,11 +107,36 @@ Only after this passes across randomized single-hammer scenes do C2 and C3
 enter the controller.  Pose success and semantic safety are always reported
 separately, followed by their conjunction.
 
-## Current environment limitation
+## Native build (no Docker and no Gurobi)
 
-The official upstream source is available locally, but this host currently has
-neither Docker nor Bazel.  Therefore the official C3+ simulation has not yet
-been built or reproduced here.  The public instructions use the
-`xuanhien070594/push-anything-env:latest` container; enabling a compatible
-container runtime or provisioning the pinned Drake/Bazel toolchain is a hard
-dependency for the next reproduction gate.
+Docker is not required.  C3 provides a no-Gurobi implementation of the MIQP
+class, and the `anything` example has a separate `C3+` configuration.  M3
+therefore compiles with `--define=WITH_GUROBI=OFF` and runs C3+; it does not use
+the unavailable MIQP projection at runtime.
+
+This host still needs the one-time Ubuntu/Drake build prerequisites.  They
+modify system packages and therefore must be run by a user who can enter a
+sudo password:
+
+```bash
+cd /data1/linsixu/dairlib-push-anything
+./install/install_prereqs_ubuntu.sh
+```
+
+The upstream installer pins its Drake setup from `MODULE.bazel` and installs
+Bazel plus the native libraries.  The script invokes `sudo` for its system
+package operations, so it will prompt for the user's password.  It downloads
+packages from the internet and should be reviewed before execution.  No Gurobi
+installation or license is needed for our C3+ path.
+
+Afterwards, check and build only the three binaries needed for the simulation:
+
+```bash
+cd /data1/linsixu/IsaacLab-nonPrehensile
+bash scripts/build_push_anything_native.sh --check
+bash scripts/build_push_anything_native.sh --build
+```
+
+The wrapper pins the audited upstream commit, keeps Bazel output on `/data1`,
+explicitly disables Gurobi, and avoids the much larger `bazel build ...` target.
+Keep at least roughly 30 GiB free for the pinned Drake source build.
