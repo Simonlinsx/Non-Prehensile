@@ -145,6 +145,34 @@ plus 2 mm tolerance).  The compact checked-in evidence is
 [`contact_planner_m3_c1_seed17_v47.json`](evidence/contact_planner_m3_c1_seed17_v47.json);
 the full CSV remains an ignored generated artifact.
 
+## Randomized 50-scene protocol
+
+The next robustness gate keeps the same hammer, support face, and no-clutter C1
+contract while varying the task geometry.  The checked-in manifest
+`hammer_c1_front180_eval50_seed20260901.jsonl` contains exactly 50 deterministic
+scenes:
+
+- initial X: 0.39, 0.40, or 0.41 m;
+- initial Y: 0.18 through 0.22 m in 1 cm increments;
+- goal distance: 0.06 through 0.10 m in 1 cm increments, ten scenes each;
+- goal direction: stratified across the robot-facing feasible hemisphere,
+  from -88.2 to +88.2 degrees;
+- relative goal yaw: -10, -5, 0, +5, or +10 degrees, ten scenes each;
+- independent deterministic contact-sampling seed per scene.
+
+Run the resumable evaluator with:
+
+```bash
+/usr/bin/python3 scripts/evaluate_push_anything_c1_randomized.py \
+  --manifest data/manifests/contact_planner_m3/hammer_c1_front180_eval50_seed20260901.jsonl \
+  --output-root outputs/contact_planner_m3/hammer_c1_front180_eval50_seed20260901 \
+  --tcpq-port 7730 --timeout-s 180
+```
+
+`summary.json` is rewritten after every scene.  It reports geometry, C1, and
+their conjunction separately, including four goal-direction bins.  Existing
+completed scene artifacts are reused on restart unless `--rerun` is supplied.
+
 ## Native build (no Docker and no Gurobi)
 
 Docker is not required.  C3 provides a no-Gurobi implementation of the MIQP

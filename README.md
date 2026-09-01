@@ -132,6 +132,12 @@ is a single no-clutter C1 acceptance, not yet randomized robustness or C2/C3.
 See
 [Contact Planner M3](docs/CONTACT_PLANNER_M3_C3PLUS.md).
 
+A fixed 50-scene M3 robustness manifest is also provided.  It preserves the
+same support face and no-clutter C1 contract while covering 6--10 cm goals,
+front-hemisphere directions, +/-10 degree yaw, initial XY variation, and 50
+independent sampler seeds.  The evaluator is resumable and keeps pose, C1, and
+joint success rates separate.
+
 ```bash
 OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 NUM_ENVS=8 \
   bash scripts/run_contact_planner_m1.sh

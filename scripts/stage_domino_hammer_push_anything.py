@@ -48,6 +48,12 @@ def parse_args() -> argparse.Namespace:
         default=Path("/data1/linsixu/.local/share/push-anything-python"),
     )
     parser.add_argument("--goal-distance", type=float, default=0.10)
+    parser.add_argument(
+        "--goal-direction-deg",
+        type=float,
+        default=0.0,
+        help="planar goal direction measured counter-clockwise from world +X",
+    )
     parser.add_argument("--goal-yaw-deg", type=float, default=30.0)
     parser.add_argument("--initial-x", type=float, default=0.40)
     parser.add_argument("--initial-y", type=float, default=0.20)
@@ -84,6 +90,11 @@ def parse_args() -> argparse.Namespace:
         type=float,
         default=0.055,
         help="high-rate OSC hold boundary in meters",
+    )
+    parser.add_argument(
+        "--output-manifest",
+        type=Path,
+        help="optional per-run stage manifest (default: semantic-dir)",
     )
     return parser.parse_args()
 
@@ -154,6 +165,8 @@ def main() -> None:
         raise ValueError("realtime-rate must be in (0, 1]")
     if not -180.0 <= args.goal_yaw_deg <= 180.0:
         raise ValueError("goal-yaw-deg must be in [-180, 180]")
+    if not -180.0 <= args.goal_direction_deg <= 180.0:
+        raise ValueError("goal-direction-deg must be in [-180, 180]")
     if args.semantic_guard_clearance <= 0.0:
         raise ValueError("semantic-guard-clearance must be positive")
     if args.semantic_guard_stop_distance < args.semantic_guard_clearance:
@@ -238,6 +251,9 @@ def main() -> None:
 
     half_yaw = math.radians(args.goal_yaw_deg) * 0.5
     goal_quaternion = [math.cos(half_yaw), 0.0, 0.0, math.sin(half_yaw)]
+    goal_direction_rad = math.radians(args.goal_direction_deg)
+    goal_x = args.initial_x + args.goal_distance * math.cos(goal_direction_rad)
+    goal_y = args.initial_y + args.goal_distance * math.sin(goal_direction_rad)
     sim = params / "sim_params.yaml"
     goal = params / "goal_params.yaml"
     sampling = params / "sampling_params.yaml"
@@ -259,8 +275,7 @@ def main() -> None:
     replace_yaml_line(
         goal,
         "fixed_target_positions",
-        f"[[{args.initial_x + args.goal_distance:.12g}, "
-        f"{args.initial_y:.12g}, {root_height:.12g}]]",
+        f"[[{goal_x:.12g}, {goal_y:.12g}, {root_height:.12g}]]",
     )
     replace_yaml_line(
         goal,
@@ -326,7 +341,9 @@ def main() -> None:
         "object_height_m": full_height,
         "contact_height_m": contact_height,
         "initial_xy_m": [args.initial_x, args.initial_y],
+        "goal_xy_m": [goal_x, goal_y],
         "goal_distance_m": args.goal_distance,
+        "goal_direction_deg": args.goal_direction_deg,
         "goal_yaw_deg": args.goal_yaw_deg,
         "reposition_speed_m_s": args.reposition_speed,
         "simulation_realtime_rate": args.realtime_rate,
@@ -341,7 +358,10 @@ def main() -> None:
             "state_dependent_hessian": False,
         },
     }
-    output = args.semantic_dir / "push_anything_stage_manifest.json"
+    output = args.output_manifest or (
+        args.semantic_dir / "push_anything_stage_manifest.json"
+    )
+    output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(staged_manifest, indent=2) + "\n", encoding="utf-8")
     print(output)
     print(json.dumps(staged_manifest, indent=2))
