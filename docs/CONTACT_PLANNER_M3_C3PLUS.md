@@ -173,6 +173,19 @@ Run the resumable evaluator with:
 their conjunction separately, including four goal-direction bins.  Existing
 completed scene artifacts are reused on restart unless `--rerun` is supplied.
 
+Audited trajectories can be rendered without rerunning physics:
+
+```bash
+python scripts/render_push_anything_c1_trajectory.py \
+  --run-dir outputs/contact_planner_m3/hammer_c1_front180_eval50_seed20260901/scene042 \
+  --output outputs/contact_planner_m3/videos/front180_eval50/scene042.mp4
+```
+
+This is a top-down planner replay of the recorded hammer pose, finite-radius
+EE state, goal ghost, and semantic surfaces.  It deliberately identifies
+itself as not containing the full robot; camera-view/full-arm video requires a
+new rollout with joint-state image recording.
+
 ## Native build (no Docker and no Gurobi)
 
 Docker is not required.  C3 provides a no-Gurobi implementation of the MIQP
