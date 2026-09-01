@@ -1,0 +1,13 @@
+diff --git a/core/c3_miqp_no_gurobi.cc b/core/c3_miqp_no_gurobi.cc
+index 7f14750..e015b6d 100644
+--- a/core/c3_miqp_no_gurobi.cc
++++ b/core/c3_miqp_no_gurobi.cc
+@@ -8,7 +8,7 @@ using std::vector;
+ 
+ C3MIQP::C3MIQP(const LCS& LCS, const CostMatrices& costs,
+                const vector<VectorXd>& xdesired, const C3Options& options)
+-    : C3(LCS, costs, xdesired, options), M_(options.M) {
++    : C3(LCS, costs, xdesired, options), M_(options.M.value_or(1000)) {
+   throw std::runtime_error(
+       "The Gurobi bindings were not compiled. You'll need to use a different "
+       "projection method. To compile with Gurobi, follow the instruction "

@@ -120,8 +120,10 @@ conservative exporter partitions DOMINO triangles into mutually-exclusive
 safe/protected/neutral meshes, and a repository-owned upstream patch adds a
 safe-only global sampling mesh without deleting physical protected geometry.
 The real hammer export contains 2,233 safe, 2,229 protected, and 172 neutral
-faces.  C3+ has not yet been built on this host because Docker and Bazel are
-unavailable, so M3 is an integration milestone, not a success claim.  See
+faces.  The three required Push Anything binaries now build and start through
+a fully user-local Bazel 8.4.0 toolchain, with neither Docker, sudo, nor
+Gurobi.  This validates the controller backbone but is not yet a strict-pose
+or semantic-safety success claim.  See
 [Contact Planner M3](docs/CONTACT_PLANNER_M3_C3PLUS.md).
 
 ```bash
@@ -148,7 +150,7 @@ checkpoints, W&B state, videos, or OptiX caches.
 | C1 with physical clutter and wider directions | Experimental; not accepted |
 | C2 clutter-to-protected safety | Experimental; not accepted |
 | C3 robot-to-clutter avoidance | Experimental; not accepted |
-| Semantic C3+ planner integration | Face-semantic bridge implemented; upstream build pending |
+| Semantic C3+ planner integration | Face-semantic bridge and native C3+ build verified; task reproduction pending |
 | RGB-D affordance predictor and deployable student | Planned |
 | DAPL-style dynamics model | Implemented and smoke-tested; not in C1 |
 

@@ -18,11 +18,15 @@ Apply the repository-owned integration patches to that exact checkout with:
 ```bash
 bash scripts/apply_push_anything_patches.sh \
   /data1/linsixu/dairlib-push-anything
+bash scripts/apply_c3_patches.sh \
+  /data1/linsixu/c3-push-anything
 ```
 
 The first patch adds an optional per-object `sampling_meshes` list.  It changes
 only the global candidate surface; the complete physical/contact object model
-is intentionally retained.
+is intentionally retained.  The second patch is a one-line build compatibility
+fix for C3's no-Gurobi stub: it matches the Gurobi implementation's existing
+`options.M.value_or(1000)` conversion.  The C3+ algorithm is unchanged.
 
 ## Architecture
 
@@ -114,20 +118,29 @@ class, and the `anything` example has a separate `C3+` configuration.  M3
 therefore compiles with `--define=WITH_GUROBI=OFF` and runs C3+; it does not use
 the unavailable MIQP projection at runtime.
 
-This host still needs the one-time Ubuntu/Drake build prerequisites.  They
-modify system packages and therefore must be run by a user who can enter a
-sudo password:
+The current server account has no sudo access, so M3 uses a fully user-local
+toolchain.  Bootstrap the pinned Bazelisk binary (including SHA-256
+verification) with:
 
 ```bash
-cd /data1/linsixu/dairlib-push-anything
-./install/install_prereqs_ubuntu.sh
+cd /data1/linsixu/IsaacLab-nonPrehensile
+bash scripts/bootstrap_push_anything_user.sh
 ```
 
-The upstream installer pins its Drake setup from `MODULE.bazel` and installs
-Bazel plus the native libraries.  The script invokes `sudo` for its system
-package operations, so it will prompt for the user's password.  It downloads
-packages from the internet and should be reviewed before execution.  No Gurobi
+The build wrapper puts Bazel/Bazelisk caches on `/data1` and reuses the
+OpenBLAS shared library already present in the `anydex-torch` Conda
+environment.  LCM is a Bazel module dependency and is compiled in the Bazel
+workspace; a system `liblcm-dev` package is not required.  Bazel uses its
+embedded JDK, so the host OpenJDK 11 is not part of this toolchain.  No Gurobi
 installation or license is needed for our C3+ path.
+
+The wrapper uses Bazel batch mode because the restricted execution environment
+does not permit the local gRPC socket used by Bazel's persistent server.  This
+is slower to start but does not change the compiled controller.
+
+The build also overrides the C3 module with the pinned local checkout so the
+audited no-Gurobi compatibility patch is used.  The original commit remains
+unchanged and the local diff is fully represented by the repository patch.
 
 Afterwards, check and build only the three binaries needed for the simulation:
 
@@ -138,5 +151,19 @@ bash scripts/build_push_anything_native.sh --build
 ```
 
 The wrapper pins the audited upstream commit, keeps Bazel output on `/data1`,
-explicitly disables Gurobi, and avoids the much larger `bazel build ...` target.
-Keep at least roughly 30 GiB free for the pinned Drake source build.
+adds the user-local OpenBLAS library and runtime path, explicitly disables
+Gurobi, and avoids the much larger `bazel build ...` target.  Keep at least
+roughly 30 GiB free for the pinned Drake source build.
+
+### Verified on this host
+
+On 2026-09-01, the user-local build completed all 12,587 actions for:
+
+- `//examples/sampling_c3:franka_sim`
+- `//examples/sampling_c3:franka_osc_controller`
+- `//examples/sampling_c3:franka_sampling_c3_controller`
+
+`ldd` resolves Drake, the Bazel-built LCM library, and the user-local
+OpenBLAS library.  A ten-second `franka_sim --demo_name=anything` launch check
+remained live until the intentional timeout.  This proves the native runtime
+foundation; it does not yet prove the single-hammer pose or C1 acceptance gate.
