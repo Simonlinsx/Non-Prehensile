@@ -117,13 +117,19 @@ M3 adopts the open-source Push Anything sampling + C3+ controller as that
 contact-trajectory backbone instead of extending M2's fixed straight-push
 family.  The upstream `dairlib`, C3, and Drake revisions are pinned; a
 conservative exporter partitions DOMINO triangles into mutually-exclusive
-safe/protected/neutral meshes, and a repository-owned upstream patch adds a
-safe-only global sampling mesh without deleting physical protected geometry.
-The real hammer export contains 2,233 safe, 2,229 protected, and 172 neutral
-faces.  The three required Push Anything binaries now build and start through
-a fully user-local Bazel 8.4.0 toolchain, with neither Docker, sudo, nor
-Gurobi.  This validates the controller backbone but is not yet a strict-pose
-or semantic-safety success claim.  See
+safe/protected/neutral meshes.  The integration uses an eroded safe-only
+sampling mesh, rejects unsafe predicted trajectories, invalidates stale
+contact targets after object motion, and applies a high-rate OSC semantic
+shield without deleting protected physical geometry.  The real hammer export
+contains 2,233 safe, 2,229 protected, and 172 neutral faces.
+
+The deterministic seed-17 gate now jointly passes an 8 cm + 10 degree target:
+4.12 mm final position error, 0.0346 rad final SO(3) error, 397 legal safe
+contact frames, and zero protected/neutral contact across 2,518 audited rows.
+The four required Push Anything targets build and run through a fully
+user-local Bazel 8.4.0 toolchain, with neither Docker, sudo, nor Gurobi.  This
+is a single no-clutter C1 acceptance, not yet randomized robustness or C2/C3.
+See
 [Contact Planner M3](docs/CONTACT_PLANNER_M3_C3PLUS.md).
 
 ```bash
@@ -135,6 +141,10 @@ OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 VIDEO=1 \
 
 OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 NUM_ENVS=1 \
   bash scripts/run_contact_planner_m2.sh
+
+# Native deterministic M3 pose+C1 acceptance (no Docker/sudo/Gurobi).
+PUSH_ANYTHING_TCPQ_PORT=7727 \
+  bash scripts/run_push_anything_c1_acceptance.sh
 ```
 
 Training and evaluation outputs belong under ignored `logs/` and `outputs/`
@@ -150,7 +160,7 @@ checkpoints, W&B state, videos, or OptiX caches.
 | C1 with physical clutter and wider directions | Experimental; not accepted |
 | C2 clutter-to-protected safety | Experimental; not accepted |
 | C3 robot-to-clutter avoidance | Experimental; not accepted |
-| Semantic C3+ planner integration | Face-semantic bridge and native C3+ build verified; task reproduction pending |
+| Semantic C3+ planner integration | Deterministic single-hammer pose+C1 accepted; randomization pending |
 | RGB-D affordance predictor and deployable student | Planned |
 | DAPL-style dynamics model | Implemented and smoke-tested; not in C1 |
 

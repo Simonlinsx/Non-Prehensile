@@ -9,7 +9,6 @@ C3_ROOT="${PUSH_ANYTHING_C3_ROOT:-/data1/linsixu/c3-push-anything}"
 OUTPUT_USER_ROOT="${PUSH_ANYTHING_BAZEL_ROOT:-/data1/linsixu/.cache/bazel-push-anything}"
 BAZELISK_HOME="${PUSH_ANYTHING_BAZELISK_HOME:-/data1/linsixu/.cache/bazelisk}"
 OPENBLAS_ROOT="${PUSH_ANYTHING_OPENBLAS_ROOT:-/data1/linsixu/miniconda3/envs/anydex-torch}"
-INTEGRATION_PATCH="$REPO_ROOT/third_party/push_anything/patches/0001-safe-only-sampling-mesh.patch"
 C3_PATCH="$REPO_ROOT/third_party/push_anything/patches/0002-c3-no-gurobi-optional-m.patch"
 MODE="${1:---check}"
 
@@ -43,9 +42,14 @@ if [[ "$actual_commit" != "$EXPECTED_COMMIT" ]]; then
   exit 4
 fi
 
-if ! git -C "$UPSTREAM_ROOT" apply --unidiff-zero --reverse --check \
-  "$INTEGRATION_PATCH" 2>/dev/null; then
-  echo "ERROR: semantic sampling patch is not applied; run scripts/apply_push_anything_patches.sh first." >&2
+if ! rg -q 'std::optional<std::vector<std::string>> sampling_meshes' \
+  "$UPSTREAM_ROOT/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h" || \
+   ! rg -q 'controller_params_\.sampling_meshes' \
+  "$UPSTREAM_ROOT/systems/controllers/sampling_based_c3_controller.cc" || \
+   ! rg -q 'SemanticC1TrajectoryGuard' \
+  "$UPSTREAM_ROOT/examples/sampling_c3/franka_osc_controller.cc" || \
+   [[ ! -f "$UPSTREAM_ROOT/examples/sampling_c3/monitor_push_anything_baseline.py" ]]; then
+  echo "ERROR: semantic C1 integration patch is not applied; run scripts/apply_push_anything_patches.sh first." >&2
   exit 5
 fi
 
@@ -136,6 +140,7 @@ BAZELISK_HOME="$BAZELISK_HOME" "$bazel_cmd" \
   --linkopt="-Wl,-rpath,$openblas_lib_dir" \
   //examples/sampling_c3:franka_sim \
   //examples/sampling_c3:franka_osc_controller \
-  //examples/sampling_c3:franka_sampling_c3_controller
+  //examples/sampling_c3:franka_sampling_c3_controller \
+  //examples/sampling_c3:monitor_push_anything_baseline
 
 echo "Native Push Anything C3+ targets built successfully."

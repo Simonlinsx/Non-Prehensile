@@ -1,8 +1,55 @@
+diff --git a/examples/sampling_c3/BUILD.bazel b/examples/sampling_c3/BUILD.bazel
+index a1487df..5f9abec 100644
+--- a/examples/sampling_c3/BUILD.bazel
++++ b/examples/sampling_c3/BUILD.bazel
+@@ -45,6 +45,18 @@ cc_binary(
+     ],
+ )
+ 
++cc_library(
++    name = "semantic_c1_trajectory_guard",
++    srcs = ["semantic_c1_trajectory_guard.cc"],
++    hdrs = ["semantic_c1_trajectory_guard.h"],
++    deps = [
++        "//multibody:utils",
++        "//systems/controllers:face",
++        "//systems/framework:vector",
++        "@drake//:drake_shared_library",
++    ],
++)
++
+ cc_binary(
+     name = "franka_osc_controller",
+     srcs = ["franka_osc_controller.cc"],
+@@ -54,6 +66,7 @@ cc_binary(
+         "@drake_models//:franka_description",
+     ],
+     deps = [
++        "//examples/sampling_c3:semantic_c1_trajectory_guard",
+         "//examples/sampling_c3:sampling_c3_utils",
+         "//examples/sampling_c3/parameter_headers:sampling_c3_controller_params",
+         "//examples/sampling_c3/parameter_headers:lcm_channels",
+@@ -321,3 +334,12 @@ py_binary(
+         "//lcmtypes:lcmtypes_robot_py",
+     ],
+ )
++
++py_binary(
++    name = "monitor_push_anything_baseline",
++    srcs = ["monitor_push_anything_baseline.py"],
++    deps = [
++        "//lcmtypes:lcmtypes_robot_py",
++        "@lcm//lcm-python:lcm-python",
++    ],
++)
 diff --git a/examples/sampling_c3/anything/README.md b/examples/sampling_c3/anything/README.md
 index 19df6a6..bfed0c5 100644
 --- a/examples/sampling_c3/anything/README.md
 +++ b/examples/sampling_c3/anything/README.md
-@@ -87,0 +88,8 @@ When you start an experiment, `multi_rewrite` reads `base_names` and updates the
+@@ -85,6 +85,14 @@ base_names: [G_shape_video, R_shape_texture, A_shape_video, S_shape_texture]
+ 
+ When you start an experiment, `multi_rewrite` reads `base_names` and updates the related configs automatically (object models, initial poses, goal poses, and C3+ tuning for the object count).
+ 
 +An optional `sampling_meshes` list in
 +`parameters/sampling_c3_controller_params.yaml` can override only the meshes
 +used for global surface sampling.  It must have the same order and length as
@@ -11,32 +58,1053 @@ index 19df6a6..bfed0c5 100644
 +removing protected/neutral geometry from the physical model.  Omitting the key
 +preserves the original behavior.
 +
+ ### 2. Launch procman
+ 
+ ```bash
+diff --git a/examples/sampling_c3/franka_osc_controller.cc b/examples/sampling_c3/franka_osc_controller.cc
+index c5ab2c3..81584d8 100644
+--- a/examples/sampling_c3/franka_osc_controller.cc
++++ b/examples/sampling_c3/franka_osc_controller.cc
+@@ -8,6 +8,7 @@
+ #include "examples/sampling_c3/parameter_headers/osc_params.h"
+ #include "examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h"
+ #include "examples/sampling_c3/sampling_c3_utils.h"
++#include "examples/sampling_c3/semantic_c1_trajectory_guard.h"
+ #include "lcm/lcm_trajectory.h"
+ #include "multibody/multibody_utils.h"
+ #include "systems/controllers/gravity_compensator.h"
+@@ -92,10 +93,37 @@ int DoMain(int argc, char* argv[]) {
+   plant.Finalize();
+   auto plant_context = plant.CreateDefaultContext();
+ 
++  // This plant is used only to decode object LCM states into a stable
++  // floating-base ordering for the high-rate semantic shield.
++  drake::multibody::MultibodyPlant<double> object_plant(0.0);
++  const auto object_indices = AddObjectsToPlant(
++      &object_plant, nullptr, controller_params.object_models);
++  object_plant.Finalize();
++
+   // Piece together the diagram.
+   DiagramBuilder<double> builder;
+ 
+   auto state_receiver = builder.AddSystem<systems::RobotOutputReceiver>(plant);
++  std::vector<LcmSubscriberSystem*> object_state_subscribers;
++  std::vector<systems::ObjectStateReceiver*> object_state_receivers;
++  if (controller_params.unsafe_meshes.has_value() &&
++      !controller_params.unsafe_meshes->empty()) {
++    DRAKE_DEMAND(object_indices.size() ==
++                 controller_params.unsafe_meshes->size());
++    DRAKE_DEMAND(lcm_channel_params.object_state_channels.size() ==
++                 object_indices.size());
++    for (int object_index = 0;
++         object_index < static_cast<int>(object_indices.size());
++         ++object_index) {
++      object_state_subscribers.push_back(builder.AddSystem(
++          LcmSubscriberSystem::Make<dairlib::lcmt_object_state>(
++              lcm_channel_params.object_state_channels.at(object_index),
++              &lcm)));
++      object_state_receivers.push_back(
++          builder.AddSystem<systems::ObjectStateReceiver>(
++              object_plant, object_indices.at(object_index)));
++    }
++  }
+   auto end_effector_trajectory_sub = builder.AddSystem(
+       LcmSubscriberSystem::Make<dairlib::lcmt_timestamped_saved_traj>(
+           lcm_channel_params.tracking_trajectory_actor_channel, &lcm));
+@@ -133,6 +161,18 @@ int DoMain(int argc, char* argv[]) {
+       osc_params.track_end_effector_orientation);
+   auto end_effector_force_trajectory =
+       builder.AddSystem<EndEffectorForceTrajectoryGenerator>();
++  SemanticC1TrajectoryGuard* semantic_c1_guard = nullptr;
++  if (controller_params.unsafe_meshes.has_value() &&
++      !controller_params.unsafe_meshes->empty()) {
++    const double planner_clearance =
++        controller_params.semantic_guard_clearance.value_or(0.025);
++    const double stop_distance =
++        controller_params.semantic_guard_stop_distance.value_or(
++            planner_clearance + 0.010);
++    semantic_c1_guard = builder.AddSystem<SemanticC1TrajectoryGuard>(
++        plant, plant_context.get(), kEndEffectorName,
++        controller_params.unsafe_meshes.value(), stop_distance);
++  }
+   auto radio_sub =
+       builder.AddSystem(LcmSubscriberSystem::Make<dairlib::lcmt_radio_out>(
+           lcm_channel_params.radio_channel, &lcm));
+@@ -237,6 +277,20 @@ int DoMain(int argc, char* argv[]) {
+ 
+   builder.Connect(state_receiver->get_output_port(0),
+                   osc->get_input_port_robot_output());
++  if (semantic_c1_guard != nullptr) {
++    builder.Connect(state_receiver->get_output_port(0),
++                    semantic_c1_guard->get_input_port_robot_state());
++    for (int object_index = 0;
++         object_index < static_cast<int>(object_state_receivers.size());
++         ++object_index) {
++      builder.Connect(
++          object_state_subscribers.at(object_index)->get_output_port(),
++          object_state_receivers.at(object_index)->get_input_port());
++      builder.Connect(
++          object_state_receivers.at(object_index)->get_output_port(),
++          semantic_c1_guard->get_input_port_object_state(object_index));
++    }
++  }
+   builder.Connect(end_effector_trajectory_sub->get_output_port(),
+                   end_effector_position_receiver->get_input_port_trajectory());
+   builder.Connect(end_effector_trajectory_sub->get_output_port(),
+@@ -251,15 +305,30 @@ int DoMain(int argc, char* argv[]) {
+   builder.Connect(
+       end_effector_orientation_receiver->get_output_port(0),
+       end_effector_orientation_trajectory->get_input_port_trajectory());
+-  builder.Connect(end_effector_trajectory->get_output_port(0),
+-                  osc->get_input_port_tracking_data("end_effector_target"));
+   builder.Connect(
+       end_effector_orientation_trajectory->get_output_port(0),
+       osc->get_input_port_tracking_data("end_effector_orientation_target"));
+   builder.Connect(end_effector_force_receiver->get_output_port(0),
+                   end_effector_force_trajectory->get_input_port_trajectory());
+-  builder.Connect(end_effector_force_trajectory->get_output_port(0),
+-                  osc->get_input_port_tracking_data("end_effector_force"));
++  if (semantic_c1_guard != nullptr) {
++    builder.Connect(
++        end_effector_trajectory->get_output_port(0),
++        semantic_c1_guard->get_input_port_position_trajectory());
++    builder.Connect(
++        end_effector_force_trajectory->get_output_port(0),
++        semantic_c1_guard->get_input_port_force_trajectory());
++    builder.Connect(
++        semantic_c1_guard->get_output_port_position_trajectory(),
++        osc->get_input_port_tracking_data("end_effector_target"));
++    builder.Connect(
++        semantic_c1_guard->get_output_port_force_trajectory(),
++        osc->get_input_port_tracking_data("end_effector_force"));
++  } else {
++    builder.Connect(end_effector_trajectory->get_output_port(0),
++                    osc->get_input_port_tracking_data("end_effector_target"));
++    builder.Connect(end_effector_force_trajectory->get_output_port(0),
++                    osc->get_input_port_tracking_data("end_effector_force"));
++  }
+ 
+   auto owned_diagram = builder.Build();
+   std::shared_ptr<Diagram<double>> shared_diagram = std::move(owned_diagram);
+diff --git a/examples/sampling_c3/generate_samples.cc b/examples/sampling_c3/generate_samples.cc
+index 48123f2..472ba5e 100644
+--- a/examples/sampling_c3/generate_samples.cc
++++ b/examples/sampling_c3/generate_samples.cc
+@@ -22,6 +22,23 @@ using Eigen::VectorXd;
+ namespace dairlib {
+ namespace systems {
+ 
++namespace {
++
++// Keep one reproducible stream for mesh sampling.  The upstream implementation
++// reseeded from std::random_device for every candidate, which made identical
++// evaluation runs impossible to reproduce.
++std::mt19937& GetSamplingGenerator(int seed) {
++  static thread_local int active_seed = seed;
++  static thread_local std::mt19937 generator(seed);
++  if (active_seed != seed) {
++    active_seed = seed;
++    generator.seed(seed);
++  }
++  return generator;
++}
++
++}  // namespace
++
+ // Public call for generating samples.
+ std::vector<Eigen::VectorXd> GenerateSampleStates(
+     const int& n_q, const int& n_v, const int& n_u,
+@@ -489,7 +506,7 @@ Eigen::VectorXd MeshNormalSampling(
+ 
+   do {
+     // Sample value from total selected area
+-    std::mt19937 gen(std::random_device{}());
++    std::mt19937& gen = GetSamplingGenerator(sampling_params.random_seed);
+     std::uniform_real_distribution<double> dis(0.0, total_area);
+     double target = dis(gen);
+     const Face* selected_face = nullptr;
+@@ -621,14 +638,12 @@ Eigen::VectorXd MeshNormalSamplingMultiObject(
+     }
+   }
+ 
+-  // RNG setup
+-  std::mt19937 gen(std::random_device{}());
+-  std::uniform_real_distribution<double> dis_obj(0.0, total_area_all_objects);
++  // RNG setup.  Use the configured persistent stream rather than reseeding
++  // each candidate from std::random_device.
++  std::mt19937& gen = GetSamplingGenerator(sampling_params.random_seed);
+ 
+   do {
+     // Select object weighted by total area
+-    std::random_device rd;
+-    std::mt19937 gen(rd());
+     std::uniform_int_distribution<int> dist(0, num_objects_selected - 1);
+     int selected_object_idx = dist(gen);
+ 
+diff --git a/examples/sampling_c3/monitor_push_anything_baseline.py b/examples/sampling_c3/monitor_push_anything_baseline.py
+new file mode 100644
+index 0000000..fc5c2a7
+--- /dev/null
++++ b/examples/sampling_c3/monitor_push_anything_baseline.py
+@@ -0,0 +1,274 @@
++#!/usr/bin/env python3
++"""Monitor Push Anything's online debug channel and apply a pose gate."""
++
++import argparse
++import bisect
++import csv
++import json
++import math
++import time
++from pathlib import Path
++
++import lcm
++
++from dairlib import (
++    lcmt_c3_state,
++    lcmt_sampling_c3_debug,
++    lcmt_timestamped_saved_traj,
++)
++
++
++def parse_args():
++  parser = argparse.ArgumentParser(description=__doc__)
++  parser.add_argument("--output_dir", type=Path, required=True)
++  parser.add_argument("--timeout_s", type=float, default=180.0)
++  parser.add_argument("--position_threshold_m", type=float, default=0.02)
++  parser.add_argument("--rotation_threshold_rad", type=float, default=0.10)
++  parser.add_argument("--dwell_messages", type=int, default=5)
++  parser.add_argument("--channel", default="SAMPLING_C3_DEBUG")
++  parser.add_argument("--actual_channel", default="C3_ACTUAL")
++  parser.add_argument("--sample_channel", default="SAMPLE_LOCATIONS")
++  parser.add_argument(
++      "--tracking_channel", default="TRACKING_TRAJECTORY_ACTOR")
++  parser.add_argument(
++      "--lcm_url", default="tcpq://127.0.0.1:7700")
++  return parser.parse_args()
++
++
++def main():
++  args = parse_args()
++  if args.timeout_s <= 0 or args.dwell_messages <= 0:
++    raise ValueError("timeout and dwell must be positive")
++
++  args.output_dir.mkdir(parents=True, exist_ok=True)
++  csv_path = args.output_dir / "sampling_c3_debug.csv"
++  summary_path = args.output_dir / "acceptance.json"
++  start = time.monotonic()
++  state = {
++      "messages": 0,
++      "consecutive_within_gate": 0,
++      "max_consecutive_within_gate": 0,
++      "accepted": False,
++      "first_message_s": None,
++      "accepted_at_s": None,
++      "initial_position_error_m": None,
++      "initial_rotation_error_rad": None,
++      "final_position_error_m": None,
++      "final_rotation_error_rad": None,
++      "best_position_error_m": math.inf,
++      "best_rotation_error_rad": math.inf,
++      "pose_tracking_messages": 0,
++      "c3_mode_messages": 0,
++      "final_ee_position_m": None,
++      "final_object_quaternion_wxyz": None,
++      "final_object_position_m": None,
++      "final_reposition_target_m": None,
++      "tracking_trajectory_messages": 0,
++      "max_tracking_error_m": 0.0,
++      "max_command_step_m": 0.0,
++  }
++  latest_actual = {"state": None}
++  latest_samples = {"locations": None}
++  latest_tracking = {"trajectory": None}
++  previous_command = {"position": None}
++
++  with csv_path.open("w", newline="", encoding="utf-8") as csv_file:
++    writer = csv.writer(csv_file)
++    writer.writerow([
++        "wall_time_s", "message_utime", "position_error_m",
++        "rotation_error_rad", "within_gate", "consecutive_within_gate",
++        "is_c3_mode", "in_pose_tracking_mode", "mode_switch_reason",
++        "source_of_pursued_target", "ee_x_m", "ee_y_m", "ee_z_m",
++        "object_qw", "object_qx", "object_qy", "object_qz",
++        "object_x_m", "object_y_m", "object_z_m",
++        "reposition_target_x_m", "reposition_target_y_m",
++        "reposition_target_z_m",
++        "command_x_m", "command_y_m", "command_z_m",
++        "command_start_time_s", "command_end_time_s",
++        "command_message_utime", "tracking_error_m", "command_step_m",
++    ])
++
++    def handle_actual(_channel, data):
++      msg = lcmt_c3_state.decode(data)
++      latest_actual["state"] = list(msg.state)
++
++    def handle_samples(_channel, data):
++      msg = lcmt_timestamped_saved_traj.decode(data)
++      for trajectory in msg.saved_traj.trajectories:
++        if trajectory.trajectory_name != "sample_locations":
++          continue
++        latest_samples["locations"] = [
++            [trajectory.datapoints[row][column] for row in range(3)]
++            for column in range(trajectory.num_points)
++        ]
++        break
++
++    def handle_tracking(_channel, data):
++      msg = lcmt_timestamped_saved_traj.decode(data)
++      for trajectory in msg.saved_traj.trajectories:
++        if trajectory.trajectory_name != "end_effector_position_target":
++          continue
++        if trajectory.num_points <= 0 or len(trajectory.time_vec) <= 0:
++          continue
++        latest_tracking["trajectory"] = {
++            "message_utime": int(msg.utime),
++            "times": [float(value) for value in trajectory.time_vec],
++            "points": [
++                [float(trajectory.datapoints[row][column]) for row in range(3)]
++                for column in range(trajectory.num_points)
++            ],
++        }
++        state["tracking_trajectory_messages"] += 1
++        break
++
++    def evaluate_tracking_position(query_time_s):
++      trajectory = latest_tracking["trajectory"]
++      if trajectory is None:
++        return None
++      times = trajectory["times"]
++      points = trajectory["points"]
++      if query_time_s <= times[0]:
++        return points[0]
++      if query_time_s >= times[-1]:
++        return points[-1]
++      right = bisect.bisect_right(times, query_time_s)
++      left = right - 1
++      duration = times[right] - times[left]
++      alpha = 0.0 if duration <= 0 else (query_time_s - times[left]) / duration
++      return [
++          points[left][axis] + alpha * (points[right][axis] - points[left][axis])
++          for axis in range(3)
++      ]
++
++    def handle_debug(_channel, data):
++      msg = lcmt_sampling_c3_debug.decode(data)
++      elapsed = time.monotonic() - start
++      pos = float(msg.current_pos_error)
++      rot = float(msg.current_rot_error)
++      within = (
++          math.isfinite(pos) and math.isfinite(rot)
++          and pos < args.position_threshold_m
++          and rot < args.rotation_threshold_rad)
++
++      state["messages"] += 1
++      if state["first_message_s"] is None:
++        state["first_message_s"] = elapsed
++        state["initial_position_error_m"] = pos
++        state["initial_rotation_error_rad"] = rot
++      state["final_position_error_m"] = pos
++      state["final_rotation_error_rad"] = rot
++      state["best_position_error_m"] = min(state["best_position_error_m"], pos)
++      state["best_rotation_error_rad"] = min(state["best_rotation_error_rad"], rot)
++      state["pose_tracking_messages"] += int(msg.in_pose_tracking_mode)
++      state["c3_mode_messages"] += int(msg.is_c3_mode)
++      state["consecutive_within_gate"] = (
++          state["consecutive_within_gate"] + 1 if within else 0)
++      state["max_consecutive_within_gate"] = max(
++          state["max_consecutive_within_gate"],
++          state["consecutive_within_gate"])
++      if state["consecutive_within_gate"] >= args.dwell_messages:
++        state["accepted"] = True
++        state["accepted_at_s"] = elapsed
++
++      actual = latest_actual["state"]
++      if actual is not None and len(actual) >= 10:
++        ee_position = actual[0:3]
++        object_quaternion = actual[3:7]
++        object_position = actual[7:10]
++        state["final_ee_position_m"] = ee_position
++        state["final_object_quaternion_wxyz"] = object_quaternion
++        state["final_object_position_m"] = object_position
++      else:
++        ee_position = [""] * 3
++        object_quaternion = [""] * 4
++        object_position = [""] * 3
++
++      samples = latest_samples["locations"]
++      # Index 0 is the measured EE and index 1 is the retained repositioning
++      # target.  This is the actionable target whenever the debug source is
++      # kPrevious; otherwise leave it blank instead of guessing through the
++      # controller's hysteresis and buffer logic.
++      if msg.source_of_pursued_target == 1 and samples is not None and len(samples) > 1:
++        reposition_target = samples[1]
++        state["final_reposition_target_m"] = reposition_target
++      else:
++        reposition_target = [""] * 3
++
++      trajectory = latest_tracking["trajectory"]
++      command_position = evaluate_tracking_position(float(msg.utime) / 1e6)
++      tracking_error = ""
++      command_step = ""
++      command_start_time = ""
++      command_end_time = ""
++      command_message_utime = ""
++      if trajectory is not None:
++        command_start_time = trajectory["times"][0]
++        command_end_time = trajectory["times"][-1]
++        command_message_utime = trajectory["message_utime"]
++      if command_position is not None:
++        if actual is not None and len(actual) >= 3:
++          tracking_error = math.sqrt(sum(
++              (float(actual[axis]) - command_position[axis]) ** 2
++              for axis in range(3)))
++          state["max_tracking_error_m"] = max(
++              state["max_tracking_error_m"], tracking_error)
++        if previous_command["position"] is not None:
++          command_step = math.sqrt(sum(
++              (previous_command["position"][axis] - command_position[axis]) ** 2
++              for axis in range(3)))
++          state["max_command_step_m"] = max(
++              state["max_command_step_m"], command_step)
++        previous_command["position"] = command_position
++      else:
++        command_position = [""] * 3
++
++      writer.writerow([
++          f"{elapsed:.6f}", msg.utime, f"{pos:.9f}", f"{rot:.9f}",
++          int(within), state["consecutive_within_gate"],
++          int(msg.is_c3_mode), int(msg.in_pose_tracking_mode),
++          msg.mode_switch_reason, msg.source_of_pursued_target,
++          *ee_position, *object_quaternion, *object_position,
++          *reposition_target,
++          *command_position, command_start_time, command_end_time,
++          command_message_utime, tracking_error, command_step,
++      ])
++      csv_file.flush()
++
++    lcm_handle = lcm.LCM(args.lcm_url)
++    subscriptions = [
++        lcm_handle.subscribe(args.channel, handle_debug),
++        lcm_handle.subscribe(args.actual_channel, handle_actual),
++        lcm_handle.subscribe(args.sample_channel, handle_samples),
++        lcm_handle.subscribe(args.tracking_channel, handle_tracking),
++    ]
++    try:
++      while (not state["accepted"]
++             and time.monotonic() - start < args.timeout_s):
++        lcm_handle.handle_timeout(100)
++    finally:
++      for subscription in subscriptions:
++        lcm_handle.unsubscribe(subscription)
++
++  state["elapsed_s"] = time.monotonic() - start
++  state["timed_out"] = not state["accepted"]
++  state["channel"] = args.channel
++  state["actual_channel"] = args.actual_channel
++  state["sample_channel"] = args.sample_channel
++  state["tracking_channel"] = args.tracking_channel
++  state["lcm_url"] = args.lcm_url
++  state["position_threshold_m"] = args.position_threshold_m
++  state["rotation_threshold_rad"] = args.rotation_threshold_rad
++  state["dwell_messages_required"] = args.dwell_messages
++  state["best_position_error_m"] = (
++      None if math.isinf(state["best_position_error_m"])
++      else state["best_position_error_m"])
++  state["best_rotation_error_rad"] = (
++      None if math.isinf(state["best_rotation_error_rad"])
++      else state["best_rotation_error_rad"])
++  summary_path.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
++  print(json.dumps(state, indent=2))
++  return 0 if state["accepted"] else 1
++
++
++if __name__ == "__main__":
++  raise SystemExit(main())
 diff --git a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
-index 4daa352..50a87cd 100644
+index 4daa352..7ff27de 100644
 --- a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
 +++ b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
-@@ -2,0 +3,3 @@
+@@ -1,5 +1,8 @@
+ #pragma once
+ 
 +#include <optional>
 +#include <stdexcept>
 +
-@@ -30,0 +34,4 @@ struct SamplingC3ControllerParams {
+ #include <drake/common/yaml/yaml_io.h>
+ 
+ #include "examples/sampling_c3/parameter_headers/goal_params.h"
+@@ -28,6 +31,21 @@ struct SamplingC3ControllerParams {
+ 
+   std::vector<std::string> object_models;
+   std::vector<std::string> base_names;
 +  // Optional per-object meshes used only by the global surface sampler.  The
 +  // complete object_models remain unchanged for dynamics and contact.  This
 +  // lets a semantic planner sample from a conservative safe-only surface.
 +  std::optional<std::vector<std::string>> sampling_meshes;
-@@ -64,0 +72,7 @@ struct SamplingC3ControllerParams {
++  // Optional per-object union of every surface the end effector must not
++  // touch.  Unlike sampling_meshes, these meshes are checked against the
++  // complete predicted C3 execution trajectory.
++  std::optional<std::vector<std::string>> unsafe_meshes;
++  // Minimum distance from the modeled EE center to unsafe_meshes.  For the
++  // Push Anything spherical EE this includes its physical radius and a small
++  // braking/model-error margin.
++  std::optional<double> semantic_guard_clearance;
++  // Earlier stop boundary used by the high-rate OSC shield.  This must be no
++  // smaller than semantic_guard_clearance so the robot has room to brake.
++  std::optional<double> semantic_guard_stop_distance;
+ 
+   double workspace_margin;
+   bool include_end_effector_orientation;
+@@ -62,6 +80,37 @@ struct SamplingC3ControllerParams {
+ 
+     a->Visit(DRAKE_NVP(base_names));
+     a->Visit(DRAKE_NVP(object_models));
 +    a->Visit(DRAKE_NVP(sampling_meshes));
++    a->Visit(DRAKE_NVP(unsafe_meshes));
++    a->Visit(DRAKE_NVP(semantic_guard_clearance));
++    a->Visit(DRAKE_NVP(semantic_guard_stop_distance));
 +
 +    if (sampling_meshes.has_value() && !sampling_meshes->empty() &&
 +        sampling_meshes->size() != base_names.size()) {
 +      throw std::runtime_error(
 +          "sampling_meshes must be absent/empty or match base_names size");
 +    }
++    if (unsafe_meshes.has_value() && !unsafe_meshes->empty() &&
++        unsafe_meshes->size() != base_names.size()) {
++      throw std::runtime_error(
++          "unsafe_meshes must be absent/empty or match base_names size");
++    }
++    if (semantic_guard_clearance.has_value() &&
++        semantic_guard_clearance.value() <= 0.0) {
++      throw std::runtime_error("semantic_guard_clearance must be positive");
++    }
++    if (semantic_guard_stop_distance.has_value() &&
++        semantic_guard_stop_distance.value() <= 0.0) {
++      throw std::runtime_error(
++          "semantic_guard_stop_distance must be positive");
++    }
++    if (semantic_guard_clearance.has_value() &&
++        semantic_guard_stop_distance.has_value() &&
++        semantic_guard_stop_distance.value() <
++            semantic_guard_clearance.value()) {
++      throw std::runtime_error(
++          "semantic_guard_stop_distance must be at least the clearance");
++    }
+ 
+     /// Store individual parameter classes internally.
+     sampling_c3_options =
+diff --git a/examples/sampling_c3/parameter_headers/sampling_params.h b/examples/sampling_c3/parameter_headers/sampling_params.h
+index 09f811b..961b218 100644
+--- a/examples/sampling_c3/parameter_headers/sampling_params.h
++++ b/examples/sampling_c3/parameter_headers/sampling_params.h
+@@ -32,6 +32,7 @@ struct SamplingParams {
+ 
+   /// Parameters relevant for all sampling strategies.
+   bool filter_samples_for_safety;
++  int random_seed;
+ 
+   /// Number of samples.  Add 2 for repositioning (current location, previous
+   /// repositioning target) and 1 for C3 (current location) to get total number
+@@ -88,6 +89,7 @@ struct SamplingParams {
+   void Serialize(Archive* a) {
+     ENUM_DESERIALIZE(a, sampling_strategy);
+     a->Visit(DRAKE_NVP(filter_samples_for_safety));
++    a->Visit(DRAKE_NVP(random_seed));
+     a->Visit(DRAKE_NVP(fixed_sample_locations));
+     a->Visit(DRAKE_NVP(sampling_radius));
+     a->Visit(DRAKE_NVP(min_angle_from_vertical));
+diff --git a/examples/sampling_c3/semantic_c1_trajectory_guard.cc b/examples/sampling_c3/semantic_c1_trajectory_guard.cc
+new file mode 100644
+index 0000000..6d4eda6
+--- /dev/null
++++ b/examples/sampling_c3/semantic_c1_trajectory_guard.cc
+@@ -0,0 +1,323 @@
++#include "examples/sampling_c3/semantic_c1_trajectory_guard.h"
++
++#include <algorithm>
++#include <cmath>
++#include <iostream>
++#include <limits>
++#include <stdexcept>
++
++#include <drake/geometry/proximity/obj_to_surface_mesh.h>
++#include <drake/geometry/proximity/triangle_surface_mesh.h>
++
++#include "multibody/multibody_utils.h"
++#include "systems/framework/output_vector.h"
++#include "systems/framework/state_vector.h"
++
++#include "drake/common/trajectories/piecewise_polynomial.h"
++
++namespace dairlib {
++namespace {
++
++using Eigen::Vector3d;
++using systems::Face;
++
++Vector3d ClosestPointOnTriangle(const Vector3d& p, const Face& face) {
++  const Vector3d& a = face.v[0];
++  const Vector3d& b = face.v[1];
++  const Vector3d& c = face.v[2];
++  const Vector3d ab = b - a;
++  const Vector3d ac = c - a;
++  const Vector3d ap = p - a;
++  const double d1 = ab.dot(ap);
++  const double d2 = ac.dot(ap);
++  if (d1 <= 0.0 && d2 <= 0.0) return a;
++
++  const Vector3d bp = p - b;
++  const double d3 = ab.dot(bp);
++  const double d4 = ac.dot(bp);
++  if (d3 >= 0.0 && d4 <= d3) return b;
++
++  const double vc = d1 * d4 - d3 * d2;
++  if (vc <= 0.0 && d1 >= 0.0 && d3 <= 0.0) {
++    const double v = d1 / (d1 - d3);
++    return a + v * ab;
++  }
++
++  const Vector3d cp = p - c;
++  const double d5 = ab.dot(cp);
++  const double d6 = ac.dot(cp);
++  if (d6 >= 0.0 && d5 <= d6) return c;
++
++  const double vb = d5 * d2 - d1 * d6;
++  if (vb <= 0.0 && d2 >= 0.0 && d6 <= 0.0) {
++    const double w = d2 / (d2 - d6);
++    return a + w * ac;
++  }
++
++  const double va = d3 * d6 - d5 * d4;
++  if (va <= 0.0 && (d4 - d3) >= 0.0 && (d5 - d6) >= 0.0) {
++    const double w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
++    return b + w * (c - b);
++  }
++
++  const double denominator = va + vb + vc;
++  if (std::abs(denominator) < 1.0e-18) {
++    if (ap.squaredNorm() <= bp.squaredNorm() &&
++        ap.squaredNorm() <= cp.squaredNorm()) {
++      return a;
++    }
++    return bp.squaredNorm() <= cp.squaredNorm() ? b : c;
++  }
++  const double v = vb / denominator;
++  const double w = vc / denominator;
++  return a + v * ab + w * ac;
++}
++
++}  // namespace
++
++SemanticC1TrajectoryGuard::SemanticC1TrajectoryGuard(
++    const drake::multibody::MultibodyPlant<double>& franka_plant,
++    drake::systems::Context<double>* franka_context,
++    const std::string& end_effector_name,
++    const std::vector<std::string>& unsafe_mesh_paths, double stop_distance)
++    : franka_plant_(franka_plant),
++      franka_context_(franka_context),
++      end_effector_name_(end_effector_name),
++      stop_distance_(stop_distance) {
++  if (unsafe_mesh_paths.empty()) {
++    throw std::runtime_error("Semantic C1 guard requires unsafe meshes");
++  }
++  if (stop_distance_ <= 0.0) {
++    throw std::runtime_error("Semantic C1 guard stop distance must be positive");
++  }
++
++  for (const std::string& mesh_path : unsafe_mesh_paths) {
++    const auto mesh = drake::geometry::ReadObjToTriangleSurfaceMesh(
++        mesh_path, 1.0);
++    const auto& vertices = mesh.vertices();
++    std::vector<Face> faces;
++    faces.reserve(mesh.num_triangles());
++    for (int index = 0; index < mesh.num_triangles(); ++index) {
++      const auto triangle = mesh.triangles()[index];
++      const Vector3d v0 = vertices[triangle.vertex(0)];
++      const Vector3d v1 = vertices[triangle.vertex(1)];
++      const Vector3d v2 = vertices[triangle.vertex(2)];
++      const Vector3d cross = (v1 - v0).cross(v2 - v0);
++      const double area = 0.5 * cross.norm();
++      if (area > 1.0e-14) {
++        faces.push_back({area, cross.normalized(), {v0, v1, v2}});
++      }
++    }
++    if (faces.empty()) {
++      throw std::runtime_error("No valid unsafe faces found in " + mesh_path);
++    }
++    unsafe_faces_per_object_.push_back(std::move(faces));
++  }
++
++  robot_state_port_ =
++      this->DeclareVectorInputPort(
++              "franka_state",
++              systems::OutputVector<double>(franka_plant_.num_positions(),
++                                            franka_plant_.num_velocities(),
++                                            franka_plant_.num_actuators()))
++          .get_index();
++
++  drake::trajectories::PiecewisePolynomial<double> empty_trajectory(
++      Vector3d::Zero());
++  drake::trajectories::Trajectory<double>& trajectory_model = empty_trajectory;
++  position_trajectory_port_ =
++      this->DeclareAbstractInputPort(
++              "position_trajectory",
++              drake::Value<drake::trajectories::Trajectory<double>>(
++                  empty_trajectory))
++          .get_index();
++  force_trajectory_port_ =
++      this->DeclareAbstractInputPort(
++              "force_trajectory",
++              drake::Value<drake::trajectories::Trajectory<double>>(
++                  empty_trajectory))
++          .get_index();
++
++  for (int object_index = 0;
++       object_index < static_cast<int>(unsafe_faces_per_object_.size());
++       ++object_index) {
++    object_state_ports_.push_back(
++        this->DeclareVectorInputPort(
++                "object_state_" + std::to_string(object_index),
++                systems::StateVector<double>(7, 6))
++            .get_index());
++  }
++
++  position_trajectory_output_port_ =
++      this->DeclareAbstractOutputPort(
++              "guarded_position_trajectory", trajectory_model,
++              &SemanticC1TrajectoryGuard::CalcPositionTrajectory)
++          .get_index();
++  force_trajectory_output_port_ =
++      this->DeclareAbstractOutputPort(
++              "guarded_force_trajectory", trajectory_model,
++              &SemanticC1TrajectoryGuard::CalcForceTrajectory)
++          .get_index();
++}
++
++const drake::systems::InputPort<double>&
++SemanticC1TrajectoryGuard::get_input_port_robot_state() const {
++  return this->get_input_port(robot_state_port_);
++}
++
++const drake::systems::InputPort<double>&
++SemanticC1TrajectoryGuard::get_input_port_position_trajectory() const {
++  return this->get_input_port(position_trajectory_port_);
++}
++
++const drake::systems::InputPort<double>&
++SemanticC1TrajectoryGuard::get_input_port_force_trajectory() const {
++  return this->get_input_port(force_trajectory_port_);
++}
++
++const drake::systems::InputPort<double>&
++SemanticC1TrajectoryGuard::get_input_port_object_state(
++    int object_index) const {
++  return this->get_input_port(object_state_ports_.at(object_index));
++}
++
++const drake::systems::OutputPort<double>&
++SemanticC1TrajectoryGuard::get_output_port_position_trajectory() const {
++  return this->get_output_port(position_trajectory_output_port_);
++}
++
++const drake::systems::OutputPort<double>&
++SemanticC1TrajectoryGuard::get_output_port_force_trajectory() const {
++  return this->get_output_port(force_trajectory_output_port_);
++}
++
++double SemanticC1TrajectoryGuard::MinimumUnsafeSurfaceDistance(
++    const drake::systems::Context<double>& context,
++    const Vector3d& point_world, Vector3d* closest_point_world) const {
++  double minimum_squared_distance = std::numeric_limits<double>::infinity();
++  for (int object_index = 0;
++       object_index < static_cast<int>(unsafe_faces_per_object_.size());
++       ++object_index) {
++    const auto* object_state = dynamic_cast<const systems::StateVector<double>*>(
++        this->EvalVectorInput(context, object_state_ports_[object_index]));
++    if (object_state == nullptr) {
++      return std::numeric_limits<double>::quiet_NaN();
++    }
++    const Eigen::VectorXd positions = object_state->GetPositions();
++    Eigen::Quaterniond quaternion(positions.head<4>());
++    if (quaternion.norm() < 1.0e-12) {
++      return std::numeric_limits<double>::quiet_NaN();
++    }
++    quaternion.normalize();
++    const Vector3d point_object =
++        quaternion.inverse() * (point_world - positions.segment<3>(4));
++    for (const Face& face : unsafe_faces_per_object_[object_index]) {
++      const Vector3d closest_object = ClosestPointOnTriangle(point_object, face);
++      const double squared_distance =
++          (point_object - closest_object).squaredNorm();
++      if (squared_distance < minimum_squared_distance) {
++        minimum_squared_distance = squared_distance;
++        if (closest_point_world != nullptr) {
++          *closest_point_world =
++              quaternion * closest_object + positions.segment<3>(4);
++        }
++      }
++    }
++  }
++  return std::sqrt(std::max(0.0, minimum_squared_distance));
++}
++
++bool SemanticC1TrajectoryGuard::ShouldHold(
++    const drake::systems::Context<double>& context, Vector3d* ee_position,
++    Vector3d* guard_target, double* minimum_distance) const {
++  const auto* franka_state = dynamic_cast<const systems::OutputVector<double>*>(
++      this->EvalVectorInput(context, robot_state_port_));
++  if (franka_state == nullptr) return true;
++  multibody::SetPositionsIfNew<double>(franka_plant_,
++                                       franka_state->GetPositions(),
++                                       franka_context_);
++  *ee_position = franka_plant_
++                     .EvalBodyPoseInWorld(
++                         *franka_context_,
++                         franka_plant_.GetBodyByName(end_effector_name_))
++                     .translation();
++  Vector3d closest_unsafe_point = Vector3d::Zero();
++  const double measured_distance = MinimumUnsafeSurfaceDistance(
++      context, *ee_position, &closest_unsafe_point);
++
++  const auto& position_trajectory =
++      this->EvalAbstractInput(context, position_trajectory_port_)
++          ->get_value<drake::trajectories::Trajectory<double>>();
++  double evaluation_time = context.get_time();
++  evaluation_time = std::max(position_trajectory.start_time(),
++                             std::min(position_trajectory.end_time(),
++                                      evaluation_time));
++  const Eigen::MatrixXd commanded_value = position_trajectory.value(evaluation_time);
++  double commanded_distance = std::numeric_limits<double>::infinity();
++  if (commanded_value.rows() >= 3 && commanded_value.cols() >= 1) {
++    commanded_distance = MinimumUnsafeSurfaceDistance(
++        context, commanded_value.topRows<3>().col(0), nullptr);
++  }
++  *minimum_distance = std::min(measured_distance, commanded_distance);
++  const bool hold = !std::isfinite(*minimum_distance) ||
++                    *minimum_distance <= stop_distance_;
++  *guard_target = *ee_position;
++  if (hold && std::isfinite(measured_distance) &&
++      measured_distance <= stop_distance_) {
++    const Vector3d escape = *ee_position - closest_unsafe_point;
++    if (escape.norm() > 1.0e-9) {
++      constexpr double kRetreatMargin = 0.003;
++      *guard_target += (stop_distance_ + kRetreatMargin - measured_distance) *
++                       escape.normalized();
++    }
++  }
++  if (hold != was_holding_) {
++    std::cout << "Semantic C1 OSC guard "
++              << (hold ? "holding" : "released")
++              << "; minimum unsafe surface distance: " << *minimum_distance
++              << " m" << std::endl;
++    was_holding_ = hold;
++  }
++  return hold;
++}
++
++void SemanticC1TrajectoryGuard::CalcPositionTrajectory(
++    const drake::systems::Context<double>& context,
++    drake::trajectories::Trajectory<double>* output) const {
++  auto* result = dynamic_cast<drake::trajectories::PiecewisePolynomial<double>*>(
++      output);
++  Vector3d ee_position = Vector3d::Zero();
++  Vector3d guard_target = Vector3d::Zero();
++  double minimum_distance = 0.0;
++  if (ShouldHold(context, &ee_position, &guard_target, &minimum_distance)) {
++    *result = drake::trajectories::PiecewisePolynomial<double>(guard_target);
++    return;
++  }
++  const auto& input =
++      this->EvalAbstractInput(context, position_trajectory_port_)
++          ->get_value<drake::trajectories::Trajectory<double>>();
++  *result = *dynamic_cast<
++      const drake::trajectories::PiecewisePolynomial<double>*>(&input);
++}
++
++void SemanticC1TrajectoryGuard::CalcForceTrajectory(
++    const drake::systems::Context<double>& context,
++    drake::trajectories::Trajectory<double>* output) const {
++  auto* result = dynamic_cast<drake::trajectories::PiecewisePolynomial<double>*>(
++      output);
++  Vector3d ee_position = Vector3d::Zero();
++  Vector3d guard_target = Vector3d::Zero();
++  double minimum_distance = 0.0;
++  if (ShouldHold(context, &ee_position, &guard_target, &minimum_distance)) {
++    *result = drake::trajectories::PiecewisePolynomial<double>(
++        Vector3d::Zero());
++    return;
++  }
++  const auto& input =
++      this->EvalAbstractInput(context, force_trajectory_port_)
++          ->get_value<drake::trajectories::Trajectory<double>>();
++  *result = *dynamic_cast<
++      const drake::trajectories::PiecewisePolynomial<double>*>(&input);
++}
++
++}  // namespace dairlib
+diff --git a/examples/sampling_c3/semantic_c1_trajectory_guard.h b/examples/sampling_c3/semantic_c1_trajectory_guard.h
+new file mode 100644
+index 0000000..42c39cc
+--- /dev/null
++++ b/examples/sampling_c3/semantic_c1_trajectory_guard.h
+@@ -0,0 +1,74 @@
++#pragma once
++
++#include <string>
++#include <vector>
++
++#include <Eigen/Core>
++#include <drake/common/trajectories/trajectory.h>
++#include <drake/multibody/plant/multibody_plant.h>
++#include <drake/systems/framework/leaf_system.h>
++
++#include "systems/controllers/face.h"
++
++namespace dairlib {
++
++// A high-rate execution shield for C1.  It runs in the OSC diagram (which is
++// driven by every Franka state message), independently of the slower C3 solve.
++// If either the measured EE center or the currently evaluated position command
++// gets too close to a protected/neutral surface, it replaces the position
++// trajectory with a measured-pose hold and zeros the feed-forward force.
++class SemanticC1TrajectoryGuard final
++    : public drake::systems::LeafSystem<double> {
++ public:
++  SemanticC1TrajectoryGuard(
++      const drake::multibody::MultibodyPlant<double>& franka_plant,
++      drake::systems::Context<double>* franka_context,
++      const std::string& end_effector_name,
++      const std::vector<std::string>& unsafe_mesh_paths,
++      double stop_distance);
++
++  const drake::systems::InputPort<double>& get_input_port_robot_state() const;
++  const drake::systems::InputPort<double>& get_input_port_position_trajectory()
++      const;
++  const drake::systems::InputPort<double>& get_input_port_force_trajectory()
++      const;
++  const drake::systems::InputPort<double>& get_input_port_object_state(
++      int object_index) const;
++
++  const drake::systems::OutputPort<double>&
++  get_output_port_position_trajectory() const;
++  const drake::systems::OutputPort<double>& get_output_port_force_trajectory()
++      const;
++
++ private:
++  bool ShouldHold(const drake::systems::Context<double>& context,
++                  Eigen::Vector3d* ee_position,
++                  Eigen::Vector3d* guard_target,
++                  double* minimum_distance) const;
++  double MinimumUnsafeSurfaceDistance(
++      const drake::systems::Context<double>& context,
++      const Eigen::Vector3d& point_world,
++      Eigen::Vector3d* closest_point_world) const;
++  void CalcPositionTrajectory(
++      const drake::systems::Context<double>& context,
++      drake::trajectories::Trajectory<double>* output) const;
++  void CalcForceTrajectory(
++      const drake::systems::Context<double>& context,
++      drake::trajectories::Trajectory<double>* output) const;
++
++  const drake::multibody::MultibodyPlant<double>& franka_plant_;
++  drake::systems::Context<double>* franka_context_;
++  std::string end_effector_name_;
++  double stop_distance_;
++  std::vector<std::vector<systems::Face>> unsafe_faces_per_object_;
++
++  drake::systems::InputPortIndex robot_state_port_;
++  drake::systems::InputPortIndex position_trajectory_port_;
++  drake::systems::InputPortIndex force_trajectory_port_;
++  std::vector<drake::systems::InputPortIndex> object_state_ports_;
++  drake::systems::OutputPortIndex position_trajectory_output_port_;
++  drake::systems::OutputPortIndex force_trajectory_output_port_;
++  mutable bool was_holding_ = false;
++};
++
++}  // namespace dairlib
 diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
-index 1dce069..4ae286c 100644
+index 1dce069..5f5cf1a 100644
 --- a/systems/controllers/sampling_based_c3_controller.cc
 +++ b/systems/controllers/sampling_based_c3_controller.cc
-@@ -431,4 +431,9 @@ SamplingC3Controller::SamplingC3Controller(
+@@ -1,7 +1,10 @@
+ #include "sampling_based_c3_controller.h"
+ 
++#include <algorithm>
++#include <cmath>
+ #include <ctime>
+ #include <iostream>
++#include <limits>
+ #include <thread>
+ #include <utility>
+ 
+@@ -62,6 +65,62 @@ using systems::TimestampedVector;
+ 
+ namespace systems {
+ 
++namespace {
++
++// Squared Euclidean distance from p to a triangle.  This is the region-test
++// construction from Real-Time Collision Detection and avoids depending on a
++// second SceneGraph merely to carry semantic, non-physical geometry.
++double PointTriangleSquaredDistance(const Vector3d& p, const Face& face) {
++  const Vector3d& a = face.v[0];
++  const Vector3d& b = face.v[1];
++  const Vector3d& c = face.v[2];
++  const Vector3d ab = b - a;
++  const Vector3d ac = c - a;
++  const Vector3d ap = p - a;
++  const double d1 = ab.dot(ap);
++  const double d2 = ac.dot(ap);
++  if (d1 <= 0.0 && d2 <= 0.0) return ap.squaredNorm();
++
++  const Vector3d bp = p - b;
++  const double d3 = ab.dot(bp);
++  const double d4 = ac.dot(bp);
++  if (d3 >= 0.0 && d4 <= d3) return bp.squaredNorm();
++
++  const double vc = d1 * d4 - d3 * d2;
++  if (vc <= 0.0 && d1 >= 0.0 && d3 <= 0.0) {
++    const double v = d1 / (d1 - d3);
++    return (p - (a + v * ab)).squaredNorm();
++  }
++
++  const Vector3d cp = p - c;
++  const double d5 = ab.dot(cp);
++  const double d6 = ac.dot(cp);
++  if (d6 >= 0.0 && d5 <= d6) return cp.squaredNorm();
++
++  const double vb = d5 * d2 - d1 * d6;
++  if (vb <= 0.0 && d2 >= 0.0 && d6 <= 0.0) {
++    const double w = d2 / (d2 - d6);
++    return (p - (a + w * ac)).squaredNorm();
++  }
++
++  const double va = d3 * d6 - d5 * d4;
++  if (va <= 0.0 && (d4 - d3) >= 0.0 && (d5 - d6) >= 0.0) {
++    const double w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
++    return (p - (b + w * (c - b))).squaredNorm();
++  }
++
++  const double denominator = va + vb + vc;
++  if (std::abs(denominator) < 1.0e-18) {
++    return std::min({ap.squaredNorm(), bp.squaredNorm(), cp.squaredNorm()});
++  }
++  const double inverse_denominator = 1.0 / denominator;
++  const double v = vb * inverse_denominator;
++  const double w = vc * inverse_denominator;
++  return (p - (a + ab * v + ac * w)).squaredNorm();
++}
++
++}  // namespace
++
+ SamplingC3Controller::SamplingC3Controller(
+     MultibodyPlant<double>& plant, Context<double>* context,
+     MultibodyPlant<AutoDiffXd>& plant_ad, Context<AutoDiffXd>* context_ad,
+@@ -428,10 +487,15 @@ SamplingC3Controller::SamplingC3Controller(
+       sampling_params_.sampling_strategy ==
+           SamplingStrategy::kMeshNormalMultiObject) {
+     vector<std::string> mesh_paths;
 -    for (std::string base_name : controller_params_.base_names) {
 -      std::string path =
 -          "examples/sampling_c3/urdf/" + base_name + "/" + base_name + ".obj";
@@ -50,3 +1118,324 @@ index 1dce069..4ae286c 100644
 +                           base_name + ".obj";
 +        mesh_paths.push_back(path);
 +      }
+     }
+     if (mesh_paths.empty()) {
+       throw std::runtime_error(
+@@ -484,6 +548,37 @@ SamplingC3Controller::SamplingC3Controller(
+       total_area_per_object_.push_back(cumulative_area);
+     }
+   }
++
++  // Load semantic forbidden surfaces independently from the collision and
++  // sampling meshes.  Every triangle is retained: a protected top/bottom face
++  // is just as illegal as a side face, even though vertical-normal filtering
++  // is useful for contact sampling.
++  if (controller_params_.unsafe_meshes.has_value() &&
++      !controller_params_.unsafe_meshes->empty()) {
++    for (const std::string& mesh_path :
++         controller_params_.unsafe_meshes.value()) {
++      const auto mesh = drake::geometry::ReadObjToTriangleSurfaceMesh(
++          mesh_path, 1.0);
++      const auto& vertices = mesh.vertices();
++      vector<Face> object_faces;
++      object_faces.reserve(mesh.num_triangles());
++      for (int i = 0; i < mesh.num_triangles(); ++i) {
++        const auto tri = mesh.triangles()[i];
++        const Vector3d v0 = vertices[tri.vertex(0)];
++        const Vector3d v1 = vertices[tri.vertex(1)];
++        const Vector3d v2 = vertices[tri.vertex(2)];
++        const Vector3d cross = (v1 - v0).cross(v2 - v0);
++        const double area = 0.5 * cross.norm();
++        if (area > 1.0e-14) {
++          object_faces.push_back({area, cross.normalized(), {v0, v1, v2}});
++        }
++      }
++      if (object_faces.empty()) {
++        throw std::runtime_error("No valid unsafe faces found in " + mesh_path);
++      }
++      unsafe_faces_per_object_.push_back(std::move(object_faces));
++    }
++  }
+ }
+ 
+ // This function relies on the previously computed z_fin from Solve.
+@@ -854,22 +949,27 @@ drake::systems::EventStatus SamplingC3Controller::ComputePlan(
+     AngleAxisd angle_axis_diff(q_des * q_curr.inverse());
+     double object_angular_error = angle_axis_diff.angle();
+ 
++    // Tool placement is a joint-pose task even when using the numerically
++    // stable single C3 cost configuration.  The upstream position-mode gate
++    // ignored orientation here and permanently latched a fixed goal after XY
++    // alone succeeded.  Keep cost-mode selection independent from success.
+     object_on_target.push_back(
+-        ((crossed_cost_switching_threshold_) &&
+-         (object_position_error < goal_params_.position_success_threshold) &&
+-         (object_angular_error < goal_params_.orientation_success_threshold)) ||
+-        ((!crossed_cost_switching_threshold_) &&
+-         (object_position_error < goal_params_.position_success_threshold)));
++        (object_position_error < goal_params_.position_success_threshold) &&
++        (object_angular_error < goal_params_.orientation_success_threshold));
+     all_reached = all_reached && object_on_target[i];
+   }
+ 
+   // Generate states, differing from the current state only by EE sample
+   // locations.
+-  // Used fixed samples if fixed goal and all objects on target.
++  // Use fixed out-of-the-way samples only while the measured joint pose is on
++  // target.  The upstream boolean was a permanent single-plan latch: an object
++  // that drifted outside the gate after contact was still treated as complete.
++  // Re-evaluating it each planning cycle lets the controller recover, while
++  // the independent monitor remains responsible for the five-frame dwell.
+   vector<VectorXd> candidate_states;
+-  if (achieved_fixed_goal_ ||
+-      (all_reached && goal_params_.goal_mode == GoalMode::kFixedGoal)) {
+-    achieved_fixed_goal_ = true;
++  achieved_fixed_goal_ =
++      all_reached && goal_params_.goal_mode == GoalMode::kFixedGoal;
++  if (achieved_fixed_goal_) {
+     int num_samples = is_doing_c3_
+                           ? sampling_params_.num_additional_samples_c3
+                           : sampling_params_.num_additional_samples_repos;
+@@ -889,6 +989,16 @@ drake::systems::EventStatus SamplingC3Controller::ComputePlan(
+   }
+ 
+   // Ensure prev_repositing_target_ is not inside the object
++  // When the controller starts directly in repositioning mode there is no
++  // previous target yet.  Seed it with the measured EE position instead of
++  // treating the member's zero initialization as a real Cartesian target.
++  // The zero target is outside the useful Franka workspace and otherwise
++  // causes the first repositioning trajectory to drive toward the robot base.
++  if (!is_doing_c3_ && !has_repositioning_target_) {
++    prev_repositioning_target_ = x_lcs_curr.head(3);
++    has_repositioning_target_ = true;
++  }
++
+   const auto& query_port = plant_.get_geometry_query_input_port();
+   const auto& query_object =
+       query_port.template Eval<drake::geometry::QueryObject<double>>(*context_);
+@@ -908,6 +1018,29 @@ drake::systems::EventStatus SamplingC3Controller::ComputePlan(
+     }
+   }
+ 
++  // A previously selected point can become semantically invalid after the
++  // object rotates, even when SceneGraph still reports no physical collision
++  // for the EE center.  Re-evaluate it in the current object frame before
++  // carrying it into the next reposition sample set; otherwise the planner
++  // repeatedly pursues a point that the high-rate C1 shield must reject.
++  if (!in_collision && !unsafe_faces_per_object_.empty()) {
++    VectorXd previous_target_state = x_lcs_curr;
++    previous_target_state.head<3>() = prev_repositioning_target_;
++    const double semantic_distance =
++        MinimumUnsafeSurfaceDistance(previous_target_state);
++    const double stop_distance =
++        controller_params_.semantic_guard_stop_distance.value_or(
++            controller_params_.semantic_guard_clearance.value_or(0.025) +
++            0.010);
++    if (!std::isfinite(semantic_distance) ||
++        semantic_distance <= stop_distance) {
++      in_collision = true;
++      std::cout << "Previous repositioning target rejected by semantic C1 "
++                   "guard; unsafe surface distance: "
++                << semantic_distance << " m" << std::endl;
++    }
++  }
++
+   // Add the previous best repositioning target to the candidate states at index
+   // 1 if in C3 mode and if the previous target is not in collision. (Index 0
+   // will become the current state.)
+@@ -1451,22 +1584,38 @@ void SamplingC3Controller::ClampEndEffectorAcceleration(
+ // stops.
+ void SamplingC3Controller::CheckForWorkspaceLimitViolations(
+     const TimestampedVector<double>* lcs_x_curr) const {
++  const Eigen::Vector3d ee_position = lcs_x_curr->get_data().segment(0, 3);
+   // xyz checks
+   for (int i = 0; i < sampling_c3_options_.workspace_limits.size(); ++i) {
+-    DRAKE_DEMAND(lcs_x_curr->get_data().segment(0, 3).transpose() *
+-                     sampling_c3_options_.workspace_limits[i].segment(0, 3) >
+-                 sampling_c3_options_.workspace_limits[i][3]);
+-    DRAKE_DEMAND(lcs_x_curr->get_data().segment(0, 3).transpose() *
+-                     sampling_c3_options_.workspace_limits[i].segment(0, 3) <
+-                 sampling_c3_options_.workspace_limits[i][4]);
++    const double projection = ee_position.transpose() *
++        sampling_c3_options_.workspace_limits[i].segment(0, 3);
++    const double lower = sampling_c3_options_.workspace_limits[i][3];
++    const double upper = sampling_c3_options_.workspace_limits[i][4];
++    if (!(projection > lower && projection < upper)) {
++      std::cerr << "Workspace violation: ee=" << ee_position.transpose()
++                << ", constraint=" << i << ", projection=" << projection
++                << ", bounds=(" << lower << ", " << upper << ")"
++                << std::endl;
++    }
++    DRAKE_DEMAND(projection > lower);
++    DRAKE_DEMAND(projection < upper);
+   }
+   // radius checks
+-  DRAKE_DEMAND(std::pow(lcs_x_curr->get_data()[0], 2) +
+-                   std::pow(lcs_x_curr->get_data()[1], 2) >
+-               std::pow(sampling_c3_options_.robot_radius_limits[0], 2));
+-  DRAKE_DEMAND(std::pow(lcs_x_curr->get_data()[0], 2) +
+-                   std::pow(lcs_x_curr->get_data()[1], 2) <
+-               std::pow(sampling_c3_options_.robot_radius_limits[1], 2));
++  const double radius_squared = ee_position.head(2).squaredNorm();
++  const double lower_radius_squared =
++      std::pow(sampling_c3_options_.robot_radius_limits[0], 2);
++  const double upper_radius_squared =
++      std::pow(sampling_c3_options_.robot_radius_limits[1], 2);
++  if (!(radius_squared > lower_radius_squared &&
++        radius_squared < upper_radius_squared)) {
++    std::cerr << "Workspace radius violation: ee=" << ee_position.transpose()
++              << ", radius=" << std::sqrt(radius_squared) << ", bounds=("
++              << sampling_c3_options_.robot_radius_limits[0] << ", "
++              << sampling_c3_options_.robot_radius_limits[1] << ")"
++              << std::endl;
++  }
++  DRAKE_DEMAND(radius_squared > lower_radius_squared);
++  DRAKE_DEMAND(radius_squared < upper_radius_squared);
+ }
+ 
+ // Update the cost matrices (Q_, R_, G_, U_) in preparation for C3 solves.
+@@ -1653,12 +1802,92 @@ SamplingC3Controller::CreateLCSObjectsForSamples(
+   return std::make_pair(lcs_candidates, lcs_candidates_for_cost);
+ }
+ 
++double SamplingC3Controller::MinimumUnsafeSurfaceDistance(
++    const VectorXd& x_lcs) const {
++  if (unsafe_faces_per_object_.empty()) {
++    return std::numeric_limits<double>::infinity();
++  }
++
++  double minimum_squared_distance = std::numeric_limits<double>::infinity();
++  const Vector3d ee_world = x_lcs.head<3>();
++  for (int object_index = 0;
++       object_index < static_cast<int>(unsafe_faces_per_object_.size());
++       ++object_index) {
++    const int quaternion_index = 3 + 7 * object_index;
++    const int position_index = 7 + 7 * object_index;
++    if (position_index + 2 >= n_q_) {
++      throw std::runtime_error(
++          "Semantic guard object mesh count exceeds object state count");
++    }
++    Quaterniond object_quaternion(
++        x_lcs.segment<4>(quaternion_index));
++    if (object_quaternion.norm() < 1.0e-12) {
++      // A malformed predicted orientation must fail closed.
++      return 0.0;
++    }
++    object_quaternion.normalize();
++    const Vector3d object_position = x_lcs.segment<3>(position_index);
++    const Vector3d ee_object =
++        object_quaternion.inverse() * (ee_world - object_position);
++    for (const Face& face : unsafe_faces_per_object_[object_index]) {
++      minimum_squared_distance =
++          std::min(minimum_squared_distance,
++                   PointTriangleSquaredDistance(ee_object, face));
++    }
++  }
++  return std::sqrt(std::max(0.0, minimum_squared_distance));
++}
++
++bool SamplingC3Controller::C3TrajectoryViolatesSemanticGuard(
++    const VectorXd& x_lcs, const vector<VectorXd>& x_sol,
++    double* minimum_distance) const {
++  *minimum_distance = std::numeric_limits<double>::infinity();
++  if (unsafe_faces_per_object_.empty()) return false;
++
++  const double clearance =
++      controller_params_.semantic_guard_clearance.value_or(0.025);
++  // Interpolate the linearized state trajectory between every C3 knot.  The
++  // controller is replanned frequently, but the substeps also guard the
++  // continuous trajectory sent to the downstream interpolator.
++  constexpr int kInterpolationSubsteps = 4;
++  VectorXd segment_start = x_lcs;
++  for (const VectorXd& segment_end : x_sol) {
++    for (int substep = 0; substep <= kInterpolationSubsteps; ++substep) {
++      const double alpha =
++          static_cast<double>(substep) / kInterpolationSubsteps;
++      const VectorXd interpolated =
++          (1.0 - alpha) * segment_start + alpha * segment_end;
++      const double distance = MinimumUnsafeSurfaceDistance(interpolated);
++      *minimum_distance = std::min(*minimum_distance, distance);
++      if (!std::isfinite(distance) || distance <= clearance) return true;
++    }
++    segment_start = segment_end;
++  }
++  return false;
++}
++
+ void SamplingC3Controller::UpdateC3ExecutionTrajectory(
+     const VectorXd& x_lcs, const double& t_context) const {
+   // Get the input and full state solution from the plan.
+   vector<VectorXd> u_sol = c3_curr_plan_->GetInputSolution();
+   vector<VectorXd> x_sol = c3_curr_plan_->GetStateSolution();
+ 
++  if (is_doing_c3_) {
++    double minimum_unsafe_distance =
++        std::numeric_limits<double>::infinity();
++    if (C3TrajectoryViolatesSemanticGuard(
++            x_lcs, x_sol, &minimum_unsafe_distance)) {
++      std::cout << "Semantic C1 guard rejected C3 trajectory; minimum unsafe "
++                   "surface distance: "
++                << minimum_unsafe_distance << " m" << std::endl;
++      is_doing_c3_ = false;
++      finished_reposition_flag_ = false;
++      mode_switch_reason_ = ModeSwitchReason::kToReposUnproductive;
++      pursued_target_source_ = PursuedTargetSource::kNoTarget;
++      AddToUnsuccessfulBuffer(x_lcs);
++    }
++  }
++
+   // Setting up matrices to set up LCMTrajectory object.
+   MatrixXd knots = MatrixXd::Zero(n_x_, N_);
+   VectorXd timestamps = VectorXd::Zero(N_);
+@@ -1752,6 +1981,7 @@ void SamplingC3Controller::UpdateRepositioningExecutionTrajectory(
+   Vector3d best_sample_location = all_sample_locations_[best_sample_index_];
+   // Update the previous repositioning target for reference in next loop.
+   prev_repositioning_target_ = best_sample_location;
++  has_repositioning_target_ = true;
+ 
+   // Generate knot points according to the repositioning strategy.
+   MatrixXd knots = Reposition(n_q_, n_x_, N_, x_lcs, best_sample_location, dt_,
+diff --git a/systems/controllers/sampling_based_c3_controller.h b/systems/controllers/sampling_based_c3_controller.h
+index 0b1f7a7..b05fbcf 100644
+--- a/systems/controllers/sampling_based_c3_controller.h
++++ b/systems/controllers/sampling_based_c3_controller.h
+@@ -235,6 +235,14 @@ class SamplingC3Controller : public drake::systems::LeafSystem<double> {
+   void UpdateC3ExecutionTrajectory(const Eigen::VectorXd& x_lcs,
+                                    const double& t_context) const;
+ 
++  double MinimumUnsafeSurfaceDistance(
++      const Eigen::VectorXd& x_lcs) const;
++
++  bool C3TrajectoryViolatesSemanticGuard(
++      const Eigen::VectorXd& x_lcs,
++      const std::vector<Eigen::VectorXd>& x_sol,
++      double* minimum_distance) const;
++
+   void UpdateRepositioningExecutionTrajectory(const Eigen::VectorXd& x_lcs,
+                                               const double& t_context) const;
+ 
+@@ -348,6 +356,7 @@ class SamplingC3Controller : public drake::systems::LeafSystem<double> {
+   std::vector<std::vector<Face>> faces_per_object_;
+   std::vector<std::vector<double>> face_bins_per_object_;
+   std::vector<double> total_area_per_object_;
++  std::vector<std::vector<Face>> unsafe_faces_per_object_;
+ 
+   drake::systems::InputPortIndex radio_port_;
+   drake::systems::InputPortIndex final_target_input_port_;
+@@ -483,6 +492,7 @@ class SamplingC3Controller : public drake::systems::LeafSystem<double> {
+   mutable std::vector<std::vector<Eigen::VectorXd>>
+       all_sample_dynamically_feasible_plans_;
+   mutable Eigen::Vector3d prev_repositioning_target_ = Eigen::Vector3d::Zero();
++  mutable bool has_repositioning_target_ = false;
+   mutable std::vector<double> all_sample_costs_;
+ 
+   // To detect if the final goal has been updated.
+@@ -502,7 +512,7 @@ class SamplingC3Controller : public drake::systems::LeafSystem<double> {
+   mutable Eigen::VectorXd unsuccessful_sample_costs_buffer_;
+ 
+   // Miscellaneous sample related variables.
+-  mutable bool is_doing_c3_ = true;
++  mutable bool is_doing_c3_ = false;
+   mutable bool finished_reposition_flag_ = false;
+   // Crossing a threshold as the object gets closer to the goal means the
+   // controller goes from caring only about object position to caring about full

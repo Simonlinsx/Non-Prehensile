@@ -1,0 +1,39 @@
+{
+  "schema": "nonprehensile.push_anything_joint_acceptance.v1",
+  "run_name": "domino_hammer_strict_c1_resample_q5_yaw10_seed17_v47",
+  "date_utc": "2026-09-01",
+  "upstream_commit": "9d988c835d6e99330397701487fce5ce4ceafa3c",
+  "c3_commit": "5c08cb2e14b1ab10e024cb46e8504970cffcd5ea",
+  "geometry_pass": true,
+  "c1_pass": true,
+  "accepted": true,
+  "task": {
+    "asset_id": "020_hammer:0",
+    "clutter_count": 0,
+    "goal_translation_m": 0.08,
+    "goal_yaw_deg": 10.0,
+    "sampling_seed": 17
+  },
+  "pose_gate": {
+    "position_threshold_m": 0.02,
+    "rotation_threshold_rad": 0.1,
+    "dwell_messages_required": 5,
+    "final_position_error_m": 0.0041199554689228535,
+    "final_rotation_error_rad": 0.03461175411939621,
+    "accepted_at_s": 124.64027808606625
+  },
+  "c1_gate": {
+    "audited_rows": 2518,
+    "contact_threshold_m": 0.0215,
+    "legal_safe_contact_rows": 397,
+    "protected_contact_rows": 0,
+    "neutral_contact_rows": 0,
+    "c1_violation_rows": 0,
+    "minimum_surface_distance_m": {
+      "safe": 0.009702746361893938,
+      "protected": 0.0633626092019855,
+      "neutral": 0.049649670886106174
+    },
+    "trajectory_sha256": "b1086ee4bddea7960b8318c7d788d6e61a423cba45835e7857dd1ceb98fcffcd"
+  }
+}
