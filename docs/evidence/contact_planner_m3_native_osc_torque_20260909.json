@@ -1,0 +1,98 @@
+{
+  "schema": "nonprehensile.native_osc_torque_integration.v1",
+  "date_utc": "2026-09-09T05:51:01.947605+00:00",
+  "task_success_claim": false,
+  "formal50_completed": 0,
+  "hold": {
+    "scope": "Stationary upstream teleop, not task acceptance",
+    "executed_sim_time_s": 2.0,
+    "command_counts": {
+      "fresh": 2000,
+      "planner_failure": 0,
+      "ready": 2000,
+      "semantic_hold": 0,
+      "stale": 0,
+      "watchdog": 0
+    },
+    "maximum_command_age_s": 1e-06,
+    "maximum_torque_difference_nm": 9.53191502617301e-07,
+    "terminal_tcp_displacement_m": 0.009006401403107057,
+    "maximum_tcp_displacement_m": 0.010040568876167895,
+    "maximum_hand_rotation_from_first_poststep_rad": 0.023764974033422596,
+    "maximum_finger_abs_position_m": 0.00014182194718159735,
+    "c1_violation": false,
+    "result_sha256": "9a41792282ed392651e7fcb5335a8f718f3ec7f9068a998502076d23d0116c75",
+    "stability_pass": false,
+    "reason": "9mm-class stationary offset remains unexplained; native tool inertia differs from physical stock gripper, needs direct comparison"
+  },
+  "robot_model_comparison": {
+    "same_initial_joint_state_as_baseline": true,
+    "all_2000_trace_rows_exact": true,
+    "native_gravity_compensation_nm": [
+      0.0,
+      -25.520002580632774,
+      -22.447689980502453,
+      7.208074660368485,
+      1.270822674077762,
+      1.5210352022099878,
+      0.0010195605030423969
+    ],
+    "isaac_gravity_compensation_nm": [
+      5.5610298659303226e-06,
+      -24.953201293945312,
+      -25.898191452026367,
+      7.981320858001709,
+      -0.005507231689989567,
+      1.7019206285476685,
+      4.270242492943055e-10
+    ],
+    "isaac_minus_native_gravity_nm": [
+      5.5610298659303226e-06,
+      0.5668012866874612,
+      -3.450501471523914,
+      0.7732461976332239,
+      -1.2763299057677515,
+      0.18088542633768068,
+      -0.0010195600760181476
+    ],
+    "maximum_gravity_difference_nm": 3.450501471523914,
+    "native_body_masses_kg": {
+      "panda_link0": 2.92,
+      "panda_link1": 2.74,
+      "panda_link2": 2.74,
+      "panda_link3": 2.38,
+      "panda_link4": 2.38,
+      "panda_link5": 2.74,
+      "panda_link6": 1.55,
+      "panda_link7": 0.54,
+      "panda_link8": 0.0,
+      "end_effector_flange": 0.0779312,
+      "end_effector_peg": 0.1340688,
+      "end_effector_tip": 0.057,
+      "ground": 1.0,
+      "platform": 0.0
+    },
+    "isaac_body_masses_kg": {
+      "panda_link0": 2.8142027854919434,
+      "panda_link1": 2.359999656677246,
+      "panda_link2": 2.379518747329712,
+      "panda_link3": 2.6498823165893555,
+      "panda_link4": 2.6948018074035645,
+      "panda_link5": 2.9812819957733154,
+      "panda_link6": 1.1285806894302368,
+      "panda_link7": 0.40529125928878784,
+      "panda_link8": 1.0,
+      "panda_hand": 0.5583304762840271,
+      "panda_leftfinger": 0.0140552232041955,
+      "panda_rightfinger": 0.0140552232041955
+    },
+    "interpretation": "Measured robot dynamics mismatch exists before any object contact. Does not alone prove all9mm hold offset is due to gravity, and is not a task-success result."
+  },
+  "sources": {
+    "scripts/run_c3_online_isaaclab.py": "0cb00dc6a93644d73c0d4d30956b367c7d5f67de58f01690a1b8116c659f95ee",
+    "scripts/run_push_anything_isaaclab_online.sh": "3b2a0407bc5f144e0dd04cdff7de3680d4e13dfbc696fcc3a605e61291ab6dc3",
+    "third_party/push_anything/online_bridge_relay.py": "98bda8da0680fec85dfd5e7c479e27fa86a44369dff1f62125ec69a644f83421",
+    "third_party/push_anything/patches/0023-offline-native-osc-dynamics.patch": "85f9e4b1e4efaef44c14ffd53c09217407fea7cf2143166d4240a7b9f48684c6"
+  },
+  "next_action": "Align isolated original-OSC full robot model to actual stock Isaac arm/closed gripper masses, COMs and inertias; compare gravity, FK and mass matrices, then same-gain hold regression. Before MPC pushing, separate 1kHz OSC state and20Hz MPC state channels. Existing two resolution15 trials remain running."
+}

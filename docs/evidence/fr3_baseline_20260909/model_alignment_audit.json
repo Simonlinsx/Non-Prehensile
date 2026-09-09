@@ -1,0 +1,130 @@
+{
+  "schema": "nonprehensile.fr3_native_model_alignment.v1",
+  "scope": "Nominal robot model and backend actuator configuration check, not randomized pushing acceptance.",
+  "result_sha256": "79410c03136af5a683892d88cc223d30b46779f53128e7a69a88ab6157c08db4",
+  "native_binary_sha256": "017bb31f744486f9bc02dd4073c39b57e0f5cd9cbed0166d276c07bea7b6f2ca",
+  "robot_model_manifest_sha256": "01351d54b1141f661789b53e54beed1f9e535c2dc532de8ed13bfc3e15860b06",
+  "metrics": {
+    "maximum_body_mass_error_kg": 9.344277351885921e-08,
+    "maximum_body_com_error_m": 3.4265747045347794e-09,
+    "maximum_body_inertia_error_kg_m2": 1.6265808311377583e-08,
+    "maximum_gravity_error_nm": 1.053575033438392e-05,
+    "maximum_mass_matrix_error_kg_m2": 7.243265494061291e-07,
+    "maximum_armature_error_kg_m2": 1.7693847609301372e-08,
+    "tcp_position_error_m": 1.0745185164128927e-07,
+    "tcp_orientation_error_rad": 2.699227308481394e-07
+  },
+  "tolerances": {
+    "maximum_body_mass_error_kg": 2e-05,
+    "maximum_body_com_error_m": 2e-06,
+    "maximum_body_inertia_error_kg_m2": 2e-06,
+    "maximum_gravity_error_nm": 0.0005,
+    "maximum_mass_matrix_error_kg_m2": 5e-05,
+    "maximum_armature_error_kg_m2": 1e-06,
+    "tcp_position_error_m": 2e-06,
+    "tcp_orientation_error_rad": 2e-05
+  },
+  "checks": {
+    "maximum_body_mass_error_kg": true,
+    "maximum_body_com_error_m": true,
+    "maximum_body_inertia_error_kg_m2": true,
+    "maximum_gravity_error_nm": true,
+    "maximum_mass_matrix_error_kg_m2": true,
+    "maximum_armature_error_kg_m2": true,
+    "tcp_position_error_m": true,
+    "tcp_orientation_error_rad": true
+  },
+  "rigid_body_alignment_pass": true,
+  "friction_alignment_pass": true,
+  "drive_alignment_pass": true,
+  "finger_limit_checks": {
+    "dof_position_limits": true,
+    "dof_velocity_limits": true,
+    "dof_effort_limits": true
+  },
+  "finger_limits_alignment_pass": true,
+  "model_alignment_pass": true,
+  "body_checks": {
+    "panda_link0": {
+      "mass_error_kg": 8.01086441626353e-09,
+      "com_error_m": 1.9669532808075374e-09,
+      "inertia_error_kg_m2": 6.034970283924634e-10
+    },
+    "panda_link1": {
+      "mass_error_kg": 9.344277351885921e-08,
+      "com_error_m": 6.737350469188108e-10,
+      "inertia_error_kg_m2": 2.7113904108033715e-09
+    },
+    "panda_link2": {
+      "mass_error_kg": 6.603825664086571e-08,
+      "com_error_m": 3.41314698726336e-10,
+      "inertia_error_kg_m2": 1.8709259107241305e-09
+    },
+    "panda_link3": {
+      "mass_error_kg": 4.878591308710156e-08,
+      "com_error_m": 4.733215347441089e-10,
+      "inertia_error_kg_m2": 2.279240660790771e-09
+    },
+    "panda_link4": {
+      "mass_error_kg": 4.7339021591596975e-11,
+      "com_error_m": 1.9454917954409012e-09,
+      "inertia_error_kg_m2": 4.503503250874452e-09
+    },
+    "panda_link5": {
+      "mass_error_kg": 2.1544824146957353e-08,
+      "com_error_m": 3.4265747045347794e-09,
+      "inertia_error_kg_m2": 1.6265808311377583e-08
+    },
+    "panda_link6": {
+      "mass_error_kg": 4.920675045205769e-08,
+      "com_error_m": 1.5787490828533812e-09,
+      "inertia_error_kg_m2": 2.2431732860095366e-09
+    },
+    "panda_link7": {
+      "mass_error_kg": 2.2383166542461197e-08,
+      "com_error_m": 2.2317132863935996e-10,
+      "inertia_error_kg_m2": 2.1174096032300707e-11
+    },
+    "panda_hand": {
+      "mass_error_kg": 8.964538555922275e-09,
+      "com_error_m": 8.901357637092211e-10,
+      "inertia_error_kg_m2": 1.3854354620999876e-10
+    },
+    "panda_leftfinger": {
+      "mass_error_kg": 1.004338265331306e-09,
+      "com_error_m": 4.4822692779611373e-10,
+      "inertia_error_kg_m2": 1.1819406063140296e-12
+    },
+    "panda_rightfinger": {
+      "mass_error_kg": 1.004338265331306e-09,
+      "com_error_m": 4.4822692779611373e-10,
+      "inertia_error_kg_m2": 1.1819406063140296e-12
+    }
+  },
+  "actual_armature_kg_m2": [
+    0.6057214736938477,
+    0.6057214736938477,
+    0.46247413754463196,
+    0.46247413754463196,
+    0.20554406940937042,
+    0.20554406940937042,
+    0.20554406940937042
+  ],
+  "inertia_api_reference": "https://docs.omniverse.nvidia.com/kit/docs/omni_physics/107.3/extensions/runtime/source/omni.physics.tensors/docs/api/python.html#omni.physics.tensors.impl.api.ArticulationView.get_inertias",
+  "mass_matrix_convention": "PhysX get_generalized_mass_matrices + diag(actual get_dof_armatures) vs Drake CalcMassMatrix",
+  "trajectory_motion": {
+    "duration_s": 14.182,
+    "maximum_tcp_displacement_m": 0.2897698584053348,
+    "terminal_tcp_displacement_m": 0.2512602761252511,
+    "command_counts": {
+      "fresh": 14182,
+      "planner_failure": 0,
+      "ready": 14182,
+      "semantic_hold": 0,
+      "stale": 0,
+      "watchdog": 0
+    },
+    "forbidden_contact_ever": false
+  },
+  "formal_acceptance_pass": false
+}

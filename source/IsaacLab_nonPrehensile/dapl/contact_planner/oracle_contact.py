@@ -101,7 +101,10 @@ class OraclePlanningScene:
 
     Shapes are ``B x N x 3`` for target points, ``B x N`` for semantic
     scores, ``B x 3`` for poses, and either ``H x 3`` or ``B x H x 3`` for
-    canonical hand samples expressed relative to the TCP.
+    canonical pusher samples expressed relative to the TCP.  The full
+    ``hand_points_local`` tensor is the collision envelope; the optional
+    ``pusher_contact_points_local`` tensor restricts which surface may be
+    deliberately placed on the target.
     """
 
     target_points: torch.Tensor
@@ -111,8 +114,10 @@ class OraclePlanningScene:
     goal_position: torch.Tensor
     tcp_position: torch.Tensor
     hand_points_local: torch.Tensor
+    pusher_contact_points_local: torch.Tensor | None = None
     tcp_rotation: torch.Tensor | None = None
     yaw_error: torch.Tensor | None = None
+    target_com_position: torch.Tensor | None = None
 
     def validate(self) -> None:
         if self.target_points.ndim != 3 or self.target_points.shape[-1] != 3:
@@ -127,16 +132,30 @@ class OraclePlanningScene:
             value = getattr(self, name)
             if value.shape != (batch_size, 3):
                 raise ValueError(f"{name} must have shape [B, 3]")
-        if self.hand_points_local.ndim == 2:
-            if self.hand_points_local.shape[-1] != 3:
-                raise ValueError("hand_points_local must end in dimension 3")
-        elif self.hand_points_local.ndim == 3:
-            if self.hand_points_local.shape[0] != batch_size:
-                raise ValueError("batched hand_points_local must match scene batch")
-            if self.hand_points_local.shape[-1] != 3:
-                raise ValueError("hand_points_local must end in dimension 3")
-        else:
-            raise ValueError("hand_points_local must have shape [H, 3] or [B, H, 3]")
+        if (
+            self.target_com_position is not None
+            and self.target_com_position.shape != (batch_size, 3)
+        ):
+            raise ValueError("target_com_position must have shape [B, 3]")
+        def validate_pusher_points(name: str, value: torch.Tensor) -> None:
+            if value.ndim == 2:
+                if value.shape[-1] != 3:
+                    raise ValueError(f"{name} must end in dimension 3")
+            elif value.ndim == 3:
+                if value.shape[0] != batch_size:
+                    raise ValueError(f"batched {name} must match scene batch")
+                if value.shape[-1] != 3:
+                    raise ValueError(f"{name} must end in dimension 3")
+            else:
+                raise ValueError(f"{name} must have shape [H, 3] or [B, H, 3]")
+            if value.shape[-2] == 0:
+                raise ValueError(f"{name} cannot be empty")
+
+        validate_pusher_points("hand_points_local", self.hand_points_local)
+        if self.pusher_contact_points_local is not None:
+            validate_pusher_points(
+                "pusher_contact_points_local", self.pusher_contact_points_local
+            )
         if self.yaw_error is not None and self.yaw_error.shape != (batch_size,):
             raise ValueError("yaw_error must have shape [B]")
         if self.tcp_rotation is not None and self.tcp_rotation.shape != (
@@ -158,6 +177,8 @@ class OraclePlanningScene:
             tensors = (*tensors, self.yaw_error)
         if self.tcp_rotation is not None:
             tensors = (*tensors, self.tcp_rotation)
+        if self.pusher_contact_points_local is not None:
+            tensors = (*tensors, self.pusher_contact_points_local)
         if any(not torch.isfinite(value).all() for value in tensors):
             raise ValueError("planning scene contains non-finite values")
         if torch.any(self.safe_scores < 0.0) or torch.any(self.safe_scores > 1.0):
@@ -239,6 +260,14 @@ class OracleSafeContactPlanner:
             )
         else:
             hand_local = scene.hand_points_local
+        if scene.pusher_contact_points_local is None:
+            contact_local = hand_local
+        elif scene.pusher_contact_points_local.ndim == 2:
+            contact_local = scene.pusher_contact_points_local.unsqueeze(0).expand(
+                batch_size, -1, -1
+            )
+        else:
+            contact_local = scene.pusher_contact_points_local
 
         goal_delta = scene.goal_position - scene.target_position
         goal_delta[:, 2] = 0.0
@@ -257,6 +286,16 @@ class OracleSafeContactPlanner:
             torch.zeros(batch_size, device=device, dtype=dtype)
             if scene.yaw_error is None
             else scene.yaw_error
+        )
+        # A mesh/link origin is not generally its center of mass.  Contact
+        # torque and planar gyration must use the physical COM; a centimetre-
+        # scale origin offset is enough to flip the sign of the near-neutral
+        # moment arms used for yaw regulation.  Keep the old origin fallback
+        # for perception callers that have not yet estimated a COM.
+        moment_center_position = (
+            scene.target_position
+            if scene.target_com_position is None
+            else scene.target_com_position
         )
         completed = (goal_distance <= 1.0e-8) & (torch.abs(yaw_error) <= 1.0e-3)
 
@@ -278,7 +317,9 @@ class OracleSafeContactPlanner:
             forbidden_points = points[~safe_mask]
             safe_center = safe_points.mean(dim=0)
             support_height = points[:, 2].min()
-            centered_radius = points[:, :2] - scene.target_position[env_id, :2]
+            centered_radius = (
+                points[:, :2] - moment_center_position[env_id, :2]
+            )
             planar_gyration_sq = torch.clamp(
                 torch.mean(torch.sum(centered_radius.square(), dim=1)), min=1.0e-4
             )
@@ -358,7 +399,10 @@ class OracleSafeContactPlanner:
                 direction = direction_variants[variant_index]
                 rotation = rotations[variant_index]
                 rotated_hand = hand_local[env_id] @ rotation.T
-                hand_count = min(cfg.hand_point_candidates, rotated_hand.shape[0])
+                rotated_contact_surface = contact_local[env_id] @ rotation.T
+                hand_count = min(
+                    cfg.hand_point_candidates, rotated_contact_surface.shape[0]
+                )
 
                 trailing_projection = (safe_points - safe_center) @ direction
                 safe_count = min(cfg.safe_point_candidates, safe_points.shape[0])
@@ -384,11 +428,11 @@ class OracleSafeContactPlanner:
                     fallback_outward,
                 )
                 approach_direction = -outward
-                hand_projection = approach_direction @ rotated_hand.T
+                hand_projection = approach_direction @ rotated_contact_surface.T
                 leading_hand_indices = torch.topk(
                     hand_projection, k=hand_count, dim=1, largest=True
                 ).indices
-                leading_hand = rotated_hand[leading_hand_indices]
+                leading_hand = rotated_contact_surface[leading_hand_indices]
                 contact_tcp = (
                     chosen_safe_points[:, None, :] - leading_hand
                     + cfg.contact_penetration_m * approach_direction[:, None, :]
@@ -459,7 +503,7 @@ class OracleSafeContactPlanner:
                 ).expand_as(travel)
                 contact_radius = (
                     candidate_contact_point[:, :2]
-                    - scene.target_position[env_id, :2]
+                    - moment_center_position[env_id, :2]
                 )
                 candidate_moment_arm = (
                     contact_radius[:, 0] * direction[1]
@@ -501,7 +545,12 @@ class OracleSafeContactPlanner:
                         current_tcp=scene.tcp_position[env_id],
                         precontact_tcp=candidate_precontact[candidate_index],
                         rotated_hand=rotated_hand,
-                        target_points=forbidden_points,
+                        # Before the deliberate contact segment, *all* target
+                        # geometry is an obstacle.  Treating the safe patch as
+                        # free space lets the hand sweep through the handle on
+                        # its way to pre-contact and rotates the object before
+                        # the predicted push even begins.
+                        target_points=points,
                     )
                     if approach_clearance <= cfg.approach_clearance_m:
                         continue

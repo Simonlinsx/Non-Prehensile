@@ -79,18 +79,39 @@ The Pinocchio `panda_hand` frame is composed with the 0.1034 m local TCP
 offset during forward kinematics.  This avoids the orientation-dependent
 9--10 cm error caused by treating that offset as a fixed world translation.
 
-## Conservative default contract
+## Reproducible execution profiles
 
-| Parameter | Default |
-| --- | ---: |
-| Exact C1 contact distance | 0.010 m |
-| Protected/neutral clearance | 0.020 m |
-| Pre-contact approach clearance | 0.015 m |
-| Support clearance | 0.002 m |
-| Short push distance | 0.008--0.015 m |
-| Closed-loop replans | 12 |
-| Candidate outputs | 16 |
-| Online scalar dynamics adaptation | disabled |
+The shell entry point exposes two profiles while keeping the C1 gate, IK/path
+validation, and the accepted control timing identical:
+
+| Parameter | `adaptive` (default) | `fixed5mm` baseline |
+| --- | ---: | ---: |
+| Exact C1 contact distance | 0.010 m | 0.010 m |
+| Protected/neutral clearance | 0.020 m | 0.020 m |
+| Pre-contact approach clearance | 0.015 m | 0.015 m |
+| Support clearance | 0.002 m | 0.002 m |
+| Push distance hypotheses | 8 / 11.5 / 15 mm | 5 mm |
+| Closed-loop replans | 30 | 30 |
+| Candidate outputs | 32 | 32 |
+| Online scalar dynamics adaptation | disabled | disabled |
+
+On the fixed `scene000`, seed 486317 A/B, the adaptive profile reached the
+unchanged strict pose gate in 13 pushes and 1,347 simulator steps, versus 21
+pushes and 2,164 steps for `fixed5mm` (37.8% fewer pushes and 37.8% less
+simulated task time).  Final errors were 19.87 mm / 4.79 degrees for adaptive
+and 19.68 mm / 3.58 degrees for fixed5mm; both had 100% legal contact-gate
+passes and zero C1 violations.
+
+A separate attempt to shorten approach/contact/push/retreat interpolation
+failed the strict pose gate after 30 pushes despite 30/30 legal contacts.  It is
+therefore rejected: the faster profile changes push distance only and does not
+speed up the contact servo.
+
+Extending the distance set to 5 / 10 / 15 / 20 mm was also rejected on the
+same scene.  It reached a 3.36 mm minimum XY error but failed to make XY and
+SO(3) valid simultaneously after 30 legal pushes (final 23.96 mm / 8.71
+degrees, zero C1 violations).  The accepted 15 mm cap is therefore empirical,
+not an arbitrary speed limit.
 
 The contact event gate is also 0.010 m by default.  A looser 0.013 m gate was
 tested as a diagnostic for point-cloud/mesh mismatch, but it is not the safe
@@ -105,6 +126,30 @@ Quantitative eight-scene run:
 OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 NUM_ENVS=8 \
   bash scripts/run_contact_planner_m1.sh
 ```
+
+Conservative 5 mm control baseline:
+
+```bash
+OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 NUM_ENVS=8 \
+  EXECUTION_PROFILE=fixed5mm \
+  bash scripts/run_contact_planner_m1.sh
+```
+
+Persistent-contact execution (experimental efficiency profile):
+
+```bash
+OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 NUM_ENVS=8 \
+  EXECUTION_PROFILE=persistent \
+  bash scripts/run_contact_planner_m1.sh
+```
+
+This profile keeps the first measured C1-legal contact, reads the live target
+pose every three control steps, and advances the TCP in 2 mm increments. It
+recomputes a bounded XY/yaw contact wrench from the live pressure-center
+estimate and releases when contact is lost, the pose regresses, the requested
+moment is not physically realizable, or the motion ceases to advance toward
+the goal. A rejected first micro-step falls back to the accepted short macro
+push, so the original executor remains available on difficult contact sides.
 
 Single-scene video:
 
@@ -127,27 +172,23 @@ M1 has two deliberately separate decisions:
 | --- | --- |
 | Pure contact candidate generation and fail-closed checks | Passed (9 unit tests) |
 | Correct TCP IK and endpoint tracking | Passed in Isaac smoke tests |
-| Candidate + IK path available | 8/8 in the default seed-17 regression |
-| Reach a legal safe contact without C1 violation | 8/8 contacts, 0/8 C1 violations |
-| Robust simultaneous XY + yaw task success | **Not accepted** |
+| Candidate + IK path available | Passed on the accepted single-scene run |
+| Reach a legal safe contact without C1 violation | 13/13 adaptive pushes, zero C1 violations |
+| Strict simultaneous XY + yaw task success | Accepted on one deterministic scene; randomized rate pending |
+| Persistent-contact efficiency | Same scene: 2 contacts / 318 steps versus 13 contacts / 1347 steps; zero C1 violations |
 | Clutter, C2, and C3 | Out of M1 scope |
 
-In a representative closed-loop diagnostic, the planner reached a minimum XY
-error of 2.45 mm and a minimum rotation error of 0.011 rad with zero C1
-violations, but those minima did not occur simultaneously; final rotation was
-0.434 rad.  Larger pushes also passed through good XY/yaw states and then
-diverged.  This is evidence that contact generation and execution work, but a
-single scalar translation/yaw proxy is not a sufficiently predictive dynamics
-model for full-pose convergence.
+Earlier regressions used an incomplete end-effector envelope and a 0.5 N
+physical-contact threshold, so legal contact was either rejected or silently
+missed.  The accepted run instead separates the full Franka hand/finger
+collision envelope from the finger-only deliberate-contact surface and uses a
+0.02 N measured-contact threshold.  Those geometry/contact fixes, rather than
+a weaker pose or C1 gate, produced the first simultaneous XY+yaw success.
 
-The finalized-default eight-scene regression reached a legal safe contact in
-all 8 scenes with 0 C1 violations.  The strict contact gate passed 67/96
-planned approaches (69.8%); 2/8 trajectories individually entered the XY
-threshold and 7/8 individually entered the rotation threshold, but 0/8 held
-both thresholds together.  These separate minima must not be reported as task
-success.
-
-The next milestone should keep this M1 contact/path safety layer and replace
-candidate ranking with short Isaac physics rollouts or a learned local
-contact-conditioned dynamics model.  That is a contained model upgrade, not a
-reason to weaken C1 or add ad-hoc waypoints.
+The current acceptance claim remains intentionally narrow: the deterministic
+scene succeeds with both execution profiles, while the fixed 50-scene
+direction/distance/yaw evaluation is still required before calling M1 robust.
+On the first four fixed scenes and a 15-contact budget, persistent execution
+matched the macro baseline's 2/4 success count while reducing the successful
+scenes from 14/4 contacts to 2/1. It is therefore an opt-in efficiency profile,
+not yet the default executor.

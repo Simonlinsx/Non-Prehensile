@@ -1,0 +1,56 @@
+{
+  "manifest": "/data1/linsixu/IsaacLab-nonPrehensile/data/manifests/contact_planner_m3/typed_clutter_smoke_seed20260901/hammer_teacher_c3_4_seed20260901.jsonl",
+  "profile": "c3",
+  "scene_count": 4,
+  "sample_count": 4096,
+  "c3_tcp_to_safe_root_corridor": {
+    "surface_distance_m": {
+      "minimum": 0.0041096390185884025,
+      "mean": 0.006027030411977703,
+      "p50": 0.005984772081831857,
+      "p95": 0.007726762052452859,
+      "maximum": 0.008028938465658695
+    },
+    "obstacle_root_to_segment_m": {
+      "minimum": 0.034999999999999976,
+      "mean": 0.03500000000000003,
+      "p50": 0.035000000000000045,
+      "p95": 0.035000000000000066,
+      "maximum": 0.035000000000000066
+    },
+    "tcp_to_obstacle_surface_m": {
+      "minimum": 0.16554986470992508,
+      "mean": 0.16727805933047768,
+      "p50": 0.1671176560158791,
+      "p95": 0.16912067479879425,
+      "maximum": 0.16932706058022742
+    },
+    "target_start_to_obstacle_surface_m": {
+      "minimum": 0.0005050884373837243,
+      "mean": 0.0037483741547515636,
+      "p50": 0.002451971959903933,
+      "p95": 0.008801951368632623,
+      "maximum": 0.009584464261814665
+    },
+    "obstacle_root_to_tcp_m": {
+      "minimum": 0.08739882584134556,
+      "mean": 0.09764544418595983,
+      "p50": 0.09725062757700043,
+      "p95": 0.10767130090664351,
+      "maximum": 0.1086816957484929
+    },
+    "obstacle_root_to_target_m": {
+      "minimum": 0.08739882584134556,
+      "mean": 0.09764544418595983,
+      "p50": 0.09725062757700043,
+      "p95": 0.1076713009066435,
+      "maximum": 0.10868169574849289
+    },
+    "reset_clear_and_direct_corridor_blocked_fraction": 0.25
+  },
+  "candidate_valid_scene_count": 1,
+  "valid_scene_indices": [
+    1
+  ],
+  "valid_scene_count": 1
+}

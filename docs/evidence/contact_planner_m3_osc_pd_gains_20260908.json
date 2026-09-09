@@ -1,0 +1,1585 @@
+{
+  "schema": "nonprehensile.osc_pd_gain_comparison.v1",
+  "updated_utc": "2026-09-08T19:45:54.090713+00:00",
+  "goal_status": "active",
+  "acceptance_started": false,
+  "completed_trial": {
+    "name": "native_tracking_gains_guard_q100_35",
+    "result": "outputs/contact_planner_m3/workspace_height_20260908/native_tracking_gains_guard_q100_35/scene007/result.json",
+    "result_sha256": "222583a655c1d93b7c25bbf8a951eba240eaaf95848a54659cd48e5fbaa57c07",
+    "metrics": {
+      "executed_sim_time_s": 35.0,
+      "final_planar_error_m": 0.13278310000896454,
+      "final_rotation_error_rad": 0.01671679876744747,
+      "forbidden_robot_contact_ever": false,
+      "stopped_reason": "maximum_sim_time",
+      "maximum_abs_joint_effort_nm": 15.965237617492676,
+      "semantic_c1_guard_activation_count": 128
+    },
+    "clearance_tracking_audit": {
+      "schema": "nonprehensile.sampled_finger_clearance.v1",
+      "sample_count": 536,
+      "table_local_z_m": 0.0,
+      "minimum_clearance_m": 5.728936082527447e-06,
+      "median_clearance_m": 0.02327063335435384,
+      "samples_below_table": 0,
+      "samples_within_0_1mm": 6,
+      "height_clamped_samples": 38,
+      "height_clamped_with_downward_feedforward": 33,
+      "worst_sample": {
+        "sim_time_s": 30.94,
+        "minimum_clearance_m": 5.728936082527447e-06,
+        "by_body_m": {
+          "panda_leftfinger": 8.876335346480468e-05,
+          "panda_rightfinger": 5.728936082527447e-06
+        },
+        "raw_task_target_c3_m": [
+          0.5666006246004732,
+          0.1865325000084084,
+          -0.026226498010710367
+        ],
+        "governed_task_target_c3_m": [
+          0.5630967617034912,
+          0.1856045126914978,
+          -0.018898175314738135
+        ],
+        "planner_tip_position_m": [
+          0.5633485317230225,
+          0.1865164041519165,
+          -0.020878516137599945
+        ],
+        "task_reference_floor_c3_m": -0.018898175314738135,
+        "applied_feedforward_force_n": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "osc_reference_tip_velocity_m_s": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "task_tracking_error_m": 0.002194694501066677
+      },
+      "hand_orientation_from_first_trace_pose": {
+        "sample_count": 536,
+        "worst_sample": {
+          "sim_time_s": 6.2,
+          "error_rad": 0.02723265358386747
+        },
+        "median_error_rad": 0.009064836580465519
+      },
+      "semantic_guard_sample_audit": {
+        "available": true,
+        "sample_count": 536,
+        "active_samples": 13,
+        "active_samples_with_nonzero_force_or_velocity": 0
+      },
+      "limitations": [
+        "Only recorded trace samples; not a continuous clearance guarantee.",
+        "Cooked convex surface distance excludes contact/rest offsets and does not prove a contact force.",
+        "Only the two fingers are reconstructed; palm and arm are not included.",
+        "Hand orientation is relative to the first recorded pose; it is not a contact-force measurement."
+      ],
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/native_tracking_gains_guard_q100_35/scene007/result.json",
+      "result_sha256": "222583a655c1d93b7c25bbf8a951eba240eaaf95848a54659cd48e5fbaa57c07",
+      "contact_export": "data/contact_models/closed_franka_hammer_physx_v4.json",
+      "contact_export_sha256": "b7294428120efc1b7c35c07825e837f0adf047840283357c25f7fd4e1890462f"
+    },
+    "solver_consistency": {
+      "schema": "nonprehensile.c3_solver_consistency.v1",
+      "minimum_message_time_s": 4.0,
+      "comparison_knot": 9,
+      "modes": "all controller modes; not restricted to executed C3 segments",
+      "planar_prediction_m": {
+        "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+          "count": 622,
+          "median": 0.09213886978178218,
+          "p90": 0.12704304802945354,
+          "maximum": 0.16458941617867884
+        },
+        "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+          "count": 622,
+          "median": 0.08354901185705865,
+          "p90": 0.12254921107224251,
+          "maximum": 0.1458584194887298
+        },
+        "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+          "count": 622,
+          "median": 0.005721143071541709,
+          "p90": 0.034832362520954126,
+          "maximum": 0.061092926993676265
+        }
+      },
+      "maximum_negative_lambda_magnitude": {
+        "count": 622,
+        "median": 3.00379143623351e-14,
+        "p90": 5.263619243578429e-07,
+        "maximum": 1.2271746527403593e-05
+      },
+      "maximum_lambda_eta_product": {
+        "count": 622,
+        "median": 23.475245413296307,
+        "p90": 69.96457108588997,
+        "maximum": 112.10304383631592
+      },
+      "zero_input_frozen_solution_count": 0,
+      "paired_raw_pd_actual": {
+        "matched_executed_c3_plans": 155,
+        "horizon_s": 0.6749999999999999,
+        "raw_endpoint_xy_error_m": {
+          "count": 155,
+          "median": 0.09138119489617934,
+          "p90": 0.1293154381570735,
+          "maximum": 0.13178137418948094
+        },
+        "pd_endpoint_xy_error_m": {
+          "count": 155,
+          "median": 0.015343666973291602,
+          "p90": 0.07213490946654338,
+          "maximum": 0.09015784444263067
+        },
+        "raw_pd_endpoint_xy_disagreement_m": {
+          "count": 155,
+          "median": 0.09106036250400928,
+          "p90": 0.12152446407646025,
+          "maximum": 0.13735992822114668
+        },
+        "raw_pd_initial_state_disagreement_m": {
+          "count": 155,
+          "median": 1.0934344319955319e-11,
+          "p90": 1.569917323837106e-08,
+          "maximum": 2.990814542540017e-08
+        },
+        "actual_state_method": "linear interpolation between measured states; no extrapolation"
+      },
+      "limitations": [
+        "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+        "Products describe final QP only when end_on_qp_step is true.",
+        "Raw and PD channels are summarized separately at a common knot."
+      ],
+      "audit": "outputs/contact_planner_m3/workspace_height_20260908/native_tracking_gains_guard_q100_35/scene007/effect_audit.jsonl"
+    },
+    "dynamic_geometry_audit": {
+      "samples": 175,
+      "positive_force_samples": 172,
+      "max_hand_rotation_error_rad": 1.41991725558899e-06,
+      "drake_distance_during_positive_force": {
+        "min": -0.0001075908122836862,
+        "median": -1.5242906206682428e-05,
+        "max": 5.851514255101206e-06
+      },
+      "samples_detail": [
+        {
+          "time_s": 7.5,
+          "drake_surface_distance_m": -2.63626269353559e-05,
+          "hand_rotation_error_rad": 7.901831617094838e-07,
+          "isaac_hand_contact_force_n": 7.182463645935059,
+          "isaac_semantic_safe_distance_m": 0.002804962219670415
+        },
+        {
+          "time_s": 7.51,
+          "drake_surface_distance_m": -3.233020548770822e-05,
+          "hand_rotation_error_rad": 3.4369714840265545e-07,
+          "isaac_hand_contact_force_n": 5.787857532501221,
+          "isaac_semantic_safe_distance_m": 0.00282876705750823
+        },
+        {
+          "time_s": 7.5200000000000005,
+          "drake_surface_distance_m": -0.0001075908122836862,
+          "hand_rotation_error_rad": 6.756653814765625e-07,
+          "isaac_hand_contact_force_n": 24.716148376464844,
+          "isaac_semantic_safe_distance_m": 0.0028313996735960245
+        },
+        {
+          "time_s": 7.53,
+          "drake_surface_distance_m": -2.0912021462956608e-05,
+          "hand_rotation_error_rad": 7.06509923406229e-07,
+          "isaac_hand_contact_force_n": 5.331417083740234,
+          "isaac_semantic_safe_distance_m": 0.0029423756059259176
+        },
+        {
+          "time_s": 7.54,
+          "drake_surface_distance_m": -5.636541426863266e-05,
+          "hand_rotation_error_rad": 5.551557543932562e-07,
+          "isaac_hand_contact_force_n": 10.714810371398926,
+          "isaac_semantic_safe_distance_m": 0.0029925904236733913
+        },
+        {
+          "time_s": 7.55,
+          "drake_surface_distance_m": -8.449227468012816e-05,
+          "hand_rotation_error_rad": 6.664001874625056e-08,
+          "isaac_hand_contact_force_n": 18.486860275268555,
+          "isaac_semantic_safe_distance_m": 0.0030346198473125696
+        },
+        {
+          "time_s": 7.5600000000000005,
+          "drake_surface_distance_m": -4.4597759187802745e-05,
+          "hand_rotation_error_rad": 6.187122908838623e-07,
+          "isaac_hand_contact_force_n": 10.71544075012207,
+          "isaac_semantic_safe_distance_m": 0.0031002014875411987
+        },
+        {
+          "time_s": 7.57,
+          "drake_surface_distance_m": -5.84466855681938e-05,
+          "hand_rotation_error_rad": 4.636153336198354e-07,
+          "isaac_hand_contact_force_n": 12.076569557189941,
+          "isaac_semantic_safe_distance_m": 0.00315262982621789
+        },
+        {
+          "time_s": 7.58,
+          "drake_surface_distance_m": -8.136774633070781e-05,
+          "hand_rotation_error_rad": 5.960464477539085e-07,
+          "isaac_hand_contact_force_n": 17.17539405822754,
+          "isaac_semantic_safe_distance_m": 0.0031925528310239315
+        },
+        {
+          "time_s": 7.59,
+          "drake_surface_distance_m": -7.38001543344001e-05,
+          "hand_rotation_error_rad": 5.670278546345386e-07,
+          "isaac_hand_contact_force_n": 16.06793212890625,
+          "isaac_semantic_safe_distance_m": 0.003264097264036536
+        },
+        {
+          "time_s": 7.6000000000000005,
+          "drake_surface_distance_m": -4.6481417275882166e-05,
+          "hand_rotation_error_rad": 7.177349673981881e-07,
+          "isaac_hand_contact_force_n": 9.755180358886719,
+          "isaac_semantic_safe_distance_m": 0.0033341064117848873
+        },
+        {
+          "time_s": 7.61,
+          "drake_surface_distance_m": -4.473183327923187e-05,
+          "hand_rotation_error_rad": 7.884953353001448e-08,
+          "isaac_hand_contact_force_n": 8.561237335205078,
+          "isaac_semantic_safe_distance_m": 0.0033939059358090162
+        },
+        {
+          "time_s": 7.62,
+          "drake_surface_distance_m": -8.352689955902242e-05,
+          "hand_rotation_error_rad": 5.13603923905317e-07,
+          "isaac_hand_contact_force_n": 17.51186752319336,
+          "isaac_semantic_safe_distance_m": 0.0034655930940061808
+        },
+        {
+          "time_s": 7.63,
+          "drake_surface_distance_m": -5.9831278856709334e-05,
+          "hand_rotation_error_rad": 4.172325134277351e-07,
+          "isaac_hand_contact_force_n": 13.677903175354004,
+          "isaac_semantic_safe_distance_m": 0.003565205493941903
+        },
+        {
+          "time_s": 7.640000000000001,
+          "drake_surface_distance_m": -3.161993879883723e-05,
+          "hand_rotation_error_rad": 5.101335873789709e-07,
+          "isaac_hand_contact_force_n": 6.779629230499268,
+          "isaac_semantic_safe_distance_m": 0.003666176227852702
+        },
+        {
+          "time_s": 7.65,
+          "drake_surface_distance_m": -8.419631412961626e-05,
+          "hand_rotation_error_rad": 6.384934570082617e-07,
+          "isaac_hand_contact_force_n": 17.796789169311523,
+          "isaac_semantic_safe_distance_m": 0.003746584290638566
+        },
+        {
+          "time_s": 7.66,
+          "drake_surface_distance_m": -4.121236431746034e-05,
+          "hand_rotation_error_rad": 5.339525004377654e-07,
+          "isaac_hand_contact_force_n": 8.167159080505371,
+          "isaac_semantic_safe_distance_m": 0.0038679149001836777
+        },
+        {
+          "time_s": 7.67,
+          "drake_surface_distance_m": -4.217281439318333e-05,
+          "hand_rotation_error_rad": 5.551557543932562e-07,
+          "isaac_hand_contact_force_n": 7.689959526062012,
+          "isaac_semantic_safe_distance_m": 0.003927174955606461
+        },
+        {
+          "time_s": 7.68,
+          "drake_surface_distance_m": -8.196694531660117e-05,
+          "hand_rotation_error_rad": 3.278255462646488e-07,
+          "isaac_hand_contact_force_n": 17.111019134521484,
+          "isaac_semantic_safe_distance_m": 0.003710616147145629
+        },
+        {
+          "time_s": 7.69,
+          "drake_surface_distance_m": -1.565458894832926e-05,
+          "hand_rotation_error_rad": 4.490172616636573e-07,
+          "isaac_hand_contact_force_n": 4.963049411773682,
+          "isaac_semantic_safe_distance_m": 0.0036314635071903467
+        },
+        {
+          "time_s": 7.7,
+          "drake_surface_distance_m": 5.375892790533125e-06,
+          "hand_rotation_error_rad": 6.982907363092923e-07,
+          "isaac_hand_contact_force_n": 2.060293674468994,
+          "isaac_semantic_safe_distance_m": 0.0035735550336539745
+        },
+        {
+          "time_s": 7.71,
+          "drake_surface_distance_m": -1.4042989898801637e-05,
+          "hand_rotation_error_rad": 6.201461567486791e-07,
+          "isaac_hand_contact_force_n": 2.506763458251953,
+          "isaac_semantic_safe_distance_m": 0.003491296200081706
+        },
+        {
+          "time_s": 7.72,
+          "drake_surface_distance_m": -3.0012444456338036e-05,
+          "hand_rotation_error_rad": 2.68220901489258e-07,
+          "isaac_hand_contact_force_n": 6.123347282409668,
+          "isaac_semantic_safe_distance_m": 0.0033851133193820715
+        },
+        {
+          "time_s": 7.73,
+          "drake_surface_distance_m": -5.212733427463329e-05,
+          "hand_rotation_error_rad": 6.802506572314132e-07,
+          "isaac_hand_contact_force_n": 12.188721656799316,
+          "isaac_semantic_safe_distance_m": 0.003264097264036536
+        },
+        {
+          "time_s": 7.74,
+          "drake_surface_distance_m": -1.9155074314021556e-05,
+          "hand_rotation_error_rad": 7.263456348749404e-07,
+          "isaac_hand_contact_force_n": 1.6920130252838135,
+          "isaac_semantic_safe_distance_m": 0.0033273957669734955
+        },
+        {
+          "time_s": 7.76,
+          "drake_surface_distance_m": -1.2932469913569949e-05,
+          "hand_rotation_error_rad": 7.737132898418457e-07,
+          "isaac_hand_contact_force_n": 4.928281784057617,
+          "isaac_semantic_safe_distance_m": 0.003264097264036536
+        },
+        {
+          "time_s": 7.7700000000000005,
+          "drake_surface_distance_m": -8.830045407874427e-05,
+          "hand_rotation_error_rad": 6.710487752674672e-07,
+          "isaac_hand_contact_force_n": 24.36967945098877,
+          "isaac_semantic_safe_distance_m": 0.003166777780279517
+        },
+        {
+          "time_s": 7.78,
+          "drake_surface_distance_m": -3.1841826126261145e-05,
+          "hand_rotation_error_rad": 7.627298767608288e-07,
+          "isaac_hand_contact_force_n": 10.685095325112343,
+          "isaac_semantic_safe_distance_m": 0.0032503728289157152
+        },
+        {
+          "time_s": 7.8,
+          "drake_surface_distance_m": -1.4813682726259162e-05,
+          "hand_rotation_error_rad": 8.800520336767149e-07,
+          "isaac_hand_contact_force_n": 3.8540298864245415,
+          "isaac_semantic_safe_distance_m": 0.0032457851339131594
+        },
+        {
+          "time_s": 7.8100000000000005,
+          "drake_surface_distance_m": -9.26810371088537e-05,
+          "hand_rotation_error_rad": 8.365910558473052e-07,
+          "isaac_hand_contact_force_n": 21.261905670166016,
+          "isaac_semantic_safe_distance_m": 0.003185543930158019
+        },
+        {
+          "time_s": 7.82,
+          "drake_surface_distance_m": -6.623598836197517e-05,
+          "hand_rotation_error_rad": 8.101628553311991e-07,
+          "isaac_hand_contact_force_n": 18.66023374721408,
+          "isaac_semantic_safe_distance_m": 0.0031995465978980064
+        },
+        {
+          "time_s": 7.83,
+          "drake_surface_distance_m": -3.228015298189694e-05,
+          "hand_rotation_error_rad": 6.172750943067092e-07,
+          "isaac_hand_contact_force_n": 8.043183326721191,
+          "isaac_semantic_safe_distance_m": 0.0032365901861339808
+        },
+        {
+          "time_s": 7.84,
+          "drake_surface_distance_m": -7.862239427936718e-05,
+          "hand_rotation_error_rad": 6.329047853230056e-07,
+          "isaac_hand_contact_force_n": 17.219983220100403,
+          "isaac_semantic_safe_distance_m": 0.003197216894477606
+        },
+        {
+          "time_s": 7.8500000000000005,
+          "drake_surface_distance_m": -2.353891370626069e-06,
+          "hand_rotation_error_rad": 6.07119464500649e-07,
+          "isaac_hand_contact_force_n": 0.4976441264152527,
+          "isaac_semantic_safe_distance_m": 0.0033184271305799484
+        },
+        {
+          "time_s": 7.86,
+          "drake_surface_distance_m": -1.2130137949304617e-05,
+          "hand_rotation_error_rad": 8.86086746890463e-07,
+          "isaac_hand_contact_force_n": 0.550869882106781,
+          "isaac_semantic_safe_distance_m": 0.003329634200781584
+        },
+        {
+          "time_s": 7.88,
+          "drake_surface_distance_m": -1.828289037862979e-05,
+          "hand_rotation_error_rad": 6.835070217358929e-07,
+          "isaac_hand_contact_force_n": 5.282234528101981,
+          "isaac_semantic_safe_distance_m": 0.003329634200781584
+        },
+        {
+          "time_s": 7.890000000000001,
+          "drake_surface_distance_m": -3.1709577413399616e-05,
+          "hand_rotation_error_rad": 8.606630014296629e-07,
+          "isaac_hand_contact_force_n": 8.726826429367065,
+          "isaac_semantic_safe_distance_m": 0.0033139334991574287
+        },
+        {
+          "time_s": 7.9,
+          "drake_surface_distance_m": 5.851514255101206e-06,
+          "hand_rotation_error_rad": 9.262722890329476e-07,
+          "isaac_hand_contact_force_n": 0.2419039011001587,
+          "isaac_semantic_safe_distance_m": 0.0033873138017952442
+        },
+        {
+          "time_s": 7.91,
+          "drake_surface_distance_m": -1.4450978340945041e-05,
+          "hand_rotation_error_rad": 6.377975511262652e-07,
+          "isaac_hand_contact_force_n": 1.9046924114227295,
+          "isaac_semantic_safe_distance_m": 0.0035735550336539745
+        },
+        {
+          "time_s": 7.930000000000001,
+          "drake_surface_distance_m": -1.332584637251783e-06,
+          "hand_rotation_error_rad": 8.123524886631432e-07,
+          "isaac_hand_contact_force_n": 0.6976965069770813,
+          "isaac_semantic_safe_distance_m": 0.003819454926997423
+        },
+        {
+          "time_s": 7.94,
+          "drake_surface_distance_m": -1.1466220605401518e-06,
+          "hand_rotation_error_rad": 7.788619008882082e-07,
+          "isaac_hand_contact_force_n": 0.4782302677631378,
+          "isaac_semantic_safe_distance_m": 0.004033864941447973
+        },
+        {
+          "time_s": 7.95,
+          "drake_surface_distance_m": 4.863051679395926e-07,
+          "hand_rotation_error_rad": 7.817075877549698e-07,
+          "isaac_hand_contact_force_n": 0.29742133617401123,
+          "isaac_semantic_safe_distance_m": 0.004338221624493599
+        },
+        {
+          "time_s": 7.96,
+          "drake_surface_distance_m": 1.8837231426297279e-06,
+          "hand_rotation_error_rad": 6.730311984203021e-07,
+          "isaac_hand_contact_force_n": 0.5952371954917908,
+          "isaac_semantic_safe_distance_m": 0.0040023429319262505
+        },
+        {
+          "time_s": 7.97,
+          "drake_surface_distance_m": 1.9548704446863703e-06,
+          "hand_rotation_error_rad": 7.396741894478159e-07,
+          "isaac_hand_contact_force_n": 0.5766652226448059,
+          "isaac_semantic_safe_distance_m": 0.003252664115279913
+        },
+        {
+          "time_s": 7.98,
+          "drake_surface_distance_m": 2.056354208595023e-07,
+          "hand_rotation_error_rad": 5.297776709387073e-07,
+          "isaac_hand_contact_force_n": 0.6677425503730774,
+          "isaac_semantic_safe_distance_m": 0.00256928289309144
+        },
+        {
+          "time_s": 7.99,
+          "drake_surface_distance_m": -4.995353014332524e-06,
+          "hand_rotation_error_rad": 8.601468616522505e-07,
+          "isaac_hand_contact_force_n": 1.4764735698699951,
+          "isaac_semantic_safe_distance_m": 0.0019378061406314373
+        },
+        {
+          "time_s": 8.0,
+          "drake_surface_distance_m": -9.646008855173548e-05,
+          "hand_rotation_error_rad": 6.122183377794689e-07,
+          "isaac_hand_contact_force_n": 25.348225690424442,
+          "isaac_semantic_safe_distance_m": 0.0015246577095240355
+        },
+        {
+          "time_s": 8.01,
+          "drake_surface_distance_m": -4.402680943916833e-05,
+          "hand_rotation_error_rad": 5.724839184373203e-07,
+          "isaac_hand_contact_force_n": 15.384472168982029,
+          "isaac_semantic_safe_distance_m": 0.0015148527454584837
+        },
+        {
+          "time_s": 8.02,
+          "drake_surface_distance_m": -1.224866948308643e-05,
+          "hand_rotation_error_rad": 6.244279992508009e-07,
+          "isaac_hand_contact_force_n": 3.6413450241088867,
+          "isaac_semantic_safe_distance_m": 0.0015099263982847333
+        },
+        {
+          "time_s": 8.03,
+          "drake_surface_distance_m": -9.269493300814813e-05,
+          "hand_rotation_error_rad": 6.522556730580147e-07,
+          "isaac_hand_contact_force_n": 24.41212670505047,
+          "isaac_semantic_safe_distance_m": 0.001423572190105915
+        },
+        {
+          "time_s": 8.040000000000001,
+          "drake_surface_distance_m": -6.902085003300572e-05,
+          "hand_rotation_error_rad": 7.834100382384657e-07,
+          "isaac_hand_contact_force_n": 19.242168426513672,
+          "isaac_semantic_safe_distance_m": 0.00139715860132128
+        },
+        {
+          "time_s": 8.05,
+          "drake_surface_distance_m": -6.595814394243932e-07,
+          "hand_rotation_error_rad": 9.396006328126545e-07,
+          "isaac_hand_contact_force_n": 2.0022408962249756,
+          "isaac_semantic_safe_distance_m": 0.0014443554682657123
+        },
+        {
+          "time_s": 8.06,
+          "drake_surface_distance_m": -2.1986668917817176e-05,
+          "hand_rotation_error_rad": 9.059121700269457e-07,
+          "isaac_hand_contact_force_n": 5.784246444702148,
+          "isaac_semantic_safe_distance_m": 0.0014130660565569997
+        },
+        {
+          "time_s": 8.07,
+          "drake_surface_distance_m": -1.9632918798849707e-05,
+          "hand_rotation_error_rad": 6.056547591954962e-07,
+          "isaac_hand_contact_force_n": 5.411055088043213,
+          "isaac_semantic_safe_distance_m": 0.0014077834784984589
+        },
+        {
+          "time_s": 8.08,
+          "drake_surface_distance_m": -2.5692684418035037e-05,
+          "hand_rotation_error_rad": 5.908080220699036e-07,
+          "isaac_hand_contact_force_n": 7.013858318328857,
+          "isaac_semantic_safe_distance_m": 0.00139715860132128
+        },
+        {
+          "time_s": 8.09,
+          "drake_surface_distance_m": -2.597597017940672e-05,
+          "hand_rotation_error_rad": 7.420718430274012e-07,
+          "isaac_hand_contact_force_n": 7.229029139503837,
+          "isaac_semantic_safe_distance_m": 0.0013918157201260328
+        },
+        {
+          "time_s": 8.1,
+          "drake_surface_distance_m": -4.022402155296708e-05,
+          "hand_rotation_error_rad": 1.0872743336531474e-06,
+          "isaac_hand_contact_force_n": 11.010017156600952,
+          "isaac_semantic_safe_distance_m": 0.0013647875748574734
+        },
+        {
+          "time_s": 8.11,
+          "drake_surface_distance_m": -2.927770394988395e-05,
+          "hand_rotation_error_rad": 8.980345233273202e-07,
+          "isaac_hand_contact_force_n": 8.020916938781738,
+          "isaac_semantic_safe_distance_m": 0.0013756625121459365
+        },
+        {
+          "time_s": 8.120000000000001,
+          "drake_surface_distance_m": -1.1523277969297768e-05,
+          "hand_rotation_error_rad": 6.848052318737575e-07,
+          "isaac_hand_contact_force_n": 4.3240203857421875,
+          "isaac_semantic_safe_distance_m": 0.001370235811918974
+        },
+        {
+          "time_s": 8.13,
+          "drake_surface_distance_m": -2.9112915488275095e-05,
+          "hand_rotation_error_rad": 4.869739603509972e-07,
+          "isaac_hand_contact_force_n": 9.200413346290588,
+          "isaac_semantic_safe_distance_m": 0.0013316299300640821
+        },
+        {
+          "time_s": 8.14,
+          "drake_surface_distance_m": -4.601060571380733e-05,
+          "hand_rotation_error_rad": 5.527507362065157e-07,
+          "isaac_hand_contact_force_n": 13.17784595489502,
+          "isaac_semantic_safe_distance_m": 0.0013147374847903848
+        },
+        {
+          "time_s": 8.16,
+          "drake_surface_distance_m": 2.6823171957429376e-06,
+          "hand_rotation_error_rad": 7.862392639084461e-07,
+          "isaac_hand_contact_force_n": 5.426424026489258,
+          "isaac_semantic_safe_distance_m": 0.0013538252096623182
+        },
+        {
+          "time_s": 8.19,
+          "drake_surface_distance_m": 7.474607090463298e-07,
+          "hand_rotation_error_rad": 6.710487752674672e-07,
+          "isaac_hand_contact_force_n": 0.48157840967178345,
+          "isaac_semantic_safe_distance_m": 0.0011385960970073938
+        },
+        {
+          "time_s": 8.2,
+          "drake_surface_distance_m": 1.6906745444814812e-06,
+          "hand_rotation_error_rad": 3.9872789860545616e-07,
+          "isaac_hand_contact_force_n": 0.5581639409065247,
+          "isaac_semantic_safe_distance_m": 0.0011708573438227177
+        },
+        {
+          "time_s": 8.21,
+          "drake_surface_distance_m": 1.9879802500001893e-06,
+          "hand_rotation_error_rad": 1.104697763493709e-06,
+          "isaac_hand_contact_force_n": 0.705949068069458,
+          "isaac_semantic_safe_distance_m": 0.0014850494917482138
+        },
+        {
+          "time_s": 8.22,
+          "drake_surface_distance_m": 7.559908436149427e-07,
+          "hand_rotation_error_rad": 8.381820386901698e-07,
+          "isaac_hand_contact_force_n": 0.6998898983001709,
+          "isaac_semantic_safe_distance_m": 0.00212486507371068
+        },
+        {
+          "time_s": 8.23,
+          "drake_surface_distance_m": -6.036808690484349e-06,
+          "hand_rotation_error_rad": 1.1356210042988005e-06,
+          "isaac_hand_contact_force_n": 1.9825031757354736,
+          "isaac_semantic_safe_distance_m": 0.0026966212317347527
+        },
+        {
+          "time_s": 8.24,
+          "drake_surface_distance_m": -1.2216835239434585e-05,
+          "hand_rotation_error_rad": 8.188862600346912e-07,
+          "isaac_hand_contact_force_n": 3.259428024291992,
+          "isaac_semantic_safe_distance_m": 0.003166777780279517
+        },
+        {
+          "time_s": 8.25,
+          "drake_surface_distance_m": -7.751127546031203e-05,
+          "hand_rotation_error_rad": 7.414731564894199e-07,
+          "isaac_hand_contact_force_n": 24.496849060058594,
+          "isaac_semantic_safe_distance_m": 0.0029169442132115364
+        },
+        {
+          "time_s": 8.27,
+          "drake_surface_distance_m": -3.44904474420028e-05,
+          "hand_rotation_error_rad": 7.251217997429673e-07,
+          "isaac_hand_contact_force_n": 7.622663974761963,
+          "isaac_semantic_safe_distance_m": 0.0029169442132115364
+        },
+        {
+          "time_s": 8.28,
+          "drake_surface_distance_m": -4.4359233809232575e-05,
+          "hand_rotation_error_rad": 9.601714428417188e-07,
+          "isaac_hand_contact_force_n": 15.914978679269552,
+          "isaac_semantic_safe_distance_m": 0.0028783755842596292
+        },
+        {
+          "time_s": 8.290000000000001,
+          "drake_surface_distance_m": -3.519551188252269e-05,
+          "hand_rotation_error_rad": 8.387116956395144e-07,
+          "isaac_hand_contact_force_n": 8.232501029968262,
+          "isaac_semantic_safe_distance_m": 0.0028757858090102673
+        },
+        {
+          "time_s": 8.3,
+          "drake_surface_distance_m": -4.148143413522465e-05,
+          "hand_rotation_error_rad": 3.039252468104833e-07,
+          "isaac_hand_contact_force_n": 13.617849349975586,
+          "isaac_semantic_safe_distance_m": 0.0028549842536449432
+        },
+        {
+          "time_s": 8.31,
+          "drake_surface_distance_m": -2.1566243900366395e-05,
+          "hand_rotation_error_rad": 8.865877855207705e-07,
+          "isaac_hand_contact_force_n": 5.578135967254639,
+          "isaac_semantic_safe_distance_m": 0.0028575926553457975
+        },
+        {
+          "time_s": 8.32,
+          "drake_surface_distance_m": -4.542315553321883e-05,
+          "hand_rotation_error_rad": 7.691078126766694e-07,
+          "isaac_hand_contact_force_n": 14.504969615489244,
+          "isaac_semantic_safe_distance_m": 0.00283665768802166
+        },
+        {
+          "time_s": 8.33,
+          "drake_surface_distance_m": -2.913608192767608e-05,
+          "hand_rotation_error_rad": 6.314998895054215e-07,
+          "isaac_hand_contact_force_n": 9.063604423776269,
+          "isaac_semantic_safe_distance_m": 0.0028340299613773823
+        },
+        {
+          "time_s": 8.34,
+          "drake_surface_distance_m": -4.09256354876445e-05,
+          "hand_rotation_error_rad": 6.440336342148305e-07,
+          "isaac_hand_contact_force_n": 12.393959917128086,
+          "isaac_semantic_safe_distance_m": 0.002820854540914297
+        },
+        {
+          "time_s": 8.35,
+          "drake_surface_distance_m": -2.8761454543167944e-05,
+          "hand_rotation_error_rad": 8.150812584863566e-07,
+          "isaac_hand_contact_force_n": 9.213178964331746,
+          "isaac_semantic_safe_distance_m": 0.002804962219670415
+        },
+        {
+          "time_s": 8.36,
+          "drake_surface_distance_m": -1.9256457470302108e-05,
+          "hand_rotation_error_rad": 6.963802245585908e-07,
+          "isaac_hand_contact_force_n": 5.272315999493003,
+          "isaac_semantic_safe_distance_m": 0.002804962219670415
+        },
+        {
+          "time_s": 8.370000000000001,
+          "drake_surface_distance_m": -3.603836758024618e-05,
+          "hand_rotation_error_rad": 6.995615121308305e-07,
+          "isaac_hand_contact_force_n": 10.734626479446888,
+          "isaac_semantic_safe_distance_m": 0.00279431720264256
+        },
+        {
+          "time_s": 8.38,
+          "drake_surface_distance_m": -2.5514148165028125e-05,
+          "hand_rotation_error_rad": 8.69390496362146e-07,
+          "isaac_hand_contact_force_n": 7.969494305551052,
+          "isaac_semantic_safe_distance_m": 0.0027863066643476486
+        },
+        {
+          "time_s": 8.39,
+          "drake_surface_distance_m": -3.2253950799295834e-05,
+          "hand_rotation_error_rad": 4.3901562281418636e-07,
+          "isaac_hand_contact_force_n": 9.834367074072361,
+          "isaac_semantic_safe_distance_m": 0.0027836314402520657
+        },
+        {
+          "time_s": 8.4,
+          "drake_surface_distance_m": -3.768010498895265e-05,
+          "hand_rotation_error_rad": 6.272663229658983e-07,
+          "isaac_hand_contact_force_n": 11.696627981960773,
+          "isaac_semantic_safe_distance_m": 0.0027567357756197453
+        },
+        {
+          "time_s": 8.41,
+          "drake_surface_distance_m": -3.653060663215429e-05,
+          "hand_rotation_error_rad": 4.878850443287176e-07,
+          "isaac_hand_contact_force_n": 11.216062277555466,
+          "isaac_semantic_safe_distance_m": 0.0027213741559535265
+        },
+        {
+          "time_s": 8.42,
+          "drake_surface_distance_m": -4.264015612715217e-05,
+          "hand_rotation_error_rad": 6.73690709796987e-07,
+          "isaac_hand_contact_force_n": 12.975306617096066,
+          "isaac_semantic_safe_distance_m": 0.0026688489597290754
+        },
+        {
+          "time_s": 8.43,
+          "drake_surface_distance_m": -4.771212389176812e-05,
+          "hand_rotation_error_rad": 5.778884717722352e-07,
+          "isaac_hand_contact_force_n": 15.4945123270154,
+          "isaac_semantic_safe_distance_m": 0.002575075952336192
+        },
+        {
+          "time_s": 8.44,
+          "drake_surface_distance_m": -5.7217935891386386e-05,
+          "hand_rotation_error_rad": 6.100383249061942e-07,
+          "isaac_hand_contact_force_n": 14.84593677520752,
+          "isaac_semantic_safe_distance_m": 0.002474747831001878
+        },
+        {
+          "time_s": 8.45,
+          "drake_surface_distance_m": 6.007333871229271e-07,
+          "hand_rotation_error_rad": 5.678105021493946e-07,
+          "isaac_hand_contact_force_n": 1.1651966571807861,
+          "isaac_semantic_safe_distance_m": 0.0024014057125896215
+        },
+        {
+          "time_s": 8.46,
+          "drake_surface_distance_m": -2.1138042548590345e-06,
+          "hand_rotation_error_rad": 9.122626701005757e-07,
+          "isaac_hand_contact_force_n": 1.2909905910491943,
+          "isaac_semantic_safe_distance_m": 0.002309678588062525
+        },
+        {
+          "time_s": 8.47,
+          "drake_surface_distance_m": -1.0055044217349288e-06,
+          "hand_rotation_error_rad": 7.108962799237147e-07,
+          "isaac_hand_contact_force_n": 0.836430549621582,
+          "isaac_semantic_safe_distance_m": 0.002214154927060008
+        },
+        {
+          "time_s": 8.48,
+          "drake_surface_distance_m": -2.891550075433828e-06,
+          "hand_rotation_error_rad": 6.690604782296345e-07,
+          "isaac_hand_contact_force_n": 0.8130469918251038,
+          "isaac_semantic_safe_distance_m": 0.0020823634695261717
+        },
+        {
+          "time_s": 8.49,
+          "drake_surface_distance_m": -1.5482899400861771e-06,
+          "hand_rotation_error_rad": 5.511415603431161e-07,
+          "isaac_hand_contact_force_n": 1.664414882659912,
+          "isaac_semantic_safe_distance_m": 0.0019145980477333069
+        },
+        {
+          "time_s": 8.5,
+          "drake_surface_distance_m": -2.702325545918104e-06,
+          "hand_rotation_error_rad": 6.822063411628993e-07,
+          "isaac_hand_contact_force_n": 2.197723150253296,
+          "isaac_semantic_safe_distance_m": 0.0017133384244516492
+        },
+        {
+          "time_s": 8.51,
+          "drake_surface_distance_m": -4.173061659800007e-06,
+          "hand_rotation_error_rad": 6.00500156867801e-07,
+          "isaac_hand_contact_force_n": 1.6949424743652344,
+          "isaac_semantic_safe_distance_m": 0.0015344000421464443
+        },
+        {
+          "time_s": 8.52,
+          "drake_surface_distance_m": -7.75248639018918e-05,
+          "hand_rotation_error_rad": 8.790422203393426e-07,
+          "isaac_hand_contact_force_n": 22.962814945727587,
+          "isaac_semantic_safe_distance_m": 0.001495049917139113
+        },
+        {
+          "time_s": 8.53,
+          "drake_surface_distance_m": -1.0718831046073765e-05,
+          "hand_rotation_error_rad": 4.129530924722863e-07,
+          "isaac_hand_contact_force_n": 5.339955806732178,
+          "isaac_semantic_safe_distance_m": 0.0014850494917482138
+        },
+        {
+          "time_s": 8.540000000000001,
+          "drake_surface_distance_m": -3.9908869792608345e-05,
+          "hand_rotation_error_rad": 4.85146659496419e-07,
+          "isaac_hand_contact_force_n": 10.788763046264648,
+          "isaac_semantic_safe_distance_m": 0.001490058028139174
+        },
+        {
+          "time_s": 8.55,
+          "drake_surface_distance_m": -3.717120390274546e-05,
+          "hand_rotation_error_rad": 7.817075877549698e-07,
+          "isaac_hand_contact_force_n": 11.270181487314403,
+          "isaac_semantic_safe_distance_m": 0.001490058028139174
+        },
+        {
+          "time_s": 8.56,
+          "drake_surface_distance_m": -3.362946413818612e-05,
+          "hand_rotation_error_rad": 6.576799300525787e-07,
+          "isaac_hand_contact_force_n": 10.428138732910156,
+          "isaac_semantic_safe_distance_m": 0.0014546356396749616
+        },
+        {
+          "time_s": 8.57,
+          "drake_surface_distance_m": -3.1460787030918085e-05,
+          "hand_rotation_error_rad": 1.2651077077860522e-06,
+          "isaac_hand_contact_force_n": 9.298698425292969,
+          "isaac_semantic_safe_distance_m": 0.0014597486006096005
+        },
+        {
+          "time_s": 8.58,
+          "drake_surface_distance_m": -4.2753135889067796e-05,
+          "hand_rotation_error_rad": 1.2959727588390874e-06,
+          "isaac_hand_contact_force_n": 12.749245218932629,
+          "isaac_semantic_safe_distance_m": 0.0014597486006096005
+        },
+        {
+          "time_s": 8.59,
+          "drake_surface_distance_m": -4.146958189986874e-05,
+          "hand_rotation_error_rad": 1.1913476044718611e-06,
+          "isaac_hand_contact_force_n": 12.92205929942429,
+          "isaac_semantic_safe_distance_m": 0.0014546356396749616
+        },
+        {
+          "time_s": 8.6,
+          "drake_surface_distance_m": -3.311841844306942e-05,
+          "hand_rotation_error_rad": 1.41991725558899e-06,
+          "isaac_hand_contact_force_n": 10.294132355600595,
+          "isaac_semantic_safe_distance_m": 0.0014495046343654394
+        },
+        {
+          "time_s": 8.61,
+          "drake_surface_distance_m": -3.0131919906645883e-05,
+          "hand_rotation_error_rad": 6.822063411628993e-07,
+          "isaac_hand_contact_force_n": 9.0015555806458,
+          "isaac_semantic_safe_distance_m": 0.0014597486006096005
+        },
+        {
+          "time_s": 8.620000000000001,
+          "drake_surface_distance_m": -3.778442726184184e-05,
+          "hand_rotation_error_rad": 8.508028044474307e-07,
+          "isaac_hand_contact_force_n": 11.649476142600179,
+          "isaac_semantic_safe_distance_m": 0.0014391877921298146
+        },
+        {
+          "time_s": 8.63,
+          "drake_surface_distance_m": -3.8770711512222366e-05,
+          "hand_rotation_error_rad": 6.886851792509198e-07,
+          "isaac_hand_contact_force_n": 11.873111149296165,
+          "isaac_semantic_safe_distance_m": 0.0014340014895424247
+        },
+        {
+          "time_s": 8.64,
+          "drake_surface_distance_m": -4.5052473589661975e-05,
+          "hand_rotation_error_rad": 6.405766385854712e-07,
+          "isaac_hand_contact_force_n": 13.852415526285768,
+          "isaac_semantic_safe_distance_m": 0.0014077834784984589
+        },
+        {
+          "time_s": 8.65,
+          "drake_surface_distance_m": -3.083026016531522e-05,
+          "hand_rotation_error_rad": 8.476652296380996e-07,
+          "isaac_hand_contact_force_n": 9.667466551065445,
+          "isaac_semantic_safe_distance_m": 0.00141832884401083
+        },
+        {
+          "time_s": 8.66,
+          "drake_surface_distance_m": -3.1204485301957876e-05,
+          "hand_rotation_error_rad": 5.670278546345386e-07,
+          "isaac_hand_contact_force_n": 9.557018760591745,
+          "isaac_semantic_safe_distance_m": 0.00141832884401083
+        },
+        {
+          "time_s": 8.67,
+          "drake_surface_distance_m": -3.8466692586431254e-05,
+          "hand_rotation_error_rad": 4.942156062059713e-07,
+          "isaac_hand_contact_force_n": 12.025305250659585,
+          "isaac_semantic_safe_distance_m": 0.001423572190105915
+        },
+        {
+          "time_s": 8.68,
+          "drake_surface_distance_m": -3.5926692519628476e-05,
+          "hand_rotation_error_rad": 1.6593230851978133e-07,
+          "isaac_hand_contact_force_n": 11.324916113168001,
+          "isaac_semantic_safe_distance_m": 0.0014077834784984589
+        },
+        {
+          "time_s": 8.69,
+          "drake_surface_distance_m": -4.06120713695851e-05,
+          "hand_rotation_error_rad": 9.238719940185629e-07,
+          "isaac_hand_contact_force_n": 12.447244876995683,
+          "isaac_semantic_safe_distance_m": 0.0013864522334188223
+        },
+        {
+          "time_s": 8.700000000000001,
+          "drake_surface_distance_m": -1.9136568801527882e-05,
+          "hand_rotation_error_rad": 7.008299837294165e-07,
+          "isaac_hand_contact_force_n": 6.3168206214904785,
+          "isaac_semantic_safe_distance_m": 0.0013864522334188223
+        },
+        {
+          "time_s": 8.71,
+          "drake_surface_distance_m": -1.6022227891812487e-05,
+          "hand_rotation_error_rad": 1.283231386042318e-06,
+          "isaac_hand_contact_force_n": 4.446998119354248,
+          "isaac_semantic_safe_distance_m": 0.0014024811098352075
+        },
+        {
+          "time_s": 8.72,
+          "drake_surface_distance_m": -2.3649192777512144e-05,
+          "hand_rotation_error_rad": 8.296615425989123e-07,
+          "isaac_hand_contact_force_n": 7.064268112182617,
+          "isaac_semantic_safe_distance_m": 0.00139715860132128
+        },
+        {
+          "time_s": 8.73,
+          "drake_surface_distance_m": -1.841971819986842e-05,
+          "hand_rotation_error_rad": 9.58782907852266e-07,
+          "isaac_hand_contact_force_n": 6.000310897827148,
+          "isaac_semantic_safe_distance_m": 0.0013918157201260328
+        },
+        {
+          "time_s": 8.74,
+          "drake_surface_distance_m": -2.484120461694865e-05,
+          "hand_rotation_error_rad": 7.828429661133159e-07,
+          "isaac_hand_contact_force_n": 7.341468811035156,
+          "isaac_semantic_safe_distance_m": 0.00139715860132128
+        },
+        {
+          "time_s": 8.75,
+          "drake_surface_distance_m": -1.0485717009938951e-05,
+          "hand_rotation_error_rad": 5.230286352272122e-07,
+          "isaac_hand_contact_force_n": 3.222040891647339,
+          "isaac_semantic_safe_distance_m": 0.0013864522334188223
+        },
+        {
+          "time_s": 8.76,
+          "drake_surface_distance_m": -6.5559151736250935e-06,
+          "hand_rotation_error_rad": 8.349970415903331e-07,
+          "isaac_hand_contact_force_n": 1.7141295671463013,
+          "isaac_semantic_safe_distance_m": 0.0013810679083690047
+        },
+        {
+          "time_s": 8.77,
+          "drake_surface_distance_m": -1.6794426895107045e-05,
+          "hand_rotation_error_rad": 7.214378378933829e-07,
+          "isaac_hand_contact_force_n": 4.86452054977417,
+          "isaac_semantic_safe_distance_m": 0.0013864522334188223
+        },
+        {
+          "time_s": 8.78,
+          "drake_surface_distance_m": -1.1754312928166291e-05,
+          "hand_rotation_error_rad": 5.339525004377654e-07,
+          "isaac_hand_contact_force_n": 3.3058557510375977,
+          "isaac_semantic_safe_distance_m": 0.0013864522334188223
+        },
+        {
+          "time_s": 8.790000000000001,
+          "drake_surface_distance_m": -1.1724808186401454e-05,
+          "hand_rotation_error_rad": 4.712160915387253e-07,
+          "isaac_hand_contact_force_n": 3.1936521530151367,
+          "isaac_semantic_safe_distance_m": 0.0013810679083690047
+        },
+        {
+          "time_s": 8.8,
+          "drake_surface_distance_m": -1.0452792983290564e-05,
+          "hand_rotation_error_rad": 6.683963981868597e-07,
+          "isaac_hand_contact_force_n": 3.1288628578186035,
+          "isaac_semantic_safe_distance_m": 0.0013918157201260328
+        },
+        {
+          "time_s": 8.81,
+          "drake_surface_distance_m": -9.942981531424293e-06,
+          "hand_rotation_error_rad": 8.22133673675884e-07,
+          "isaac_hand_contact_force_n": 2.479968547821045,
+          "isaac_semantic_safe_distance_m": 0.0013810679083690047
+        },
+        {
+          "time_s": 8.82,
+          "drake_surface_distance_m": -1.3778753508089272e-05,
+          "hand_rotation_error_rad": 7.014633593523431e-07,
+          "isaac_hand_contact_force_n": 3.5666913986206055,
+          "isaac_semantic_safe_distance_m": 0.0013810679083690047
+        },
+        {
+          "time_s": 8.83,
+          "drake_surface_distance_m": -1.4466948832898222e-05,
+          "hand_rotation_error_rad": 6.426530674948667e-07,
+          "isaac_hand_contact_force_n": 3.7467408180236816,
+          "isaac_semantic_safe_distance_m": 0.0013918157201260328
+        },
+        {
+          "time_s": 8.84,
+          "drake_surface_distance_m": -2.737164576463987e-06,
+          "hand_rotation_error_rad": 8.057657381651321e-07,
+          "isaac_hand_contact_force_n": 1.2353301048278809,
+          "isaac_semantic_safe_distance_m": 0.0013810679083690047
+        },
+        {
+          "time_s": 8.85,
+          "drake_surface_distance_m": -6.492944550243756e-06,
+          "hand_rotation_error_rad": 1.0872743336531474e-06,
+          "isaac_hand_contact_force_n": 5.228791236877441,
+          "isaac_semantic_safe_distance_m": 0.0013810679083690047
+        },
+        {
+          "time_s": 8.86,
+          "drake_surface_distance_m": -1.3648550595031953e-05,
+          "hand_rotation_error_rad": 7.974557972109163e-07,
+          "isaac_hand_contact_force_n": 4.249183177947998,
+          "isaac_semantic_safe_distance_m": 0.0013483106158673763
+        },
+        {
+          "time_s": 8.870000000000001,
+          "drake_surface_distance_m": -1.7902179663565593e-05,
+          "hand_rotation_error_rad": 1.036675401385205e-06,
+          "isaac_hand_contact_force_n": 4.759664058685303,
+          "isaac_semantic_safe_distance_m": 0.0013483106158673763
+        },
+        {
+          "time_s": 8.88,
+          "drake_surface_distance_m": -1.4631955472193567e-05,
+          "hand_rotation_error_rad": 6.47472172451035e-07,
+          "isaac_hand_contact_force_n": 3.7241909503936768,
+          "isaac_semantic_safe_distance_m": 0.0013810679083690047
+        },
+        {
+          "time_s": 8.89,
+          "drake_surface_distance_m": -1.3233724977751675e-05,
+          "hand_rotation_error_rad": 9.410174729732925e-07,
+          "isaac_hand_contact_force_n": 3.0798518657684326,
+          "isaac_semantic_safe_distance_m": 0.0013593174517154694
+        },
+        {
+          "time_s": 8.9,
+          "drake_surface_distance_m": -1.0012459600471867e-05,
+          "hand_rotation_error_rad": 5.607273495860946e-07,
+          "isaac_hand_contact_force_n": 2.491450071334839,
+          "isaac_semantic_safe_distance_m": 0.0013810679083690047
+        },
+        {
+          "time_s": 8.91,
+          "drake_surface_distance_m": -4.104648830365346e-06,
+          "hand_rotation_error_rad": 4.842304232499588e-07,
+          "isaac_hand_contact_force_n": 1.2701243162155151,
+          "isaac_semantic_safe_distance_m": 0.001370235811918974
+        },
+        {
+          "time_s": 8.92,
+          "drake_surface_distance_m": -4.671009553443685e-06,
+          "hand_rotation_error_rad": 7.121445623247972e-07,
+          "isaac_hand_contact_force_n": 1.3789279460906982,
+          "isaac_semantic_safe_distance_m": 0.0013593174517154694
+        },
+        {
+          "time_s": 8.93,
+          "drake_surface_distance_m": -5.622440916095956e-06,
+          "hand_rotation_error_rad": 5.470979139413201e-07,
+          "isaac_hand_contact_force_n": 2.656395196914673,
+          "isaac_semantic_safe_distance_m": 0.001370235811918974
+        },
+        {
+          "time_s": 8.94,
+          "drake_surface_distance_m": -1.2500286618391553e-05,
+          "hand_rotation_error_rad": 7.896209537680063e-07,
+          "isaac_hand_contact_force_n": 4.496874809265137,
+          "isaac_semantic_safe_distance_m": 0.001370235811918974
+        },
+        {
+          "time_s": 8.950000000000001,
+          "drake_surface_distance_m": -1.261863253769711e-05,
+          "hand_rotation_error_rad": 1.0172157386467574e-06,
+          "isaac_hand_contact_force_n": 4.221247673034668,
+          "isaac_semantic_safe_distance_m": 0.0013483106158673763
+        },
+        {
+          "time_s": 8.96,
+          "drake_surface_distance_m": -4.193290687376897e-06,
+          "hand_rotation_error_rad": 1.1178850730366288e-06,
+          "isaac_hand_contact_force_n": 1.8237212896347046,
+          "isaac_semantic_safe_distance_m": 0.0013810679083690047
+        },
+        {
+          "time_s": 8.97,
+          "drake_surface_distance_m": -3.843228819883492e-06,
+          "hand_rotation_error_rad": 9.866324280051598e-07,
+          "isaac_hand_contact_force_n": 1.844726800918579,
+          "isaac_semantic_safe_distance_m": 0.0013593174517154694
+        },
+        {
+          "time_s": 8.98,
+          "drake_surface_distance_m": -1.4831223465035595e-05,
+          "hand_rotation_error_rad": 1.2904784139759148e-06,
+          "isaac_hand_contact_force_n": 4.554084777832031,
+          "isaac_semantic_safe_distance_m": 0.001370235811918974
+        },
+        {
+          "time_s": 8.99,
+          "drake_surface_distance_m": -6.464365034087845e-06,
+          "hand_rotation_error_rad": 6.789437383350475e-07,
+          "isaac_hand_contact_force_n": 2.7449772357940674,
+          "isaac_semantic_safe_distance_m": 0.001370235811918974
+        },
+        {
+          "time_s": 9.0,
+          "drake_surface_distance_m": -4.033409597606972e-06,
+          "hand_rotation_error_rad": 8.418826396361375e-07,
+          "isaac_hand_contact_force_n": 2.0291941165924072,
+          "isaac_semantic_safe_distance_m": 0.0013593174517154694
+        },
+        {
+          "time_s": 9.01,
+          "drake_surface_distance_m": -5.103937729335805e-06,
+          "hand_rotation_error_rad": 1.02764008340638e-06,
+          "isaac_hand_contact_force_n": 2.100908041000366,
+          "isaac_semantic_safe_distance_m": 0.0013483106158673763
+        },
+        {
+          "time_s": 9.02,
+          "drake_surface_distance_m": -4.199270150459697e-06,
+          "hand_rotation_error_rad": 1.0815410203709766e-06,
+          "isaac_hand_contact_force_n": 2.1591615676879883,
+          "isaac_semantic_safe_distance_m": 0.0013593174517154694
+        },
+        {
+          "time_s": 9.03,
+          "drake_surface_distance_m": -9.77098999603235e-06,
+          "hand_rotation_error_rad": 1.2142389290013119e-06,
+          "isaac_hand_contact_force_n": 4.022418975830078,
+          "isaac_semantic_safe_distance_m": 0.0013483106158673763
+        },
+        {
+          "time_s": 9.040000000000001,
+          "drake_surface_distance_m": -1.3614458914619625e-05,
+          "hand_rotation_error_rad": 9.97821631597482e-07,
+          "isaac_hand_contact_force_n": 3.983351707458496,
+          "isaac_semantic_safe_distance_m": 0.0013593174517154694
+        },
+        {
+          "time_s": 9.05,
+          "drake_surface_distance_m": -8.924374929562458e-06,
+          "hand_rotation_error_rad": 1.1561611140531954e-06,
+          "isaac_hand_contact_force_n": 2.1382040977478027,
+          "isaac_semantic_safe_distance_m": 0.001370235811918974
+        },
+        {
+          "time_s": 9.06,
+          "drake_surface_distance_m": -5.779887842085817e-06,
+          "hand_rotation_error_rad": 9.929139166449221e-07,
+          "isaac_hand_contact_force_n": 1.6179659366607666,
+          "isaac_semantic_safe_distance_m": 0.0013593174517154694
+        },
+        {
+          "time_s": 9.07,
+          "drake_surface_distance_m": -2.4765812302827875e-06,
+          "hand_rotation_error_rad": 7.609811624767649e-07,
+          "isaac_hand_contact_force_n": 0.35091647505760193,
+          "isaac_semantic_safe_distance_m": 0.0013810679083690047
+        },
+        {
+          "time_s": 9.08,
+          "drake_surface_distance_m": -6.160397826700035e-06,
+          "hand_rotation_error_rad": 6.809031759974908e-07,
+          "isaac_hand_contact_force_n": 1.5744130611419678,
+          "isaac_semantic_safe_distance_m": 0.0013918157201260328
+        },
+        {
+          "time_s": 9.09,
+          "drake_surface_distance_m": -9.865428104164514e-06,
+          "hand_rotation_error_rad": 5.179091452653055e-07,
+          "isaac_hand_contact_force_n": 3.0679430961608887,
+          "isaac_semantic_safe_distance_m": 0.0014130660565569997
+        },
+        {
+          "time_s": 9.1,
+          "drake_surface_distance_m": 3.905341400277927e-06,
+          "hand_rotation_error_rad": 7.202056630608224e-07,
+          "isaac_hand_contact_force_n": 0.0,
+          "isaac_semantic_safe_distance_m": 0.0014130660565569997
+        },
+        {
+          "time_s": 9.11,
+          "drake_surface_distance_m": -3.6384824231873428e-06,
+          "hand_rotation_error_rad": 5.519467347101032e-07,
+          "isaac_hand_contact_force_n": 1.2589960098266602,
+          "isaac_semantic_safe_distance_m": 0.0014340014895424247
+        },
+        {
+          "time_s": 9.120000000000001,
+          "drake_surface_distance_m": -4.224301384236421e-06,
+          "hand_rotation_error_rad": 9.424321830774571e-07,
+          "isaac_hand_contact_force_n": 1.8488689661026,
+          "isaac_semantic_safe_distance_m": 0.0014546356396749616
+        },
+        {
+          "time_s": 9.13,
+          "drake_surface_distance_m": -2.5271798237390133e-06,
+          "hand_rotation_error_rad": 3.804905812383808e-07,
+          "isaac_hand_contact_force_n": 1.3916305303573608,
+          "isaac_semantic_safe_distance_m": 0.00146484375
+        },
+        {
+          "time_s": 9.14,
+          "drake_surface_distance_m": -2.963067438343982e-06,
+          "hand_rotation_error_rad": 1.1804880094730048e-06,
+          "isaac_hand_contact_force_n": 1.3950960636138916,
+          "isaac_semantic_safe_distance_m": 0.0015148527454584837
+        },
+        {
+          "time_s": 9.15,
+          "drake_surface_distance_m": -3.4565883870176204e-06,
+          "hand_rotation_error_rad": 1.012402042833758e-06,
+          "isaac_hand_contact_force_n": 1.6306222677230835,
+          "isaac_semantic_safe_distance_m": 0.0015537014696747065
+        },
+        {
+          "time_s": 9.16,
+          "drake_surface_distance_m": -2.203594589957428e-06,
+          "hand_rotation_error_rad": 8.940696716308668e-07,
+          "isaac_hand_contact_force_n": 1.1145288944244385,
+          "isaac_semantic_safe_distance_m": 0.0015537014696747065
+        },
+        {
+          "time_s": 9.17,
+          "drake_surface_distance_m": -3.3402228846943987e-06,
+          "hand_rotation_error_rad": 1.1812401522759618e-06,
+          "isaac_hand_contact_force_n": 1.6217633485794067,
+          "isaac_semantic_safe_distance_m": 0.00158221204765141
+        },
+        {
+          "time_s": 9.18,
+          "drake_surface_distance_m": -3.0574799133990777e-06,
+          "hand_rotation_error_rad": 7.083931162360177e-07,
+          "isaac_hand_contact_force_n": 1.3588590621948242,
+          "isaac_semantic_safe_distance_m": 0.0015916021075099707
+        },
+        {
+          "time_s": 9.200000000000001,
+          "drake_surface_distance_m": -3.1227760233336053e-07,
+          "hand_rotation_error_rad": 4.009492411337415e-07,
+          "isaac_hand_contact_force_n": 0.18876752257347107,
+          "isaac_semantic_safe_distance_m": 0.0016468185931444168
+        },
+        {
+          "time_s": 9.21,
+          "drake_surface_distance_m": -2.470565980689547e-07,
+          "hand_rotation_error_rad": 5.794233708150282e-07,
+          "isaac_hand_contact_force_n": 1.1619888544082642,
+          "isaac_semantic_safe_distance_m": 0.0016377450665459037
+        },
+        {
+          "time_s": 9.22,
+          "drake_surface_distance_m": 1.9327526226531154e-07,
+          "hand_rotation_error_rad": 7.896209537680063e-07,
+          "isaac_hand_contact_force_n": 0.7832419276237488,
+          "isaac_semantic_safe_distance_m": 0.00158221204765141
+        },
+        {
+          "time_s": 9.23,
+          "drake_surface_distance_m": -3.3738799702774903e-07,
+          "hand_rotation_error_rad": 4.860611686199942e-07,
+          "isaac_hand_contact_force_n": 0.9680382609367371,
+          "isaac_semantic_safe_distance_m": 0.0015440809074789286
+        },
+        {
+          "time_s": 9.24,
+          "drake_surface_distance_m": -1.083141021980107e-06,
+          "hand_rotation_error_rad": 1.1095112841717317e-06,
+          "isaac_hand_contact_force_n": 0.4863722324371338,
+          "isaac_semantic_safe_distance_m": 0.0015440809074789286
+        },
+        {
+          "time_s": 9.25,
+          "drake_surface_distance_m": -2.041620710947814e-06,
+          "hand_rotation_error_rad": 4.85146659496419e-07,
+          "isaac_hand_contact_force_n": 1.3956794738769531,
+          "isaac_semantic_safe_distance_m": 0.0017263349145650864
+        },
+        {
+          "time_s": 9.28,
+          "drake_surface_distance_m": -2.743059711272101e-06,
+          "hand_rotation_error_rad": 8.215933294350099e-07,
+          "isaac_hand_contact_force_n": 0.24135993421077728,
+          "isaac_semantic_safe_distance_m": 0.0019301010761409998
+        },
+        {
+          "time_s": 9.290000000000001,
+          "drake_surface_distance_m": -7.118414359186557e-08,
+          "hand_rotation_error_rad": 9.180856824367939e-07,
+          "isaac_hand_contact_force_n": 1.7912440299987793,
+          "isaac_semantic_safe_distance_m": 0.0021699692588299513
+        },
+        {
+          "time_s": 9.3,
+          "drake_surface_distance_m": -5.2684363597424884e-06,
+          "hand_rotation_error_rad": 1.1561611140531954e-06,
+          "isaac_hand_contact_force_n": 2.1119816303253174,
+          "isaac_semantic_safe_distance_m": 0.0025663813576102257
+        },
+        {
+          "time_s": 9.31,
+          "drake_surface_distance_m": -3.745257586605418e-06,
+          "hand_rotation_error_rad": 9.296222901631809e-07,
+          "isaac_hand_contact_force_n": 1.2671552896499634,
+          "isaac_semantic_safe_distance_m": 0.0021072602830827236
+        },
+        {
+          "time_s": 9.33,
+          "drake_surface_distance_m": -4.700372156953552e-06,
+          "hand_rotation_error_rad": 1.055355740167259e-06,
+          "isaac_hand_contact_force_n": 1.3807591199874878,
+          "isaac_semantic_safe_distance_m": 0.0012448778143152595
+        },
+        {
+          "time_s": 9.34,
+          "drake_surface_distance_m": -7.803275145158478e-06,
+          "hand_rotation_error_rad": 1.0946016116265766e-06,
+          "isaac_hand_contact_force_n": 2.2772727012634277,
+          "isaac_semantic_safe_distance_m": 0.0009134905994869769
+        },
+        {
+          "time_s": 9.4,
+          "drake_surface_distance_m": 0.0053757464204522215,
+          "hand_rotation_error_rad": 6.187122908838623e-07,
+          "isaac_hand_contact_force_n": 0.0,
+          "isaac_semantic_safe_distance_m": 0.006202805787324905
+        },
+        {
+          "time_s": 9.5,
+          "drake_surface_distance_m": 0.02341491173088359,
+          "hand_rotation_error_rad": 4.339283638763745e-07,
+          "isaac_hand_contact_force_n": 0.0,
+          "isaac_semantic_safe_distance_m": 0.023603487759828568
+        }
+      ]
+    }
+  },
+  "mass_scaled_rollout_hypothesis": {
+    "mass_kg": 0.057,
+    "acceleration_kp_per_s2": 200,
+    "acceleration_kd_per_s": 20,
+    "force_kp_n_per_m": [
+      11.4,
+      11.4,
+      11.4
+    ],
+    "force_kd_ns_per_m": [
+      1.14,
+      1.14,
+      1.14
+    ],
+    "status": "completed_task_failure",
+    "trial": "mass_scaled_pd_native_gains_q100_35",
+    "limitations": [
+      "Does not match operational inertia, feedforward or all contact dynamics.",
+      "Existing native PD cost evaluator uses a zero-order-held fine rollout.",
+      "Strict task success and zero C1 remain necessary; gain matching is not acceptance."
+    ]
+  },
+  "source_references": {
+    "/data1/linsixu/dairlib-push-anything-canonical/examples/sampling_c3/shared_parameters/osc_params.yaml": "74ccc255f3dd5eadddb769932473d13113116fbd1d7f53375996f89ee21bfddb",
+    "/data1/linsixu/dairlib-push-anything-canonical/examples/sampling_c3/urdf/end_effector_simple_model.urdf": "c4af54036e5a6d1cd565a70fc3f0c548f9c9220814e4205e90b8b6021af43675",
+    "/data1/linsixu/c3-push-anything/core/traj_eval.cc": "95a321aabc4c6da5a7e5b47e027273759e96df366f29ad54b8aa8da9970c0e9d"
+  },
+  "tests": "13 staging/acceptance/clearance tests passed after PD parameter wiring; gain parser help preflight passed; earlier semantic guard tests2passed.",
+  "mass_scaled_rollout_result": {
+    "result": "outputs/contact_planner_m3/workspace_height_20260908/mass_scaled_pd_native_gains_q100_35/scene007/result.json",
+    "result_sha256": "745640c3ca7e2ab8954f2607d3397e3e5237e9f549a6f94d881b14a397e2331a",
+    "metrics": {
+      "executed_sim_time_s": 35.0,
+      "final_planar_error_m": 0.051682665944099426,
+      "final_rotation_error_rad": 0.4021395742893219,
+      "forbidden_robot_contact_ever": false,
+      "stopped_reason": "maximum_sim_time",
+      "semantic_c1_guard_activation_count": 0
+    },
+    "clearance_tracking_audit": {
+      "schema": "nonprehensile.sampled_finger_clearance.v1",
+      "sample_count": 377,
+      "table_local_z_m": 0.0,
+      "minimum_clearance_m": 3.8908709525109497e-07,
+      "median_clearance_m": 0.07782196410944145,
+      "samples_below_table": 0,
+      "samples_within_0_1mm": 2,
+      "height_clamped_samples": 18,
+      "height_clamped_with_downward_feedforward": 18,
+      "worst_sample": {
+        "sim_time_s": 22.8,
+        "minimum_clearance_m": 3.8908709525109497e-07,
+        "by_body_m": {
+          "panda_leftfinger": 3.8908709525109497e-07,
+          "panda_rightfinger": 1.7957834521173388e-05
+        },
+        "raw_task_target_c3_m": [
+          0.40660579734652463,
+          0.2710139213320018,
+          -0.020613799700909995
+        ],
+        "governed_task_target_c3_m": [
+          0.40660579734652463,
+          0.2710139213320018,
+          -0.018832473961525664
+        ],
+        "planner_tip_position_m": [
+          0.406910240650177,
+          0.2705802619457245,
+          -0.02087058126926422
+        ],
+        "task_reference_floor_c3_m": -0.018832473961525664,
+        "applied_feedforward_force_n": [
+          0.01927919253854055,
+          0.014987658535352178,
+          -0.5245702024264095
+        ],
+        "osc_reference_tip_velocity_m_s": [
+          -0.03716549597103545,
+          -0.05978971544396732,
+          0.0
+        ],
+        "task_tracking_error_m": 0.0021058555473494616
+      },
+      "hand_orientation_from_first_trace_pose": {
+        "sample_count": 377,
+        "worst_sample": {
+          "sim_time_s": 25.6,
+          "error_rad": 0.028955402845074047
+        },
+        "median_error_rad": 0.009928749278888599
+      },
+      "semantic_guard_sample_audit": {
+        "available": true,
+        "sample_count": 377,
+        "active_samples": 0,
+        "active_samples_with_nonzero_force_or_velocity": 0
+      },
+      "limitations": [
+        "Only recorded trace samples; not a continuous clearance guarantee.",
+        "Cooked convex surface distance excludes contact/rest offsets and does not prove a contact force.",
+        "Only the two fingers are reconstructed; palm and arm are not included.",
+        "Hand orientation is relative to the first recorded pose; it is not a contact-force measurement."
+      ],
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/mass_scaled_pd_native_gains_q100_35/scene007/result.json",
+      "result_sha256": "745640c3ca7e2ab8954f2607d3397e3e5237e9f549a6f94d881b14a397e2331a",
+      "contact_export": "data/contact_models/closed_franka_hammer_physx_v4.json",
+      "contact_export_sha256": "b7294428120efc1b7c35c07825e837f0adf047840283357c25f7fd4e1890462f"
+    },
+    "solver_consistency": {
+      "schema": "nonprehensile.c3_solver_consistency.v1",
+      "minimum_message_time_s": 4.0,
+      "comparison_knot": 9,
+      "modes": "all controller modes; not restricted to executed C3 segments",
+      "planar_prediction_m": {
+        "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+          "count": 622,
+          "median": 0.11423237845582923,
+          "p90": 0.1727051312963233,
+          "maximum": 0.23174497117842172
+        },
+        "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+          "count": 622,
+          "median": 0.14174385452409505,
+          "p90": 0.18484792206593798,
+          "maximum": 0.19061036363617162
+        },
+        "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+          "count": 622,
+          "median": 7.12454129537898e-07,
+          "p90": 0.02427679388815873,
+          "maximum": 0.061419601845554284
+        }
+      },
+      "maximum_negative_lambda_magnitude": {
+        "count": 622,
+        "median": 1.5429167388170129e-09,
+        "p90": 5.498678603998994e-07,
+        "maximum": 9.080237759917509e-06
+      },
+      "maximum_lambda_eta_product": {
+        "count": 622,
+        "median": 44.40524473952735,
+        "p90": 138.62895687592606,
+        "maximum": 230.55361258934863
+      },
+      "zero_input_frozen_solution_count": 0,
+      "paired_raw_pd_actual": {
+        "matched_executed_c3_plans": 124,
+        "horizon_s": 0.6749999999999999,
+        "raw_endpoint_xy_error_m": {
+          "count": 124,
+          "median": 0.1005295872415605,
+          "p90": 0.1346699174196628,
+          "maximum": 0.20250223518445695
+        },
+        "pd_endpoint_xy_error_m": {
+          "count": 124,
+          "median": 7.061870790091319e-07,
+          "p90": 0.014022540500997365,
+          "maximum": 0.01972068246582038
+        },
+        "raw_pd_endpoint_xy_disagreement_m": {
+          "count": 124,
+          "median": 0.1005292264515806,
+          "p90": 0.12559770757291447,
+          "maximum": 0.20250158335508628
+        },
+        "raw_pd_initial_state_disagreement_m": {
+          "count": 124,
+          "median": 2.0002571447123342e-11,
+          "p90": 9.586955116373768e-09,
+          "maximum": 1.4765194934818038e-08
+        },
+        "actual_state_method": "linear interpolation between measured states; no extrapolation"
+      },
+      "limitations": [
+        "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+        "Products describe final QP only when end_on_qp_step is true.",
+        "Raw and PD channels are summarized separately at a common knot."
+      ],
+      "audit": "outputs/contact_planner_m3/workspace_height_20260908/mass_scaled_pd_native_gains_q100_35/scene007/effect_audit.jsonl"
+    }
+  }
+}

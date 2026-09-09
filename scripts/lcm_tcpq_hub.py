@@ -8,6 +8,7 @@ loopback interface.  It is useful on hosts where UDP multicast is disabled.
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import socket
 import socketserver
@@ -25,6 +26,7 @@ MESSAGE_TYPE_UNSUBSCRIBE = 3
 MAX_CHANNEL_BYTES = 1 << 16
 MAX_MESSAGE_BYTES = 1 << 28
 UINT32 = struct.Struct("!I")
+QUICK_ACK = os.environ.get("PUSH_ANYTHING_TCPQ_QUICK_ACK", "0") == "1"
 
 
 def recv_exact(sock: socket.socket, length: int) -> Optional[bytes]:
@@ -32,6 +34,11 @@ def recv_exact(sock: socket.socket, length: int) -> Optional[bytes]:
     while len(chunks) < length:
         try:
             chunk = sock.recv(length - len(chunks))
+            if QUICK_ACK and hasattr(socket, "TCP_QUICKACK"):
+                # Upstream TCPQ sends frame fields in separate small writes.
+                # Acknowledge each received field promptly so the sender's
+                # Nagle timer cannot stall a synchronous simulation roundtrip.
+                sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_QUICKACK, 1)
         except ConnectionError:
             return None
         if not chunk:

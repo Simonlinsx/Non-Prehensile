@@ -1,0 +1,44 @@
+{
+  "schema": "nonprehensile.contact_planner_native_acceptance.v1",
+  "date_utc": "2026-09-01",
+  "task": "Isaac-AffordanceTeacher-FrozenV7-GoalWrench-C1-Franka-v0",
+  "scene_id": "push-anything-scene000",
+  "scene_manifest_sha256": "6e14b724315bfa00010622faae9695bff7fc2100144239a08ff8d2b43dd93e65",
+  "scope": "single DOMINO hammer, no clutter, oracle pose and affordance",
+  "success_thresholds": {
+    "planar_error_m": 0.02,
+    "height_error_m": 0.01,
+    "full_so3_error_rad": 0.1,
+    "dwell_steps": 5,
+    "c1_violations": 0
+  },
+  "result": {
+    "constrained_success": true,
+    "final_planar_error_m": 0.019828,
+    "final_height_error_m": 0.001,
+    "final_full_so3_error_rad": 0.01367,
+    "selected_pushes": 10,
+    "physics_rollout_candidate_evaluations": 160,
+    "physics_rollout_legal_evaluations": 112,
+    "legal_contact_gate_passes": 10,
+    "c1_violation_scenes": 0,
+    "forbidden_hand_contact_scenes": 0,
+    "arm_target_contact_scenes": 0,
+    "shadow_to_formal_position_error_mean_m": 0.000616657,
+    "shadow_to_formal_rotation_error_mean_rad": 0.00798544
+  },
+  "same_run_artifacts": {
+    "result_json": "outputs/contact_planner_m3/isaaclab_closed_loop/scene000_vertical_liftoff_selective_video_v30.json",
+    "result_json_sha256": "a8c270a16723ce2cb50274cd04596932d9ef938b7ea306830b645624677ee2f3",
+    "native_video": "outputs/contact_planner_m3/videos/native_c1_liftoff_v30/scene000_c1_audited_run-actual-only.mp4",
+    "native_video_sha256": "a9b6c304fabc5bb7ef32b4c96bf663e233ff641ce49ffb25e43b9322e262ca2b",
+    "video_resolution": "1280x720",
+    "video_duration_s": 93.0,
+    "video_frames": 930
+  },
+  "limitations": [
+    "This is a single-scene acceptance, not randomized robustness.",
+    "The first eight-scene randomized batch obtained 0/8 strict successes.",
+    "C2, C3, RGB-D perception, and real-robot transfer are outside this evidence item."
+  ]
+}

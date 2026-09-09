@@ -1,0 +1,87 @@
+diff --git a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+--- a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
++++ b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+@@ -30,6 +30,7 @@
+   std::string osqp_settings_file;
+   std::string osc_qp_settings_file;
+   std::string franka_driver_channels_file;
++  std::optional<double> planner_finger_table_clearance;
+   std::string lcm_channels_hardware_file;
+   std::string lcm_channels_simulation_file;
+ 
+@@ -162,6 +163,10 @@
+         progress_params_file);
+     sampling_params =
+         drake::yaml::LoadYamlFile<SamplingParams>(sampling_params_file);
++    a->Visit(DRAKE_NVP(planner_finger_table_clearance));
++    if (planner_finger_table_clearance.has_value() &&
++        (!(planner_finger_table_clearance.value() >= 0 && planner_finger_table_clearance.value() < 1) || !closed_gripper_collision_meshes.has_value()))
++      throw std::runtime_error("Planner finger floor requires closed finger geometry and nonnegative clearance");
+     goal_params =
+         drake::yaml::LoadYamlFile<SamplingC3GoalParams>(goal_params_file);
+ 
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -28,6 +28,7 @@
+ #include "examples/sampling_c3/reposition.h"
+ #include "multibody/multibody_utils.h"
+ 
++#include "drake/geometry/proximity/polygon_surface_mesh.h"
+ #include "drake/common/trajectories/piecewise_polynomial.h"
+ #include "drake/multibody/plant/multibody_plant.h"
+ 
+@@ -1202,6 +1203,37 @@
+   vector<LCS> lcs_candidates = lcs_pair.first;
+   vector<LCS> lcs_candidates_for_cost = lcs_pair.second;
+ 
++  double planner_finger_floor_z = -std::numeric_limits<double>::infinity();
++  if (controller_params_.planner_finger_table_clearance.has_value()) {
++    const auto& query = plant_.get_geometry_query_input_port().Eval<drake::geometry::QueryObject<double>>(*context_);
++    const auto& inspector = query.inspector();
++    const auto& ground = plant_.GetBodyByName("ground");
++    const auto ground_geometries = plant_.GetCollisionGeometriesForBody(ground);
++    DRAKE_THROW_UNLESS(ground_geometries.size() == 1);
++    const auto ground_id = ground_geometries.front();
++    const auto& box = dynamic_cast<const drake::geometry::Box&>(inspector.GetShape(ground_id));
++    const auto ground_pose = plant_.EvalBodyPoseInWorld(*context_, ground) * inspector.GetPoseInFrame(ground_id);
++    DRAKE_THROW_UNLESS(std::abs(ground_pose.rotation().matrix()(2, 2) - 1.) < 1e-8);
++    const double table_z = ground_pose.translation().z() + box.height() / 2.;
++    const double actor_z = plant_.EvalBodyPoseInWorld(*context_, plant_.GetBodyByName("end_effector_simple")).translation().z();
++    double minimum_relative_z = std::numeric_limits<double>::infinity();
++    for (int finger_index = 0; finger_index < 2; ++finger_index) {
++      const auto& finger = plant_.GetBodyByName("closed_gripper_finger_" + std::to_string(finger_index));
++      for (const auto id : plant_.GetCollisionGeometriesForBody(finger)) {
++        const auto& convex = dynamic_cast<const drake::geometry::Convex&>(inspector.GetShape(id));
++        const auto& hull = convex.GetConvexHull();
++        const auto pose = plant_.EvalBodyPoseInWorld(*context_, finger) * inspector.GetPoseInFrame(id);
++        for (int vertex = 0; vertex < hull.num_vertices(); ++vertex)
++          minimum_relative_z = std::min(minimum_relative_z, (pose * hull.vertex(vertex)).z() - actor_z);
++      }
++    }
++    planner_finger_floor_z = table_z + controller_params_.planner_finger_table_clearance.value() - minimum_relative_z;
++    DRAKE_THROW_UNLESS(std::isfinite(planner_finger_floor_z));
++    std::cout << std::setprecision(17) << "C3_PLANNER_FINGER_FLOOR utime_us="
++              << static_cast<int64_t>(context.get_time() * 1e6) << " minimum_actor_z=" << planner_finger_floor_z
++              << " table_z=" << table_z << " minimum_relative_z=" << minimum_relative_z << std::endl;
++  }
++
+   // Prepare variables that will get used or filled in by parallelization.
+   all_sample_costs_ = vector<double>(num_total_samples, -1);
+   all_sample_dynamically_feasible_plans_ = vector<vector<VectorXd>>(
+@@ -1325,6 +1357,15 @@
+           A, sampling_c3_options_.u_vertical_limits[0],
+           sampling_c3_options_.u_vertical_limits[1],
+           c3::ConstraintVariable::INPUT);
++    }
++
++    if (std::isfinite(planner_finger_floor_z)) {
++      RowVectorXd A = VectorXd::Zero(n_x_);
++      A[2] = 1.;
++      // Original STATE constraint API covers published knots 1..N-1 and
++      // excludes the measured initial state, which can have tracking error.
++      test_c3_object->AddLinearConstraint(A, planner_finger_floor_z,
++          std::numeric_limits<double>::infinity(), c3::ConstraintVariable::STATE);
+     }
+ 
+     // Solve C3, store resulting object and cost.

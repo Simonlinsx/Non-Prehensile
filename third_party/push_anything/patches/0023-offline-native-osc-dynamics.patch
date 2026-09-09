@@ -1,0 +1,52 @@
+--- a/examples/sampling_c3/franka_osc_controller.cc
++++ b/examples/sampling_c3/franka_osc_controller.cc
+@@ -2,6 +2,8 @@
+ #include <dairlib/lcmt_radio_out.hpp>
+ #include <dairlib/lcmt_timestamped_saved_traj.hpp>
+ #include <gflags/gflags.h>
++#include <fstream>
++#include <iomanip>
+ 
+ #include "common/eigen_utils.h"
+ #include "examples/sampling_c3/parameter_headers/lcm_channels.h"
+@@ -57,6 +59,7 @@
+ using systems::controllers::RotTaskSpaceTrackingData;
+ using systems::controllers::TransTaskSpaceTrackingData;
+ 
++DEFINE_string(offline_robot_dynamics_input, "", "Read arm q(7), report original OSC model dynamics, exit without control");
+ DEFINE_bool(is_simulation, true, "True for simulation, false for hardware");
+ DEFINE_string(lcm_url, "udpm://239.255.76.67:7667?ttl=0",
+               "LCM URL with IP, port, and TTL settings");
+@@ -65,6 +68,32 @@
+ 
+ int DoMain(int argc, char* argv[]) {
+   gflags::ParseCommandLineFlags(&argc, &argv, true);
++  if (!FLAGS_offline_robot_dynamics_input.empty()) {
++    std::ifstream input(FLAGS_offline_robot_dynamics_input);
++    Eigen::VectorXd positions(7);
++    for (int i = 0; i < 7; ++i) DRAKE_THROW_UNLESS(bool(input >> positions[i]));
++    DRAKE_THROW_UNLESS(positions.allFinite());
++    drake::multibody::MultibodyPlant<double> model(0.0);
++    AddFrankaToPlant(&model);
++    model.Finalize();
++    auto context = model.CreateDefaultContext();
++    model.SetPositions(context.get(), positions);
++    Eigen::VectorXd gravity = -model.CalcGravityGeneralizedForces(*context);
++    Eigen::MatrixXd mass(7, 7);
++    model.CalcMassMatrix(*context, &mass);
++    auto tip = model.EvalBodyPoseInWorld(*context, model.GetBodyByName(kEndEffectorName));
++    std::cout << std::setprecision(17) << "OSC_MODEL_GRAVITY " << gravity.transpose() << std::endl;
++    std::cout << "OSC_MODEL_TIP " << tip.translation().transpose() << " "
++              << tip.rotation().ToQuaternion().coeffs().transpose() << std::endl;
++    for (int i = 0; i < 7; ++i)
++      std::cout << "OSC_MODEL_MASS_ROW " << i << " " << mass.row(i) << std::endl;
++    for (int i = 1; i < model.num_bodies(); ++i) {
++      const auto& body = model.get_body(drake::multibody::BodyIndex(i));
++      std::cout << "OSC_MODEL_BODY " << body.name() << " " << body.default_mass() << std::endl;
++    }
++    return 0;
++  }
++
+   drake::lcm::DrakeLcm lcm(FLAGS_lcm_url);
+ 
+   // Load parameters.

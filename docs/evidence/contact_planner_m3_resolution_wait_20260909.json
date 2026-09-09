@@ -1,0 +1,44 @@
+{
+  "scope": "Resolution15 attempts terminated before any fresh command; not evidence of completed task behavior.",
+  "attempts": {
+    "resolution15_scene007_180": {
+      "command_counts": {
+        "fresh": 0,
+        "planner_cycles": 40,
+        "ready": 38,
+        "stale": 40,
+        "watchdog": 40
+      },
+      "executed_sim_time_s": 2.0,
+      "stopped_reason": "watchdog_timeout",
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "result_sha256": "33776ea947595795b882a5ce59b5e5352c8af76b41df8c6d927b78ef1f2aaee4"
+    },
+    "resolution15_randomyaw_scene000_180": {
+      "command_counts": {
+        "fresh": 0,
+        "planner_cycles": 40,
+        "ready": 38,
+        "stale": 40,
+        "watchdog": 40
+      },
+      "executed_sim_time_s": 2.0,
+      "stopped_reason": "watchdog_timeout",
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "result_sha256": "0a47f54832b88df9d0b471478e1ca3af7bec2a9eb14f0b335112763b90ef9086"
+    }
+  },
+  "corrective_change": {
+    "wall_wait_s": 10,
+    "timestamp_tolerance_us": 100,
+    "runner_socket_timeout_s": 15,
+    "planner_clock": "simulation",
+    "simulation_clock_and_thresholds_unchanged": true,
+    "new_trial_roots": [
+      "outputs/contact_planner_m3/workspace_height_20260908/resolution15_scene007_180_wait10",
+      "outputs/contact_planner_m3/workspace_height_20260908/resolution15_randomyaw_scene000_180_wait10"
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "seed": 20260901,
+  "split": "eval",
+  "scene_count": 4,
+  "goal_distance_m": 0.12,
+  "c2_asset_id": "077_phone:0",
+  "c2_scale": [
+    0.078,
+    0.078,
+    0.078
+  ],
+  "c2_mass_kg": 0.08740911015697747,
+  "c2_stable_pose_index": 0,
+  "c2_lateral_offset_m": 0.04,
+  "c3_fraction": 0.5,
+  "c3_lateral_offset_m": 0.035,
+  "profiles": {
+    "t0_c1": "data/manifests/contact_planner_m3/typed_clutter_smoke_seed20260901/hammer_teacher_t0_c1_4_seed20260901.jsonl",
+    "c2": "data/manifests/contact_planner_m3/typed_clutter_smoke_seed20260901/hammer_teacher_c2_4_seed20260901.jsonl",
+    "c3": "data/manifests/contact_planner_m3/typed_clutter_smoke_seed20260901/hammer_teacher_c3_4_seed20260901.jsonl",
+    "combined": "data/manifests/contact_planner_m3/typed_clutter_smoke_seed20260901/hammer_teacher_combined_4_seed20260901.jsonl"
+  },
+  "c2_design": "077_phone:0 crosses the protected-head straight-line sweep",
+  "c3_design": "upright mug blocks the initial TCP-to-safe-root corridor",
+  "combined_design": "C2 077_phone:0 plus C3 mug"
+}

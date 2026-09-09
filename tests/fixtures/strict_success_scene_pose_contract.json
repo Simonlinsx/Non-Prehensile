@@ -1,0 +1,82 @@
+{
+  "source_trial": "outputs/contact_planner_m3/workspace_height_20260908/relinearized_pd_cost_native_gains180/scene007",
+  "source_result_sha256": "3ff5c521e589209026ff8000ecde5e3ff7648e0a91c7e28bbe20ae3c7cb2870c",
+  "scene": {
+    "asset_id": "020_hammer:0",
+    "clutter_count": 0,
+    "goal_direction_deg": 13.027745,
+    "goal_direction_frame": "robot_base_to_initial_target",
+    "goal_direction_reference_deg": 24.227745,
+    "goal_direction_relative_deg": -11.2,
+    "goal_direction_relative_limit_deg": 90.0,
+    "goal_distance_m": 0.06,
+    "goal_xy_m": [
+      0.458456,
+      0.193525
+    ],
+    "goal_yaw_deg": 10.0,
+    "initial_xy_m": [
+      0.4,
+      0.18
+    ],
+    "manifest_seed": 20260907,
+    "robot_base_xy_m": [
+      0.0,
+      0.0
+    ],
+    "sampling_seed": 293054,
+    "scene_id": "scene007",
+    "schema": "nonprehensile.push_anything_c1_scene.v2",
+    "support_pose_index": 0
+  },
+  "result": {
+    "initial_target_pose_wxyz": [
+      0.4000000059604645,
+      0.18000000715255737,
+      0.012936899438500404,
+      -0.4937799274921417,
+      0.5013378858566284,
+      0.506216287612915,
+      0.4985847473144531
+    ],
+    "goal_pose_wxyz": [
+      0.4584556519985199,
+      0.19352537393569946,
+      0.012936899438500404,
+      -0.5353554487228394,
+      0.45531052350997925,
+      0.5479844808578491,
+      0.4536517262458801
+    ],
+    "franka_base_height_m": 0.029
+  },
+  "native_goal": {
+    "goal_mode": 2,
+    "fixed_target_positions": [
+      [
+        0.458455661193,
+        0.193525371508,
+        -0.0160631002827
+      ]
+    ],
+    "fixed_target_orientations": [
+      [
+        0.996194698092,
+        0,
+        0,
+        0.0871557427477
+      ]
+    ]
+  },
+  "semantic": {
+    "asset_id": "020_hammer:0",
+    "support_pose_index": 0,
+    "support_quaternion_wxyz": [
+      -0.4937799140314683,
+      0.5013379099086276,
+      0.506216296031207,
+      0.4985847553024161
+    ],
+    "support_height_m": 0.01293689971726103
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "nonprehensile.push_anything_c1_eval_summary.v1",
+  "date_utc": "2026-09-02",
+  "total_scenes": 50,
+  "evaluable": 50,
+  "infrastructure_failures": 0,
+  "geometry_successes": 28,
+  "c1_successes": 50,
+  "joint_successes": 28,
+  "geometry_success_rate": 0.56,
+  "c1_success_rate": 1.0,
+  "joint_success_rate": 0.56,
+  "legal_contact_scenes": 50,
+  "c1_violation_scenes": 0,
+  "by_direction_deg": {
+    "[-90,-45)": {"evaluable": 12, "joint_successes": 0, "c1_successes": 12},
+    "[-45,0)": {"evaluable": 13, "joint_successes": 5, "c1_successes": 13},
+    "[0,45)": {"evaluable": 12, "joint_successes": 11, "c1_successes": 12},
+    "[45,90]": {"evaluable": 13, "joint_successes": 12, "c1_successes": 13}
+  },
+  "accepted": false,
+  "failed_gate": "joint_success_rate >= 0.80 and every direction bin >= 0.60",
+  "source_artifact": "outputs/contact_planner_m3/hammer_c1_front180_eval50_upstream_objective_v1/summary.json"
+}

@@ -1,0 +1,55 @@
+diff --git a/systems/controllers/sampling_based_c3_controller.h b/systems/controllers/sampling_based_c3_controller.h
+--- a/systems/controllers/sampling_based_c3_controller.h
++++ b/systems/controllers/sampling_based_c3_controller.h
+@@ -258,6 +258,8 @@
+ 
+   void UpdateC3ExecutionTrajectory(const Eigen::VectorXd& x_lcs,
+                                    const double& t_context) const;
++
++  double SemanticPlanningClearance() const;
+ 
+   double MinimumUnsafeSurfaceDistance(
+       const Eigen::VectorXd& x_lcs,
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -588,6 +588,13 @@
+       }
+       unsafe_faces_per_object_.push_back(std::move(object_faces));
+     }
++    const double requested = controller_params_.semantic_guard_clearance.value_or(.025);
++    std::cout << std::setprecision(17)
++              << "C3_SEMANTIC_PLANNING_CLEARANCE requested_m=" << requested
++              << " execution_stop_m=" << controller_params_.semantic_guard_stop_distance.value_or(requested + .010)
++              << " effective_m=" << SemanticPlanningClearance()
++              << " closed_gripper=" << controller_params_.closed_gripper_collision_meshes.has_value()
++              << std::endl;
+   }
+ }
+ 
+@@ -2395,6 +2402,15 @@
+   return std::sqrt(std::max(0.0, minimum_squared_distance));
+ }
+ 
++double SamplingC3Controller::SemanticPlanningClearance() const {
++  const double requested = controller_params_.semantic_guard_clearance.value_or(.025);
++  if (!controller_params_.closed_gripper_collision_meshes.has_value()) return requested;
++  // Closed fingers execute with the staged high-rate stop distance. Rejecting
++  // only the smaller point-proxy clearance admits plans the executor must hold.
++  return std::max(requested,
++      controller_params_.semantic_guard_stop_distance.value_or(requested + .010));
++}
++
+ bool SamplingC3Controller::C3TrajectoryViolatesSemanticGuard(
+     const VectorXd& x_lcs, const vector<VectorXd>& x_sol,
+     double* minimum_distance, int* closest_object_index) const {
+@@ -2402,8 +2418,7 @@
+   if (closest_object_index != nullptr) *closest_object_index = -1;
+   if (unsafe_faces_per_object_.empty()) return false;
+ 
+-  const double clearance =
+-      controller_params_.semantic_guard_clearance.value_or(0.025);
++  const double clearance = SemanticPlanningClearance();
+   // Interpolate the linearized state trajectory between every C3 knot.  The
+   // controller is replanned frequently, but the substeps also guard the
+   // continuous trajectory sent to the downstream interpolator.

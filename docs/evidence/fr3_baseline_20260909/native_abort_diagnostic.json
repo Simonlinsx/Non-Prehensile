@@ -1,0 +1,63 @@
+{
+  "observed_utc": "2026-09-09T08:29:59.053397+00:00",
+  "scene_id": "scene001",
+  "formal_success": false,
+  "formal_evidence_valid": false,
+  "native_failure": "workspace_radius_assertion",
+  "native_failure_log_lines": [
+    "Workspace radius violation: ee=  0.655302   0.365595 0.00134729, radius=0.750387, bounds=(0.28, 0.75)",
+    "abort: Failure at systems/controllers/sampling_based_c3_controller.cc:2161 in CheckForWorkspaceLimitViolations(): condition 'radius_squared < upper_radius_squared' failed."
+  ],
+  "reported_tcp_radius_m": 0.750387,
+  "frozen_upper_radius_m": 0.75,
+  "downstream_error": "Isaac recv timeout after native planner abort",
+  "dense_finger_rows_preserved": 88150,
+  "last_dense_finger_record": {
+    "step": 88149,
+    "measurement_utime_us": 88250000,
+    "position_m": [
+      2.002993642236106e-05,
+      2.0041019524796866e-05
+    ],
+    "target_m": [
+      0.0,
+      0.0
+    ]
+  },
+  "c1_status": "unknown: exception result omitted in-memory trace and safety counters; no retrospective zero-C1 claim",
+  "required_followup": [
+    "Preserve partial trace, safety counters and completed-step count when executor errors; do not relabel errors as valid acceptance.",
+    "Inspect why contact/reposition execution reaches workspace boundary; keep original bound and C1 constraints.",
+    "Current scene remains a failed/invalid attempt in fixed50. No best-of rerun or mutation of frozen controller."
+  ],
+  "evidence": {
+    "controller_online.log": {
+      "bytes": 389223,
+      "sha256": "5666f8b443d175637af8754e359e63ab8f2c33504f3c9d456a9d9855c35bae6f"
+    },
+    "runner.log": {
+      "bytes": 36682,
+      "sha256": "8221851abe8f859a2054749ec4a8c7922bbd79ba0cc7a104f0200cc8a2ba2443"
+    },
+    "relay_online.log": {
+      "bytes": 56106,
+      "sha256": "02877a504839b3183c6c3166fabf383add65c12e23a1a31924422bc3859312b5"
+    },
+    "osc_online.log": {
+      "bytes": 8039,
+      "sha256": "d2bd81b9ffd2d14298a7ad2fb7d53bb30178a1dc5d62fb8a8559e872ca413f53"
+    },
+    "result.json": {
+      "bytes": 1179,
+      "sha256": "e0a069039abb3eadef5f99c2d36a794133dfd8e1313199053a16990584cd4a5c"
+    },
+    "execution.json": {
+      "bytes": 2498,
+      "sha256": "6747a719cea49d3a2228fb32de995f9ee6aba7ab19155d1f5d757d79af9d56d1"
+    },
+    "result.finger_state.jsonl": {
+      "bytes": 11282729,
+      "sha256": "5ca35f3aa32ee08a6b18595d736968cdf814adc721dbe5dfe762fc8014e5c0ce"
+    }
+  }
+}

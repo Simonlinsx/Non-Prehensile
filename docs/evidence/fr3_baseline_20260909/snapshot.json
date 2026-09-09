@@ -1,0 +1,23 @@
+{
+  "snapshot_utc": "2026-09-09T09:22:38.448220+00:00",
+  "publication_kind": "development_baseline_not_simulation_acceptance",
+  "tests": {
+    "command": "PYTHONPATH=source/IsaacLab_nonPrehensile python -m pytest tests -q",
+    "passed": 295,
+    "skipped": 1,
+    "subtests_passed": 7,
+    "junit_sha256": "7ff04388e8b7f6c150e54c164f756f59d7e7d9d0843ff00da87cb6c4af5a4fc6"
+  },
+  "formal50_audit_sha256": "3bc4c761cc6b9e6c866103a142bf55b954c5d491e319b1f28a51d51bd918e326",
+  "simulation_acceptance_pass": false,
+  "video_failure_rerun_status": "running_at_snapshot",
+  "raw_outputs_location": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908",
+  "note": "Audit copies are time-stamped historical evidence. Raw outputs, dense traces and native binaries remain local; no full portable evidence bundle is claimed.",
+  "packaging": {
+    "new_lfs_objects": 47,
+    "lfs_bytes": 28519725,
+    "all_new_lfs_objects_present_and_hash_verified": true,
+    "required_fr3_meshes_in_export_verified": 19,
+    "staged_source_cpu_tests": "295 passed, 1 skipped, 7 subtests passed"
+  }
+}

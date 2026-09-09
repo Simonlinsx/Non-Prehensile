@@ -1,7 +1,23 @@
 # Affordance-Aware Non-Prehensile Manipulation
 
 This repository develops safety-aware non-prehensile manipulation of tools in
-Isaac Lab.  The current frozen result is **C1**: a Franka must place a DOMINO
+Isaac Lab. The current development route uses **FR3 + its stock closed gripper**,
+semantic C1 constraints, Push Anything/C3+, and the original native OSC torque
+controller (1 kHz, with 20 Hz planning). **Simulation acceptance is still open.**
+Start with the [current FR3 development baseline](docs/FR3_SIMULATION_BASELINE.md)
+for verified results, the actual IsaacLab video, configuration, test commands,
+and known failures. The sections below retain earlier teacher and planner
+milestones; their success rates do not describe the current FR3 setup.
+
+The C1 Isaac evaluator now defaults to shared PhysX target/finger convex
+geometry with measured hand orientation. The previous single-sphere model is
+available through explicit legacy flags documented in
+[the contact-model fix](docs/SHARED_PHYSX_CONTACT_MODEL.md). The current model
+also aligns measured inertia/COM, resting support, friction, simulation clock
+and task-point control; see [the dynamics and execution checks](docs/SIMULATION_DYNAMICS_ALIGNMENT.md).
+These checks do not establish task success.
+
+The historical frozen teacher result is **C1**: a Franka must place a DOMINO
 hammer while contacting only its safe handle region.  The functional hammer
 head and claw are protected.
 
@@ -11,7 +27,7 @@ checkpoint provenance, and limitations are recorded in
 C2/C3, 360-degree, world-model, and RGB-D student experiments are research
 work in progress and are not part of the accepted claim.
 
-## Current result: C1
+## Historical frozen teacher result: C1
 
 ### Task and safety contract
 
@@ -100,18 +116,24 @@ state.  No RL checkpoint is used.
 
 Algorithmically this is **semantic contact sampling with receding-horizon
 execution**, between the Sampling and SCSP rows of our method comparison.  It
-is not yet full SCSP/CI-MPC: the current one-step translation/yaw proxy is not
-reliable enough for accepted simultaneous XY+yaw convergence.  Contact/IK/C1
-are the M1 claims; full-pose robustness, clutter, C2, C3, and RGB-D perception
-remain later milestones.  See the exact interface, defaults, evidence, and
-commands in [Contact Planner M1](docs/CONTACT_PLANNER_M1.md).
+is not full SCSP/CI-MPC.  Contact/IK/C1 are the M1 claims; RGB-D perception
+remains a later milestone.  See the exact interface and commands in
+[Contact Planner M1](docs/CONTACT_PLANNER_M1.md).
 
-An experimental M2 now ranks contact-direction-distance candidates with
-restored Isaac physics rollouts and a short shooting horizon.  Its C1 safety
-checks pass, but strict simultaneous XY+orientation success is **not yet
-accepted**; current evidence points to the straight-push primitive rather than
-another scalar scoring problem.  See [Contact Planner M2](docs/CONTACT_PLANNER_M2.md)
-for exact negative results and the contact-trajectory optimization next step.
+The native Isaac Lab executor now ranks contact/direction/distance candidates
+with restored physics rollouts and a two-step shooting horizon.  It latches
+the first measured safe contact, reanchors the push there, and breaks contact
+with a measured vertical lift.  The latter is important: retracing the old
+joint path after the object moved caused a second uncontrolled push.  One
+7 cm/+63 degree scene now passes the unchanged strict XY/Z/SO(3)+five-step
+dwell gate after ten pushes, with zero C1 violations.  Its auditable native
+video is recorded from the same run as the quantitative rollout evaluation.
+
+This is not yet a randomized-robust result.  An initial eight-scene +/-90
+degree batch obtained 0/8 despite 41/41 legal contact-gate passes and zero C1
+violations; broader bounded search is under evaluation.  See
+[Contact Planner M2](docs/CONTACT_PLANNER_M2.md) for the distinction between
+the accepted single-scene execution and the still-open robustness gate.
 
 M3 adopts the open-source Push Anything sampling + C3+ controller as that
 contact-trajectory backbone instead of extending M2's fixed straight-push
@@ -132,11 +154,51 @@ is a single no-clutter C1 acceptance, not yet randomized robustness or C2/C3.
 See
 [Contact Planner M3](docs/CONTACT_PLANNER_M3_C3PLUS.md).
 
-A fixed 50-scene M3 robustness manifest is also provided.  It preserves the
-same support face and no-clutter C1 contract while covering 6--10 cm goals,
-front-hemisphere directions, +/-10 degree yaw, initial XY variation, and 50
-independent sampler seeds.  The evaluator is resumable and keeps pose, C1, and
-joint success rates separate.
+The C3+ trajectory/scene bridge and native Isaac Lab online executor are now
+implemented.  Isaac publishes measured Franka/hammer state to C3+ at 20 Hz;
+the returned fresh task-space segment is tracked by a robot-specific 100 Hz
+servo, with stale/failed updates held safely rather than replayed.  One strict
+online `scene006` run passes the current 20 mm / 75 mrad / 0.5 s dwell gate at
+17.54 mm XY, 0.99 mm Z, and 73.91 mrad SO(3), with legal handle contact, zero
+protected contact, and 348/349 fresh planner cycles.  This is a single-scene
+S2 smoke pass, not yet randomized S2 acceptance.
+
+The default Isaac/real-robot end effector is now the unmodified Franka gripper
+with both fingers closed; the former attached spherical pusher remains only as
+an explicit ablation.  C3+ uses an inscribed fingertip proxy internally and
+the executor holds wrist orientation, while Isaac contacts are computed from
+the stock hand and finger meshes.  This change removes the custom physical
+tool from the sim-to-real contract; it does not change the Sampling + C3+
+planner or relax C1 acceptance.
+
+For target-plus-clutter execution, contact is sampled only on the target; the
+clutter remains in C3 dynamics and collision constraints.  Candidate contact
+plans are rejected using their full 15-knot predicted target-rotation envelope,
+and a separate 100 Hz measured-pose/velocity guard retreats before the hard
+75 mrad yaw limit.  A fixed hammer+mug 90 s diagnostic preserves C1/C2/C3 and
+reduces XY error from 120.0 to 80.5 mm, but then stalls at 71.9 mrad yaw.  It is
+therefore evidence that the safety loop works, not a clutter task success;
+contact-sampling coverage is the current controlled ablation.
+
+The native planner also exposes explicit `--safety-scope`
+profiles: C1 is always active, C2 rejects target-protected/clutter contacts,
+and C3 rejects whole-robot/clutter contacts during both shadow rollouts and
+formal execution.  Shadow rollouts additionally use configurable conservative
+C2/C3 clearance buffers, while actual failures remain filtered physical-contact
+events.  Stable typed clutter manifests are geometry-filtered and then
+zero-action audited before use.  C2, C3, and combined one-push smoke tests pass,
+but complete clutter task success is not yet an accepted claim.
+
+A fixed 50-scene nominal M3 robustness manifest is also provided.  It preserves
+the same support face and no-clutter C1 contract while covering 6--10 cm goals,
+relative directions from -60 to +60 degrees around the robot-base-to-object
+ray, +/-10 degree yaw, initial XY variation, and 50 independent sampler seeds.
+The wider relative +/-90 degree manifest is retained as an affordance-limited
+side-push stress test: for this asymmetric guarded handle, some extreme
+direction/yaw pairs lie outside the legal single-contact friction cone.  The
+older world-+X-centered manifest is a separate pulling/around-the-back stress
+test.  The evaluator is resumable and keeps pose, C1, joint, and
+infrastructure-failure rates separate.
 
 ```bash
 OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 NUM_ENVS=8 \
@@ -164,9 +226,14 @@ checkpoints, W&B state, videos, or OptiX caches.
 | Oracle DOMINO safe/protected annotation | Implemented and audited |
 | Single-hammer C1 teacher | Accepted, three seeds |
 | C1 with physical clutter and wider directions | Experimental; not accepted |
-| C2 clutter-to-protected safety | Experimental; not accepted |
-| C3 robot-to-clutter avoidance | Experimental; not accepted |
-| Semantic C3+ planner integration | Deterministic single-hammer pose+C1 accepted; randomization pending |
+| Native contact planner, one strict C1 scene | Accepted with same-run Isaac Lab video |
+| Native contact planner, randomized C1 | S1 complete: 28/50 joint pose, 50/50 C1; failed 80% geometry gate |
+| Drake-to-Isaac open-loop replay | Support frame fixed; C1 7/7, strict joint pose 2/7 on native-success subset |
+| C3+ online Isaac Lab execution | Single `scene006` strict pass with 20 Hz fresh replans / 100 Hz servo; randomized S2 pending |
+| C2 clutter-to-protected safety | Physics predicate/rollout filtering implemented; one-push smoke only |
+| C3 robot-to-clutter avoidance | Whole-arm predicate/rollout filtering implemented; one-push smoke only |
+| Combined C1+C2+C3 | Stable manifests and one-push smoke pass; full task pending |
+| Semantic C3+ planner integration | Native protocol, task relay, synchronized executor, and same-run Isaac video implemented |
 | RGB-D affordance predictor and deployable student | Planned |
 | DAPL-style dynamics model | Implemented and smoke-tested; not in C1 |
 

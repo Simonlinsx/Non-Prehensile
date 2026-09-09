@@ -1,0 +1,166 @@
+{
+  "updated_utc": "2026-09-08T23:34:57.532765+00:00",
+  "schema": "nonprehensile.offline_pd_resolution_evidence.v1",
+  "acceptance_eligible": false,
+  "native_binary_sha256": "cc85afc2e93a77e24320d08e273491ffb79b6385eac8d8df4aef1c363791dda0",
+  "reports": {
+    "offline_pd_resolution_t8p3": {
+      "schema": "nonprehensile.offline_pd_resolution_comparison.v1",
+      "acceptance_eligible": false,
+      "capture_utime_us": 8299999,
+      "duration_s": 0.3,
+      "original_resolution_exactly_reproduced": true,
+      "predictions": {
+        "4": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.01875,
+          "endpoint_xy_error_m": 0.006707830155643719,
+          "endpoint_height_error_m": 1.379707778904199e-06,
+          "endpoint_so3_error_rad": 0.04525399977657174,
+          "predicted_xy_displacement_m": 0.013773244794965403,
+          "output_sha256": "54c10ad9f0ab11383b8a926911c2e738057226c61713bd35525845a71c917993",
+          "maximum_state_difference_from_online_baseline": 0.0
+        },
+        "8": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.009375,
+          "endpoint_xy_error_m": 0.008467615261207524,
+          "endpoint_height_error_m": 1.3797077789007295e-06,
+          "endpoint_so3_error_rad": 0.04928474142996442,
+          "predicted_xy_displacement_m": 0.010933987354793843,
+          "output_sha256": "81324afd29dad0ecbff887bd207007ba92df719e9187067ae5288a422c555d36"
+        },
+        "15": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.005,
+          "endpoint_xy_error_m": 0.009763440377598298,
+          "endpoint_height_error_m": 1.3797077789007295e-06,
+          "endpoint_so3_error_rad": 0.056373869149413204,
+          "predicted_xy_displacement_m": 0.009433698113747271,
+          "output_sha256": "35dd297bd25392c9a79dc0d5f35caad486ede3aec0f8a54ffd097473b114157f"
+        },
+        "30": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.0025,
+          "endpoint_xy_error_m": 0.010422021797611678,
+          "endpoint_height_error_m": 1.3797077789007295e-06,
+          "endpoint_so3_error_rad": 0.06087591348142591,
+          "predicted_xy_displacement_m": 0.008688120226593205,
+          "output_sha256": "b50cc27d9c1b8c09c05113986fa479a40c560e0fa582ef8e6b4df99d806ae268"
+        }
+      },
+      "physical_replay_audit": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/reference_replay_audit.json",
+      "artifact_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_resolution_t8p3/input_provenance.json": "57dd491d7d07634a9979a0381c56d549dfd92114047f86a68b5e6e8e71dcb152",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/reference_replay_audit.json": "ff9263457fa49674c41f4b6ca274f47305d6752e9d5373187d50cefad4fa93c5",
+        "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/controller_online.log": "f0c31f8ecdca1b2fcfbc7917d909fbdd08a9cba1b193fc72e445636d7b2a04d8"
+      },
+      "limitations": [
+        "A counterfactual model comparison, not another physical trial.",
+        "Nearby overlapping windows do not constitute independent held-out scenes.",
+        "All resolutions retain the same supplied reference, force convention, mass, gains and contact model."
+      ]
+    },
+    "offline_pd_resolution_t8p35": {
+      "schema": "nonprehensile.offline_pd_resolution_comparison.v1",
+      "acceptance_eligible": false,
+      "capture_utime_us": 8350000,
+      "duration_s": 0.3,
+      "original_resolution_exactly_reproduced": true,
+      "predictions": {
+        "4": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.01875,
+          "endpoint_xy_error_m": 0.009530565139342742,
+          "endpoint_height_error_m": 1.4179852352476374e-06,
+          "endpoint_so3_error_rad": 0.003536212447381303,
+          "predicted_xy_displacement_m": 0.018210416670679422,
+          "output_sha256": "cc7744d7867aaf2173ca714d1d27403a9f09890953f5b0624b711b08243fafce",
+          "maximum_state_difference_from_online_baseline": 0.0
+        },
+        "8": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.009375,
+          "endpoint_xy_error_m": 0.00888884208735511,
+          "endpoint_height_error_m": 1.417985235244168e-06,
+          "endpoint_so3_error_rad": 0.010475286273262765,
+          "predicted_xy_displacement_m": 0.02000957676430437,
+          "output_sha256": "18c4300e771a268723196cbeb5469d1c9a3d5cae835b53146679285b36ea838a"
+        },
+        "15": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.005,
+          "endpoint_xy_error_m": 0.008395780250039833,
+          "endpoint_height_error_m": 1.417985235244168e-06,
+          "endpoint_so3_error_rad": 0.012904454136734795,
+          "predicted_xy_displacement_m": 0.021895833545268993,
+          "output_sha256": "9de2425d5137336246326e09e37a34798a2811328801474ee7d68959fc4999ef"
+        },
+        "30": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.0025,
+          "endpoint_xy_error_m": 0.009427022146812755,
+          "endpoint_height_error_m": 1.417985235244168e-06,
+          "endpoint_so3_error_rad": 0.018726636421009777,
+          "predicted_xy_displacement_m": 0.019798331249977392,
+          "output_sha256": "1931c0f13863fcbe865c34debf1a6c9111303d2971dc681e62d1b88862ce68cf"
+        }
+      },
+      "physical_replay_audit": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_calibrated_pd_t8p3_diag10/scene007/reference_replay_audit.json",
+      "artifact_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_resolution_t8p35/input_provenance.json": "94d4435186b63ea2844996234d65e96a9c5906627fc722742ff5c4219edcdac2",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_calibrated_pd_t8p3_diag10/scene007/reference_replay_audit.json": "b804454a15897c18d9ada206dcd59272a2f467a2bba8aaee7979bf6e21eacbce",
+        "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/controller_online.log": "f0c31f8ecdca1b2fcfbc7917d909fbdd08a9cba1b193fc72e445636d7b2a04d8"
+      },
+      "limitations": [
+        "A counterfactual model comparison, not another physical trial.",
+        "Nearby overlapping windows do not constitute independent held-out scenes.",
+        "All resolutions retain the same supplied reference, force convention, mass, gains and contact model."
+      ]
+    }
+  },
+  "completed_debug_scene000": {
+    "directory": "outputs/contact_planner_m3/workspace_height_20260908/frozen_pd_debug_generalization180_schemafix/scene000",
+    "executed_sim_time_s": 74.31,
+    "stopped_reason": "watchdog_timeout",
+    "native_failure": "MeasuredEEradius.750472>.75assertion",
+    "xy_m": 0.2889304459095001,
+    "so3_rad": 0.35404637455940247,
+    "strict_success": false,
+    "c1_pass": true
+  },
+  "archived_effect_logs": {
+    "count": 4,
+    "saved_bytes": 406333388,
+    "manifests": [
+      "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat10_video180/scene007/effect_audit_archive.json",
+      "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/semantic_quat_fixed_q10_video180/scene007/effect_audit_archive.json",
+      "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/native_osc_guard_q100_video180/scene007/effect_audit_archive.json",
+      "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/fixed_goal_rot100_q100_video180/scene007/effect_audit_archive.json"
+    ],
+    "restoration_verified": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat10_video180/scene007/effect_audit_restore_check.json",
+    "note": "Historicaluncompressed hash remainsvalidfor restoredbytes. Run archive_completed_effect_audits.py restore --metadata SCENE/effect_audit_archive.json before oldanalysis; currenttrials/offlinephysicalsource logsremainplain."
+  },
+  "active_trials": [
+    {
+      "name": "frozen_pd_debug_generalization180_schemafix",
+      "session_id": 67117,
+      "gpu": 2,
+      "port": 9840,
+      "scenes": [
+        "scene000",
+        "scene001",
+        "scene002"
+      ],
+      "native_binary_sha256": "bde00e4dacf064037e14f2c5ab0e0d1d8dcdc48ac7a8d71c3446c94805e10140"
+    },
+    {
+      "name": "frozen_pd_randomyaw_debug8_180",
+      "session_id": 22193,
+      "gpu": 6,
+      "port": 9900,
+      "scenes_count": 8,
+      "native_binary_sha256": "bde00e4dacf064037e14f2c5ab0e0d1d8dcdc48ac7a8d71c3446c94805e10140"
+    }
+  ]
+}

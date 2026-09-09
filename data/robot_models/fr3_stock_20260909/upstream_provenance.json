@@ -1,0 +1,17 @@
+{
+  "source_url": "https://github.com/frankarobotics/franka_description",
+  "source_commit": "7aeeddc449edf8d62b594f9e36a81da53e7796f9",
+  "robot": "fr3",
+  "end_effector": "franka_hand",
+  "xacro_version": "2.1.1",
+  "pyyaml_version": "6.0.3",
+  "xacro_entry": "robots/fr3/fr3.urdf.xacro",
+  "xacro_mappings": {
+    "hand": "true",
+    "ee_id": "franka_hand",
+    "with_sc": "false",
+    "include_self_collision_geometry": "false"
+  },
+  "package_resolver": "franka_description resolved to pinned local vendor directory; no ROS required",
+  "expanded_urdf_sha256": "8895aa6caf7486fffb6705d34ced6fcb17698d714e5281adea9d43e2986384cd"
+}

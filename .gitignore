@@ -89,3 +89,13 @@ assets/source/
 *.onnx
 *.jit
 *.pt
+
+# Keep only the FR3 + stock hand mesh subset; retain upstream source/license.
+# Other downloaded robot meshes stay local, including inputs to older runs.
+/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/*
+!/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/
+/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/*
+!/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/
+!/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robot_ee/
+/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robot_ee/*
+!/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robot_ee/franka_hand_white/

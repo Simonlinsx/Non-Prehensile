@@ -1,0 +1,63 @@
+{
+  "manifest": "/data1/linsixu/IsaacLab-nonPrehensile/data/manifests/contact_planner_m3/c2_eraser_short_seed20260901/hammer_teacher_c2_16_seed20260901.jsonl",
+  "profile": "c2",
+  "scene_count": 16,
+  "sample_count": 4096,
+  "c2_protected_to_blocker_distance_m": {
+    "audit_mode": "midpoint_blocked",
+    "endpoint_clearance_threshold": 0.005,
+    "midpoint_blocked_distance_threshold": 0.005,
+    "midpoint_clearance_threshold": null,
+    "path_clearance_threshold": null,
+    "path_samples": null,
+    "start": {
+      "minimum": 9.474891028506069e-05,
+      "mean": 0.020263109627944254,
+      "p50": 0.02282030123318137,
+      "p95": 0.035656638095339116,
+      "maximum": 0.03574821512553603
+    },
+    "straight_path_midpoint": {
+      "minimum": 7.799378078912155e-05,
+      "mean": 0.00031087486869031493,
+      "p50": 0.00029397647248369295,
+      "p95": 0.0005400559690298982,
+      "maximum": 0.0005573960060506158
+    },
+    "goal": {
+      "minimum": 0.00016942615710420912,
+      "mean": 0.022856983010344018,
+      "p50": 0.029162084497769948,
+      "p95": 0.03497492249136223,
+      "maximum": 0.035337873001123565
+    },
+    "whole_target_start": {
+      "minimum": 9.474891028506069e-05,
+      "mean": 0.015908708910360066,
+      "p50": 0.015783725925704224,
+      "p95": 0.035656638095339116,
+      "maximum": 0.03574821512553603
+    },
+    "whole_target_goal": {
+      "minimum": 0.00016942615710420912,
+      "mean": 0.01764911188802372,
+      "p50": 0.0239764334791643,
+      "p95": 0.03497492249136223,
+      "maximum": 0.035337873001123565
+    },
+    "interpolated_pose_sweep_protected_min": null,
+    "interpolated_pose_sweep_whole_target_min": null,
+    "midpoint_blocked_fraction": 1.0,
+    "midpoint_clear_fraction": null,
+    "full_sweep_clear_fraction": null,
+    "endpoint_clear_and_midpoint_blocked_fraction": 0.1875
+  },
+  "candidate_valid_scene_count": 3,
+  "valid_scene_indices": [
+    2,
+    8,
+    10
+  ],
+  "valid_scene_count": 3,
+  "filtered_manifest_output": "data/manifests/contact_planner_m3/c2_eraser_short_seed20260901/hammer_teacher_c2_valid_seed20260901.jsonl"
+}

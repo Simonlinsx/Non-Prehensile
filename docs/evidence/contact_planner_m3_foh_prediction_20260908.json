@@ -1,0 +1,298 @@
+{
+  "updated_utc": "2026-09-08T20:30:54.811794+00:00",
+  "goal_status": "active",
+  "strict_debug_successes": 0,
+  "acceptance_started": false,
+  "trials": {
+    "foh_native_gains_fixed_goal35": {
+      "executed_sim_time_s": 35.0,
+      "final_planar_error_m": 0.05807419493794441,
+      "final_rotation_error_rad": 0.44493988156318665,
+      "final_height_error_m": 0.0009858356788754463,
+      "stopped_reason": "maximum_sim_time",
+      "forbidden_robot_contact_ever": false,
+      "maximum_strict_dwell_steps": 0,
+      "semantic_c1_guard_activation_count": 0,
+      "video": {
+        "duration_s": 35.0,
+        "encoded": true,
+        "fps": 20.0,
+        "frames": 700,
+        "height": 720,
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/foh_native_gains_fixed_goal35/scene007/videos/scene007.mp4",
+        "width": 1280
+      },
+      "native_controller_parameters": {
+        "native_goal_mode": 2,
+        "native_pd_rollout_interpolation": "foh",
+        "native_goal_artifact": {
+          "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/foh_native_gains_fixed_goal35/scene007/shared_runtime_1788898696101367904/examples/sampling_c3/anything/parameters/goal_params.yaml",
+          "sha256": "a966fdcb74b78a3c07b764c646d12a58eea2c1abe38615689de9b15a58dcf219"
+        }
+      },
+      "matched_executed_c3_plans": 193,
+      "moving_actual_horizons": {
+        "actual_xy_displacement_m": {
+          "count": 10,
+          "median": 0.01867246990961871,
+          "p90": 0.02038438538629181,
+          "maximum": 0.020676342529216196
+        },
+        "raw_xy_displacement_m": {
+          "count": 10,
+          "median": 0.12674498602928305,
+          "p90": 0.14312778936164927,
+          "maximum": 0.14338160576643383
+        },
+        "pd_xy_displacement_m": {
+          "count": 10,
+          "median": 0.001386666199193777,
+          "p90": 0.030899375763321534,
+          "maximum": 0.031783370944998536
+        },
+        "raw_endpoint_xy_error_m": {
+          "count": 10,
+          "median": 0.14421854459773353,
+          "p90": 0.14653683935676487,
+          "maximum": 0.1477870361533689
+        },
+        "pd_endpoint_xy_error_m": {
+          "count": 10,
+          "median": 0.020421558357619534,
+          "p90": 0.023927630271118758,
+          "maximum": 0.02490737795860511
+        },
+        "raw_initial_measured_xyz_error_m": {
+          "count": 10,
+          "median": 2.7022988420780232e-08,
+          "p90": 1.3373013991028698e-07,
+          "maximum": 1.3860132673595575e-07
+        },
+        "pd_initial_measured_xyz_error_m": {
+          "count": 10,
+          "median": 2.7033036243777538e-08,
+          "p90": 1.3081963600963567e-07,
+          "maximum": 1.3678456133449428e-07
+        },
+        "actual_so3_displacement_rad": {
+          "count": 10,
+          "median": 0.16525213449668041,
+          "p90": 0.3562995486047353,
+          "maximum": 0.5636047744026292
+        },
+        "raw_endpoint_so3_error_rad": {
+          "count": 10,
+          "median": 1.425085921107479,
+          "p90": 1.4551034375642014,
+          "maximum": 1.4777931082752933
+        },
+        "pd_endpoint_so3_error_rad": {
+          "count": 10,
+          "median": 0.1948153834757108,
+          "p90": 0.35212418714802857,
+          "maximum": 0.3550864618783823
+        },
+        "raw_initial_measured_so3_error_rad": {
+          "count": 10,
+          "median": 8.627173658515411e-07,
+          "p90": 1.3230062373148287e-06,
+          "maximum": 2.5314437181452916e-06
+        },
+        "pd_initial_measured_so3_error_rad": {
+          "count": 10,
+          "median": 8.64022784761815e-07,
+          "p90": 1.3277205930905771e-06,
+          "maximum": 2.531619141292181e-06
+        },
+        "raw_endpoint_quaternion_norm_error": {
+          "count": 10,
+          "median": 0.24390000464360595,
+          "p90": 0.25121462522523375,
+          "maximum": 0.25332370368413293
+        },
+        "pd_endpoint_quaternion_norm_error": {
+          "count": 10,
+          "median": 0.0011928528354639978,
+          "p90": 0.031224233788237143,
+          "maximum": 0.06346151761548602
+        }
+      },
+      "minimum_sampled_finger_clearance_m": -3.7024999898632727e-07,
+      "hand_orientation": {
+        "sample_count": 419,
+        "worst_sample": {
+          "sim_time_s": 32.5,
+          "error_rad": 0.028607753680450144
+        },
+        "median_error_rad": 0.00958478098693059
+      },
+      "guard_sample_audit": {
+        "available": true,
+        "sample_count": 419,
+        "active_samples": 0,
+        "active_samples_with_nonzero_force_or_velocity": 0
+      }
+    },
+    "zoh_native_gains_fixed_goal35": {
+      "executed_sim_time_s": 35.0,
+      "final_planar_error_m": 0.13278310000896454,
+      "final_rotation_error_rad": 0.01671679876744747,
+      "final_height_error_m": 0.0009877663105726242,
+      "stopped_reason": "maximum_sim_time",
+      "forbidden_robot_contact_ever": false,
+      "maximum_strict_dwell_steps": 0,
+      "semantic_c1_guard_activation_count": 128,
+      "video": {
+        "duration_s": 35.0,
+        "encoded": true,
+        "fps": 20.0,
+        "frames": 700,
+        "height": 720,
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/zoh_native_gains_fixed_goal35/scene007/videos/scene007.mp4",
+        "width": 1280
+      },
+      "native_controller_parameters": {
+        "native_goal_mode": 2,
+        "native_pd_rollout_interpolation": "zoh",
+        "native_goal_artifact": {
+          "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/zoh_native_gains_fixed_goal35/scene007/shared_runtime_1788898736921360207/examples/sampling_c3/anything/parameters/goal_params.yaml",
+          "sha256": "a966fdcb74b78a3c07b764c646d12a58eea2c1abe38615689de9b15a58dcf219"
+        }
+      },
+      "matched_executed_c3_plans": 151,
+      "moving_actual_horizons": {
+        "actual_xy_displacement_m": {
+          "count": 49,
+          "median": 0.05539101869627136,
+          "p90": 0.08812886475075231,
+          "maximum": 0.09393465894735684
+        },
+        "raw_xy_displacement_m": {
+          "count": 49,
+          "median": 0.11173519611613951,
+          "p90": 0.1291620869814803,
+          "maximum": 0.1385100860369246
+        },
+        "pd_xy_displacement_m": {
+          "count": 49,
+          "median": 0.0036747811711301177,
+          "p90": 0.018086055176902573,
+          "maximum": 0.039186116744543656
+        },
+        "raw_endpoint_xy_error_m": {
+          "count": 49,
+          "median": 0.10456692959171089,
+          "p90": 0.12871777847724958,
+          "maximum": 0.13178137418948094
+        },
+        "pd_endpoint_xy_error_m": {
+          "count": 49,
+          "median": 0.051997651585150115,
+          "p90": 0.08449849809635707,
+          "maximum": 0.09015784444263067
+        },
+        "raw_initial_measured_xyz_error_m": {
+          "count": 49,
+          "median": 6.319758701364618e-08,
+          "p90": 1.7839844062770522e-07,
+          "maximum": 4.58532392242185e-07
+        },
+        "pd_initial_measured_xyz_error_m": {
+          "count": 49,
+          "median": 6.190783581798096e-08,
+          "p90": 1.8114736328399797e-07,
+          "maximum": 4.582746044564057e-07
+        },
+        "actual_so3_displacement_rad": {
+          "count": 49,
+          "median": 0.10944216567764826,
+          "p90": 0.3491515512827817,
+          "maximum": 0.41966938469138054
+        },
+        "raw_endpoint_so3_error_rad": {
+          "count": 49,
+          "median": 1.0893810902479073,
+          "p90": 1.1608313810438882,
+          "maximum": 1.2443415383679512
+        },
+        "pd_endpoint_so3_error_rad": {
+          "count": 49,
+          "median": 0.0888203307698603,
+          "p90": 0.34092860311904877,
+          "maximum": 0.4189483746915944
+        },
+        "raw_initial_measured_so3_error_rad": {
+          "count": 49,
+          "median": 2.3841857910156266e-07,
+          "p90": 1.740751863360051e-06,
+          "maximum": 5.6284587476399765e-06
+        },
+        "pd_initial_measured_so3_error_rad": {
+          "count": 49,
+          "median": 2.3841857910156266e-07,
+          "p90": 1.7496695095211533e-06,
+          "maximum": 5.628300944072338e-06
+        },
+        "raw_endpoint_quaternion_norm_error": {
+          "count": 49,
+          "median": 0.1544260992366897,
+          "p90": 0.2824876492289403,
+          "maximum": 0.31014679126292544
+        },
+        "pd_endpoint_quaternion_norm_error": {
+          "count": 49,
+          "median": 0.0001109589525640775,
+          "p90": 0.004946980873709802,
+          "maximum": 0.016078374951646657
+        }
+      },
+      "minimum_sampled_finger_clearance_m": 5.728936082527447e-06,
+      "hand_orientation": {
+        "sample_count": 536,
+        "worst_sample": {
+          "sim_time_s": 6.2,
+          "error_rad": 0.02723265358386747
+        },
+        "median_error_rad": 0.009064836580465519
+      },
+      "guard_sample_audit": {
+        "available": true,
+        "sample_count": 536,
+        "active_samples": 13,
+        "active_samples_with_nonzero_force_or_velocity": 0
+      }
+    }
+  },
+  "configuration_differences": {
+    "c3_pd_rollout_interpolation": [
+      "foh",
+      "zoh"
+    ],
+    "gpu": [
+      "3",
+      "5"
+    ]
+  },
+  "build_evidence": "outputs/contact_planner_m3/workspace_height_20260908/foh_native_build_evidence.json",
+  "figure": "outputs/contact_planner_m3/workspace_height_20260908/foh_zoh_fixed_goal35.png",
+  "conclusion": "FOH changes behavior, but both35s trials failed strict pose/dwell with C1pass. Not promoted. Moving strata differ and closed-loop future includes replans; no causal model-fidelity conclusion.",
+  "acceptance_reader_fix": "Use actual result physical_end_effector=stock_franka_gripper_closed and nested controller_parameters native fields. Actual failed results pass record validation and remain failures; realresultsubsetfixture added.",
+  "completed_rot100_long": {
+    "executed_sim_time_s": 180.0,
+    "stopped_reason": "maximum_sim_time",
+    "final_planar_error_m": 0.016102179884910583,
+    "final_rotation_error_rad": 0.577068567276001,
+    "final_height_error_m": 0.0009855255484580994,
+    "maximum_strict_dwell_steps": 0,
+    "forbidden_robot_contact_ever": false,
+    "semantic_c1_guard_activation_count": 0,
+    "name": "fixed_goal_rot100_q100_video180",
+    "native_goal_mode": 2,
+    "video_verified": {
+      "duration_s": 180,
+      "frames": 3600,
+      "fps": 20
+    }
+  },
+  "all_trials_completed": true
+}

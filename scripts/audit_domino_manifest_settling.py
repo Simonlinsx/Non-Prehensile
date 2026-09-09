@@ -17,6 +17,15 @@ parser.add_argument("--task", default="Isaac-AffordanceHammer-Pose-Franka-v0")
 parser.add_argument("--num-envs", type=int, default=128)
 parser.add_argument("--settle-steps", type=int, default=30)
 parser.add_argument(
+    "--episode-length-s",
+    type=float,
+    default=None,
+    help=(
+        "Optionally extend the environment episode so a long settling audit "
+        "cannot silently reset and start measuring a different task."
+    ),
+)
+parser.add_argument(
     "--preserve-initial-task",
     action="store_true",
     help=(
@@ -101,6 +110,8 @@ def _summary(values: torch.Tensor) -> dict[str, float]:
 def main() -> None:
     if args_cli.num_envs <= 0 or args_cli.settle_steps <= 0:
         raise ValueError("num-envs and settle-steps must be positive")
+    if args_cli.episode_length_s is not None and args_cli.episode_length_s <= 0.0:
+        raise ValueError("episode-length-s must be positive")
     for name in (
         "translation_threshold",
         "rotation_threshold",
@@ -122,6 +133,8 @@ def main() -> None:
         use_fabric=True,
     )
     env_cfg.use_torch_compile = False
+    if args_cli.episode_length_s is not None:
+        env_cfg.episode_length_s = float(args_cli.episode_length_s)
     if args_cli.physical_contact_force_threshold is not None:
         env_cfg.physical_contact_force_threshold_n = float(
             args_cli.physical_contact_force_threshold
@@ -334,6 +347,7 @@ def main() -> None:
             "task": args_cli.task,
             "num_envs": base.num_envs,
             "settle_steps": args_cli.settle_steps,
+            "episode_length_s": float(env_cfg.episode_length_s),
             "preserved_initial_task": bool(args_cli.preserve_initial_task),
             "performed_initial_reset": performed_initial_reset,
             "active_obstacle_count": active_obstacles,

@@ -1,0 +1,49 @@
+{
+  "created_utc": "2026-09-09T08:55:20.959829+00:00",
+  "source_trial": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/fr3_native_osc_scene007_180_closure_audit",
+  "purpose": "User-requested actual IsaacLab rendered re-execution. Outcome must be measured anew; success/failure in directory name identifies prior trial only. Excluded from formal50.",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "0",
+    "ISAACLAB_PYTHON": "/data1/linsixu/miniconda3/envs/dapl-isaaclab/bin/python",
+    "PUSH_ANYTHING_ROOT": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/fr3_isaac_video_goal_success007/runtime",
+    "PUSH_ANYTHING_BINARY_ROOT": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/fr3_isaac_video_goal_success007/binary",
+    "PUSH_ANYTHING_EXECUTOR_MODE": "effort",
+    "PUSH_ANYTHING_TCPQ_QUICK_ACK": "1",
+    "PUSH_ANYTHING_PLANNER_PERIOD_MS": "50",
+    "PUSH_ANYTHING_FRESH_TASK_TIMEOUT_MS": "10000",
+    "PUSH_ANYTHING_ROBOT_MODEL_MANIFEST": "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/robot_model_manifest.json",
+    "PUSH_ANYTHING_DIAGNOSTIC_OSC_HOLD": "0",
+    "PUSH_ANYTHING_FRESH_EFFORT_TIMEOUT_MS": "1000",
+    "PUSH_ANYTHING_TCPQ_PORT": "22084",
+    "PUSH_ANYTHING_RELAY_PORT": "22085",
+    "PUSH_ANYTHING_RELAY_SOCKET_TIMEOUT_S": "60"
+  },
+  "command": [
+    "bash",
+    "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/fr3_isaac_video_goal_success007/execution_source/scripts/run_push_anything_isaaclab_online.sh",
+    "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/fr3_isaac_video_goal_success007/isaac_manifest.jsonl",
+    "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/fr3_isaac_video_goal_success007/result.json",
+    "--stock-closed-gripper",
+    "--headless",
+    "--device",
+    "cuda:0",
+    "--max-sim-time-s",
+    "180",
+    "--physics-dt-s",
+    "0.001",
+    "--control-decimation",
+    "1",
+    "--trace-stride",
+    "10",
+    "--socket-timeout-s",
+    "10",
+    "--video",
+    "--video-fps",
+    "25"
+  ],
+  "source_sha256": {
+    "run_c3_online_isaaclab.py": "ff8babd759a216ccf80c1963c13d27ad5849fb07a3788c744839b87da5e46c35",
+    "isaac_failure_evidence.py": "5c34d663b73a4dc8648c95034abf2b4e99838f727b9666901a89cd0631c737cc",
+    "isaac_online_video.py": "0888be501ca0574d932794d63f5e2769059df37cf2e38e7848333fbc1dde45c3"
+  }
+}

@@ -86,9 +86,10 @@ def _policy_scene_params() -> dict:
 def _contact_params(*, evaluate_protected: bool = True) -> dict:
     return {
         # Surface clouds contain only 512 target and 256 hand points.  A
-        # 10-mm proxy radius covers their sampling gap; the previous 8 mm
-        # radius missed a verified PhysX handle contact by 0.5 mm.
-        "contact_distance_m": 0.010,
+        # A 12-mm proxy radius covers the observed sampling gap between the
+        # 512-point target and 256-point hand clouds.  Teacher acceptance also
+        # gates legal contact with the independent PhysX hand reporter.
+        "contact_distance_m": 0.012,
         "minimum_safe_score": 0.25,
         "minimum_protected_score": 0.25,
         "protected_point_count": 64,
@@ -243,6 +244,15 @@ class AffordanceTeacherSceneCfg(Clutter6DSceneCfg):
         update_period=0.0,
         filter_prim_paths_expr=[
             f"{{ENV_REGEX_NS}}/Robot/panda_link{index}" for index in range(8)
+        ],
+    )
+    target_hand_contacts = ContactSensorCfg(
+        prim_path="{ENV_REGEX_NS}/Target",
+        update_period=0.0,
+        filter_prim_paths_expr=[
+            "{ENV_REGEX_NS}/Robot/panda_hand",
+            "{ENV_REGEX_NS}/Robot/panda_leftfinger",
+            "{ENV_REGEX_NS}/Robot/panda_rightfinger",
         ],
     )
     target_obstacle_contacts = ContactSensorCfg(

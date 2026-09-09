@@ -1,0 +1,21 @@
+{
+  "schema": "nonprehensile.c3_online_scene.v1",
+  "source_manifest": "data/manifests/contact_planner_m3/paper_stable_hammer_safe_single_isaaclab.jsonl",
+  "runtime_root": "/data1/linsixu/dairlib-push-anything-paper-baseline",
+  "table_height_offset_m": 0.029,
+  "objects": [
+    {
+      "role": "target",
+      "asset_id": "020_hammer:0",
+      "c3_body_name": "DOMINO_020_hammer_safe",
+      "state_channel": "OBJECT_STATE_SIMULATION",
+      "support_pose_index": 0,
+      "support_quaternion_wxyz": [
+        -0.4937799140314683,
+        0.5013379099086276,
+        0.506216296031207,
+        0.4985847553024161
+      ]
+    }
+  ]
+}

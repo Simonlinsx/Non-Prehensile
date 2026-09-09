@@ -1,0 +1,39 @@
+{
+  "schema": "nonprehensile.contact_planner_m3_screen_evidence.v1",
+  "date_utc": "2026-09-02",
+  "manifest": "data/manifests/contact_planner_m3/hammer_c1_outward120_eval50_seed20260902.jsonl",
+  "manifest_sha256": "067f109028119acef86f498eb1077f074c94a87f22cc167470077bc3ced79518",
+  "generated_output": "outputs/contact_planner_m3/hammer_c1_outward120_screen8_margin_v1",
+  "summary_sha256": "274b802b713a1ef4b81bf01fc0e1ed9d24778093d683909baa5428f237463800",
+  "evaluation_config_sha256": "afccea3c114731c894f5f6dd91448605eb21e0c6b45bc4911c9e1fc2c8c98c11",
+  "acceptance": {
+    "position_threshold_m": 0.02,
+    "orientation_threshold_rad": 0.1,
+    "dwell_messages": 5,
+    "required_legal_safe_contact": true,
+    "maximum_c1_violation_rows": 0
+  },
+  "controller_completion_margin": {
+    "position_threshold_m": 0.015,
+    "orientation_threshold_rad": 0.075
+  },
+  "summary": {
+    "attempted": 8,
+    "evaluable": 8,
+    "joint_successes": 8,
+    "c1_successes": 8,
+    "legal_contact_scenes": 8,
+    "c1_violation_scenes": 0,
+    "infrastructure_failures": 0
+  },
+  "scenes": [
+    {"scene_id": "scene001", "relative_direction_deg": -39.6, "goal_distance_m": 0.07, "goal_yaw_deg": -5.0, "final_position_error_m": 0.00936694, "final_orientation_error_rad": 0.0382561, "accepted_at_s": 111.580847, "legal_safe_contact_rows": 390, "c1_violation_rows": 0},
+    {"scene_id": "scene003", "relative_direction_deg": 39.6, "goal_distance_m": 0.10, "goal_yaw_deg": -10.0, "final_position_error_m": 0.01000664, "final_orientation_error_rad": 0.03511468, "accepted_at_s": 118.984914, "legal_safe_contact_rows": 317, "c1_violation_rows": 0},
+    {"scene_id": "scene010", "relative_direction_deg": 6.0, "goal_distance_m": 0.09, "goal_yaw_deg": 5.0, "final_position_error_m": 0.01784809, "final_orientation_error_rad": 0.06222606, "accepted_at_s": 59.2781, "legal_safe_contact_rows": 183, "c1_violation_rows": 0},
+    {"scene_id": "scene025", "relative_direction_deg": 20.4, "goal_distance_m": 0.06, "goal_yaw_deg": -10.0, "final_position_error_m": 0.0178511, "final_orientation_error_rad": 0.06866496, "accepted_at_s": 57.796482, "legal_safe_contact_rows": 160, "c1_violation_rows": 0},
+    {"scene_id": "scene028", "relative_direction_deg": -54.0, "goal_distance_m": 0.08, "goal_yaw_deg": -10.0, "final_position_error_m": 0.01875125, "final_orientation_error_rad": 0.09687658, "accepted_at_s": 65.772385, "legal_safe_contact_rows": 190, "c1_violation_rows": 0},
+    {"scene_id": "scene030", "relative_direction_deg": -20.4, "goal_distance_m": 0.08, "goal_yaw_deg": -5.0, "final_position_error_m": 0.01796575, "final_orientation_error_rad": 0.06001522, "accepted_at_s": 13.5735, "legal_safe_contact_rows": 44, "c1_violation_rows": 0},
+    {"scene_id": "scene041", "relative_direction_deg": -6.0, "goal_distance_m": 0.09, "goal_yaw_deg": 5.0, "final_position_error_m": 0.01975124, "final_orientation_error_rad": 0.03002469, "accepted_at_s": 37.368992, "legal_safe_contact_rows": 137, "c1_violation_rows": 0},
+    {"scene_id": "scene047", "relative_direction_deg": 54.0, "goal_distance_m": 0.09, "goal_yaw_deg": -5.0, "final_position_error_m": 0.00600382, "final_orientation_error_rad": 0.05056595, "accepted_at_s": 55.551866, "legal_safe_contact_rows": 205, "c1_violation_rows": 0}
+  ]
+}

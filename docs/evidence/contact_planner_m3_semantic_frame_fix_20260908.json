@@ -1,0 +1,743 @@
+{
+  "schema": "nonprehensile.semantic_frame_fix.v1",
+  "goal_status": "active",
+  "acceptance_started": false,
+  "old_constructor_test": {
+    "frame_map_checks": 148,
+    "maximum_error_m": 0.197555
+  },
+  "fixed_constructor_test": {
+    "frame_map_checks": 148,
+    "maximum_error_m": 1.17872e-16
+  },
+  "old_process_binary_check": {
+    "pid": 1695840,
+    "mapped_program_sha256": "5cf70d9e8f6908d8d8d2d73ebe08bce4a1a2abfe1bbbd7ac1ab3576350874995",
+    "snapshot_sha256": "5cf70d9e8f6908d8d8d2d73ebe08bce4a1a2abfe1bbbd7ac1ab3576350874995",
+    "mapped_program_sha256_after": "5cf70d9e8f6908d8d8d2d73ebe08bce4a1a2abfe1bbbd7ac1ab3576350874995",
+    "new_program_sha256": "0546e46143684dc4d2d9ec55feeed46960c1493ec90f76acecb87c35db72683b"
+  },
+  "completed_runs": [
+    {
+      "name": "nonnegative_quat10_clearance5_35",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat10_clearance5_35/scene007/result.json",
+      "result_sha256": "4552aacce97bdc6b859a2121711108bf21207d916e127d3972b2dbb015a433eb",
+      "sampled_finger_clearance": {
+        "count": 424,
+        "minimum_time_s_and_world_z_m": [
+          29.5,
+          -7.584909701340015e-05
+        ]
+      },
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 622,
+            "median": 0.11695383755407399,
+            "p90": 0.1230273938683248,
+            "maximum": 0.14107761701366647
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 622,
+            "median": 0.11626828943925929,
+            "p90": 0.12653025532566872,
+            "maximum": 0.13785464273461556
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 622,
+            "median": 0.013326675380315194,
+            "p90": 0.027843093472302977,
+            "maximum": 0.05304090618409014
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 622,
+          "median": 5.859944690947416e-14,
+          "p90": 6.662920156941252e-07,
+          "maximum": 9.776122169569135e-06
+        },
+        "maximum_lambda_eta_product": {
+          "count": 622,
+          "median": 5.733474662024577,
+          "p90": 60.555150048895705,
+          "maximum": 92.35398047839044
+        },
+        "zero_input_frozen_solution_count": 0,
+        "paired_raw_pd_actual": {
+          "matched_executed_c3_plans": 372,
+          "horizon_s": 0.6749999999999999,
+          "raw_endpoint_xy_error_m": {
+            "count": 372,
+            "median": 0.11898567236741968,
+            "p90": 0.12286288312082591,
+            "maximum": 0.1311133924869411
+          },
+          "pd_endpoint_xy_error_m": {
+            "count": 372,
+            "median": 0.0033707271106214803,
+            "p90": 0.017754367005179066,
+            "maximum": 0.0328238195857233
+          },
+          "raw_pd_endpoint_xy_disagreement_m": {
+            "count": 372,
+            "median": 0.11622494547497987,
+            "p90": 0.12059854444199304,
+            "maximum": 0.1303092793323237
+          },
+          "raw_pd_initial_state_disagreement_m": {
+            "count": 372,
+            "median": 8.41991536091831e-12,
+            "p90": 2.1646645335002635e-11,
+            "maximum": 1.4966237691663966e-08
+          },
+          "actual_state_method": "linear interpolation between measured states; no extrapolation"
+        },
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      },
+      "executed_sim_time_s": 35.0,
+      "final_planar_error_m": 0.040827251970767975,
+      "final_rotation_error_rad": 0.36039549112319946,
+      "forbidden_robot_contact_ever": false,
+      "stopped_reason": "maximum_sim_time",
+      "video": null
+    },
+    {
+      "name": "nonnegative_quat100_video180",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat100_video180/scene007/result.json",
+      "result_sha256": "22b8748ec626e5bccd5e8006edf10489a30336211dd0e26ccd2895cf24775ea0",
+      "sampled_finger_clearance": {
+        "count": 686,
+        "minimum_time_s_and_world_z_m": [
+          35.2,
+          1.167063399869217e-05
+        ]
+      },
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 1073,
+            "median": 0.1278303630378284,
+            "p90": 0.1394739536471451,
+            "maximum": 0.16593377383836422
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 1073,
+            "median": 0.12856518754011984,
+            "p90": 0.13691335488601633,
+            "maximum": 0.14807159545658805
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 1073,
+            "median": 0.004408561476407998,
+            "p90": 0.03273594719529604,
+            "maximum": 0.0714929209655096
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 1073,
+          "median": 1.4421840457967683e-13,
+          "p90": 1.1125481933049742e-06,
+          "maximum": 2.1721118173445575e-05
+        },
+        "maximum_lambda_eta_product": {
+          "count": 1073,
+          "median": 7.103982618513555,
+          "p90": 72.89446479630352,
+          "maximum": 135.49569450518175
+        },
+        "zero_input_frozen_solution_count": 0,
+        "paired_raw_pd_actual": {
+          "matched_executed_c3_plans": 420,
+          "horizon_s": 0.6749999999999999,
+          "raw_endpoint_xy_error_m": {
+            "count": 420,
+            "median": 0.1287490844030284,
+            "p90": 0.13828841260670005,
+            "maximum": 0.15310597299631393
+          },
+          "pd_endpoint_xy_error_m": {
+            "count": 420,
+            "median": 0.009850666017430808,
+            "p90": 0.022609955976204008,
+            "maximum": 0.048579401532583485
+          },
+          "raw_pd_endpoint_xy_disagreement_m": {
+            "count": 420,
+            "median": 0.12388906953512896,
+            "p90": 0.13589818827080646,
+            "maximum": 0.1464570279723527
+          },
+          "raw_pd_initial_state_disagreement_m": {
+            "count": 420,
+            "median": 6.32313122184321e-12,
+            "p90": 7.520707015462103e-09,
+            "maximum": 1.623412289986826e-08
+          },
+          "actual_state_method": "linear interpolation between measured states; no extrapolation"
+        },
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      },
+      "executed_sim_time_s": 57.53,
+      "final_planar_error_m": 0.0394938662648201,
+      "final_rotation_error_rad": 0.061399586498737335,
+      "forbidden_robot_contact_ever": true,
+      "stopped_reason": "oracle_c1_violation",
+      "video": {
+        "duration_s": 57.5,
+        "encoded": true,
+        "fps": 20.0,
+        "frames": 1150,
+        "height": 720,
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat100_video180/scene007/videos/scene007.mp4",
+        "width": 1280
+      }
+    },
+    {
+      "name": "nonnegative_quat10_video180",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat10_video180/scene007/result.json",
+      "result_sha256": "d8723480b1402ad3193fd8a9f57b695c19420f56092e417eab2c4ea1b238d179",
+      "native_binary_sha256": "5cf70d9e8f6908d8d8d2d73ebe08bce4a1a2abfe1bbbd7ac1ab3576350874995",
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 3522,
+            "median": 0.1260772275612104,
+            "p90": 0.13610821498325604,
+            "maximum": 0.16481466450945792
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 3522,
+            "median": 0.127397319025997,
+            "p90": 0.1349485779799471,
+            "maximum": 0.15121423901363104
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 3522,
+            "median": 0.011682319909120031,
+            "p90": 0.019059692333531972,
+            "maximum": 0.04531115504175364
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 3522,
+          "median": 3.874172846678875e-14,
+          "p90": 7.567803436359106e-07,
+          "maximum": 1.7518745153211057e-05
+        },
+        "maximum_lambda_eta_product": {
+          "count": 3522,
+          "median": 6.664561748358295,
+          "p90": 61.801324657890476,
+          "maximum": 106.29880530092487
+        },
+        "zero_input_frozen_solution_count": 0,
+        "paired_raw_pd_actual": {
+          "matched_executed_c3_plans": 1854,
+          "horizon_s": 0.6749999999999999,
+          "raw_endpoint_xy_error_m": {
+            "count": 1854,
+            "median": 0.12886924011267814,
+            "p90": 0.13612466952062566,
+            "maximum": 0.1412187456590028
+          },
+          "pd_endpoint_xy_error_m": {
+            "count": 1854,
+            "median": 0.009364221179099765,
+            "p90": 0.01709577183349739,
+            "maximum": 0.05939972712603749
+          },
+          "raw_pd_endpoint_xy_disagreement_m": {
+            "count": 1854,
+            "median": 0.12291954202219914,
+            "p90": 0.12549837427083027,
+            "maximum": 0.14158957815921547
+          },
+          "raw_pd_initial_state_disagreement_m": {
+            "count": 1854,
+            "median": 3.5787712108968565e-12,
+            "p90": 5.726007595597786e-09,
+            "maximum": 1.6103035308611557e-08
+          },
+          "actual_state_method": "linear interpolation between measured states; no extrapolation"
+        },
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ],
+        "audit": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat10_video180/scene007/effect_audit.jsonl"
+      },
+      "finger_table_clearance": {
+        "schema": "nonprehensile.sampled_finger_clearance.v1",
+        "sample_count": 1875,
+        "table_local_z_m": 0.0,
+        "minimum_clearance_m": -1.2893828207301283e-05,
+        "median_clearance_m": 0.009763299811907912,
+        "samples_below_table": 62,
+        "samples_within_0_1mm": 279,
+        "height_clamped_samples": 715,
+        "height_clamped_with_downward_feedforward": 714,
+        "worst_sample": {
+          "sim_time_s": 148.6,
+          "minimum_clearance_m": -1.2893828207301283e-05,
+          "by_body_m": {
+            "panda_leftfinger": 0.0037778961352864446,
+            "panda_rightfinger": -1.2893828207301283e-05
+          },
+          "raw_task_target_c3_m": [
+            0.34722851588621356,
+            0.17600998185227162,
+            -0.017329441523997586
+          ],
+          "governed_task_target_c3_m": [
+            0.34722851588621356,
+            0.17600998185227162,
+            -0.015234394448093092
+          ],
+          "planner_tip_position_m": [
+            0.3471009433269501,
+            0.17613479495048523,
+            -0.017320707440376282
+          ],
+          "task_reference_floor_c3_m": -0.015234394448093092,
+          "applied_feedforward_force_n": [
+            -0.015478360425325674,
+            0.009332952714001906,
+            -0.5318009543863899
+          ],
+          "osc_reference_tip_velocity_m_s": [
+            0.005994161514424503,
+            -0.0011576928049785251,
+            0.0
+          ],
+          "task_tracking_error_m": 0.002093932895088176
+        },
+        "limitations": [
+          "Only recorded trace samples; not a continuous clearance guarantee.",
+          "Cooked convex surface distance excludes contact/rest offsets and does not prove a contact force.",
+          "Only the two fingers are reconstructed; palm and arm are not included."
+        ],
+        "result": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat10_video180/scene007/result.json",
+        "result_sha256": "d8723480b1402ad3193fd8a9f57b695c19420f56092e417eab2c4ea1b238d179",
+        "contact_export": "data/contact_models/closed_franka_hammer_physx_v4.json",
+        "contact_export_sha256": "b7294428120efc1b7c35c07825e837f0adf047840283357c25f7fd4e1890462f"
+      },
+      "executed_sim_time_s": 180.0,
+      "final_planar_error_m": 0.012579364702105522,
+      "final_rotation_error_rad": 0.31444114446640015,
+      "forbidden_robot_contact_ever": false,
+      "stopped_reason": "maximum_sim_time",
+      "strict_success": false
+    },
+    {
+      "name": "semantic_quat_fixed_q100_video180",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/semantic_quat_fixed_q100_video180/scene007/result.json",
+      "result_sha256": "b26f3c449332d3c5b3b4fb152adb03d1bb34df1f54970c77c28c66f77718b313",
+      "native_binary_sha256": "0546e46143684dc4d2d9ec55feeed46960c1493ec90f76acecb87c35db72683b",
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 1532,
+            "median": 0.12033421748670377,
+            "p90": 0.13814823499133624,
+            "maximum": 0.16593377383836422
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 1532,
+            "median": 0.11334511033811591,
+            "p90": 0.13606698355292157,
+            "maximum": 0.1427336995631324
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 1532,
+            "median": 0.004127004717830613,
+            "p90": 0.026021143555158388,
+            "maximum": 0.0536493432624623
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 1532,
+          "median": 1.406549979569502e-13,
+          "p90": 1.1442804066064128e-06,
+          "maximum": 2.1721118173445575e-05
+        },
+        "maximum_lambda_eta_product": {
+          "count": 1532,
+          "median": 7.085643092926844,
+          "p90": 74.47486324295116,
+          "maximum": 131.57942903611365
+        },
+        "zero_input_frozen_solution_count": 0,
+        "paired_raw_pd_actual": {
+          "matched_executed_c3_plans": 594,
+          "horizon_s": 0.6749999999999999,
+          "raw_endpoint_xy_error_m": {
+            "count": 594,
+            "median": 0.118657055619219,
+            "p90": 0.13529167514055734,
+            "maximum": 0.1485045282340078
+          },
+          "pd_endpoint_xy_error_m": {
+            "count": 594,
+            "median": 0.006189171415854,
+            "p90": 0.022631151020529636,
+            "maximum": 0.048579401532583485
+          },
+          "raw_pd_endpoint_xy_disagreement_m": {
+            "count": 594,
+            "median": 0.1148529015607608,
+            "p90": 0.1289499570725164,
+            "maximum": 0.1464570279723527
+          },
+          "raw_pd_initial_state_disagreement_m": {
+            "count": 594,
+            "median": 5.595576524569907e-12,
+            "p90": 7.852601831534449e-09,
+            "maximum": 1.6196092800943325e-08
+          },
+          "actual_state_method": "linear interpolation between measured states; no extrapolation"
+        },
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ],
+        "audit": "outputs/contact_planner_m3/workspace_height_20260908/semantic_quat_fixed_q100_video180/scene007/effect_audit.jsonl"
+      },
+      "finger_table_clearance": {
+        "schema": "nonprehensile.sampled_finger_clearance.v1",
+        "sample_count": 957,
+        "table_local_z_m": 0.0,
+        "minimum_clearance_m": -7.651491161390217e-05,
+        "median_clearance_m": 0.015372418101636122,
+        "samples_below_table": 8,
+        "samples_within_0_1mm": 47,
+        "height_clamped_samples": 252,
+        "height_clamped_with_downward_feedforward": 252,
+        "worst_sample": {
+          "sim_time_s": 30.23,
+          "minimum_clearance_m": -7.651491161390217e-05,
+          "by_body_m": {
+            "panda_leftfinger": 0.006191774671099673,
+            "panda_rightfinger": -7.651491161390217e-05
+          },
+          "raw_task_target_c3_m": [
+            0.31900448633496975,
+            0.19164250897901222,
+            -0.013648747954217008
+          ],
+          "governed_task_target_c3_m": [
+            0.31900448633496975,
+            0.19164250897901222,
+            -0.013648747954217008
+          ],
+          "planner_tip_position_m": [
+            0.31731536984443665,
+            0.1914762705564499,
+            -0.014774858951568604
+          ],
+          "task_reference_floor_c3_m": -0.014532690653559655,
+          "applied_feedforward_force_n": [
+            -0.20396864681303073,
+            0.018381767241586636,
+            -0.5133573054691801
+          ],
+          "osc_reference_tip_velocity_m_s": [
+            0.1314555696312134,
+            -0.11407682626621098,
+            0.013732337343186967
+          ],
+          "task_tracking_error_m": 0.002036878913947289
+        },
+        "limitations": [
+          "Only recorded trace samples; not a continuous clearance guarantee.",
+          "Cooked convex surface distance excludes contact/rest offsets and does not prove a contact force.",
+          "Only the two fingers are reconstructed; palm and arm are not included."
+        ],
+        "result": "outputs/contact_planner_m3/workspace_height_20260908/semantic_quat_fixed_q100_video180/scene007/result.json",
+        "result_sha256": "b26f3c449332d3c5b3b4fb152adb03d1bb34df1f54970c77c28c66f77718b313",
+        "contact_export": "data/contact_models/closed_franka_hammer_physx_v4.json",
+        "contact_export_sha256": "b7294428120efc1b7c35c07825e837f0adf047840283357c25f7fd4e1890462f"
+      },
+      "executed_sim_time_s": 80.5,
+      "final_planar_error_m": 0.03232282027602196,
+      "final_rotation_error_rad": 0.034851305186748505,
+      "forbidden_robot_contact_ever": true,
+      "stopped_reason": "oracle_c1_violation",
+      "strict_success": false
+    },
+    {
+      "name": "semantic_quat_fixed_q10_video180",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/semantic_quat_fixed_q10_video180/scene007/result.json",
+      "result_sha256": "74de8e51421859d8a6162e438ac930b85e686fa22d3367486a6a34d4d81101dd",
+      "trace_identical_to_old_binary_weight10": true,
+      "strict_success": false,
+      "executed_sim_time_s": 180.0,
+      "final_planar_error_m": 0.012579364702105522,
+      "final_rotation_error_rad": 0.31444114446640015,
+      "forbidden_robot_contact_ever": false,
+      "stopped_reason": "maximum_sim_time"
+    }
+  ],
+  "fixed_native_trial": "semantic_quat_fixed_q100_video180",
+  "limitations": [
+    "Constructor tests validate frame mapping, not whole simulation success.",
+    "A 0.675-second measured horizon includes subsequent MPC replans.",
+    "The frame-order bug is confirmed independently; it is not proven to be the sole cause of prior C1 distance stops."
+  ],
+  "measured_finger_clearance_audits": {
+    "nonnegative_quat10_clearance5_35": {
+      "schema": "nonprehensile.sampled_finger_clearance.v1",
+      "sample_count": 424,
+      "table_local_z_m": 0.0,
+      "minimum_clearance_m": -2.3882735195809857e-06,
+      "median_clearance_m": 0.019361659841309393,
+      "samples_below_table": 3,
+      "samples_within_0_1mm": 5,
+      "height_clamped_samples": 104,
+      "height_clamped_with_downward_feedforward": 104,
+      "worst_sample": {
+        "sim_time_s": 29.5,
+        "minimum_clearance_m": -2.3882735195809857e-06,
+        "by_body_m": {
+          "panda_leftfinger": 0.004508161419204876,
+          "panda_rightfinger": -2.3882735195809857e-06
+        },
+        "raw_task_target_c3_m": [
+          0.3121172867857069,
+          0.19250360616995837,
+          -0.016584723405063503
+        ],
+        "governed_task_target_c3_m": [
+          0.3121172867857069,
+          0.19250360616995837,
+          -0.011501151535184316
+        ],
+        "planner_tip_position_m": [
+          0.31215059757232666,
+          0.19251495599746704,
+          -0.016556143760681152
+        ],
+        "task_reference_floor_c3_m": -0.011501151535184316,
+        "applied_feedforward_force_n": [
+          -0.1092073140880406,
+          0.05522595056379936,
+          -0.5310382589539282
+        ],
+        "osc_reference_tip_velocity_m_s": [
+          0.11813599143668493,
+          -0.06332105952317836,
+          0.0
+        ],
+        "task_tracking_error_m": 0.005055114719462177
+      },
+      "limitations": [
+        "Only recorded trace samples; not a continuous clearance guarantee.",
+        "Cooked convex surface distance excludes contact/rest offsets and does not prove a contact force.",
+        "Only the two fingers are reconstructed; palm and arm are not included."
+      ],
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat10_clearance5_35/scene007/result.json",
+      "result_sha256": "4552aacce97bdc6b859a2121711108bf21207d916e127d3972b2dbb015a433eb",
+      "contact_export": "data/contact_models/closed_franka_hammer_physx_v4.json",
+      "contact_export_sha256": "b7294428120efc1b7c35c07825e837f0adf047840283357c25f7fd4e1890462f"
+    },
+    "nonnegative_quat100_video180": {
+      "schema": "nonprehensile.sampled_finger_clearance.v1",
+      "sample_count": 686,
+      "table_local_z_m": 0.0,
+      "minimum_clearance_m": -7.651491161390217e-05,
+      "median_clearance_m": 0.01596595623258182,
+      "samples_below_table": 8,
+      "samples_within_0_1mm": 32,
+      "height_clamped_samples": 127,
+      "height_clamped_with_downward_feedforward": 127,
+      "worst_sample": {
+        "sim_time_s": 30.23,
+        "minimum_clearance_m": -7.651491161390217e-05,
+        "by_body_m": {
+          "panda_leftfinger": 0.006191774671099673,
+          "panda_rightfinger": -7.651491161390217e-05
+        },
+        "raw_task_target_c3_m": [
+          0.31900448633496975,
+          0.19164250897901222,
+          -0.013648747954217008
+        ],
+        "governed_task_target_c3_m": [
+          0.31900448633496975,
+          0.19164250897901222,
+          -0.013648747954217008
+        ],
+        "planner_tip_position_m": [
+          0.31731536984443665,
+          0.1914762705564499,
+          -0.014774858951568604
+        ],
+        "task_reference_floor_c3_m": -0.014532690653559655,
+        "applied_feedforward_force_n": [
+          -0.20396864681303073,
+          0.018381767241586636,
+          -0.5133573054691801
+        ],
+        "osc_reference_tip_velocity_m_s": [
+          0.1314555696312134,
+          -0.11407682626621098,
+          0.013732337343186967
+        ],
+        "task_tracking_error_m": 0.002036878913947289
+      },
+      "limitations": [
+        "Only recorded trace samples; not a continuous clearance guarantee.",
+        "Cooked convex surface distance excludes contact/rest offsets and does not prove a contact force.",
+        "Only the two fingers are reconstructed; palm and arm are not included."
+      ],
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat100_video180/scene007/result.json",
+      "result_sha256": "22b8748ec626e5bccd5e8006edf10489a30336211dd0e26ccd2895cf24775ea0",
+      "contact_export": "data/contact_models/closed_franka_hammer_physx_v4.json",
+      "contact_export_sha256": "b7294428120efc1b7c35c07825e837f0adf047840283357c25f7fd4e1890462f"
+    },
+    "nonnegative_quat10_35": {
+      "schema": "nonprehensile.sampled_finger_clearance.v1",
+      "sample_count": 412,
+      "table_local_z_m": 0.0,
+      "minimum_clearance_m": -4.161168518784786e-06,
+      "median_clearance_m": 0.015115530311239817,
+      "samples_below_table": 14,
+      "samples_within_0_1mm": 44,
+      "height_clamped_samples": 117,
+      "height_clamped_with_downward_feedforward": 117,
+      "worst_sample": {
+        "sim_time_s": 13.4,
+        "minimum_clearance_m": -4.161168518784786e-06,
+        "by_body_m": {
+          "panda_leftfinger": 0.010074360898933564,
+          "panda_rightfinger": -4.161168518784786e-06
+        },
+        "raw_task_target_c3_m": [
+          0.3466432194838418,
+          0.1721096558454025,
+          -0.011371346716965079
+        ],
+        "governed_task_target_c3_m": [
+          0.3466432194838418,
+          0.1721096558454025,
+          -0.011371346716965079
+        ],
+        "planner_tip_position_m": [
+          0.3470192551612854,
+          0.17197392880916595,
+          -0.011180900037288666
+        ],
+        "task_reference_floor_c3_m": -0.013458861119800831,
+        "applied_feedforward_force_n": [
+          0.0033343485732841996,
+          0.00979649975049578,
+          -0.5195975529082811
+        ],
+        "osc_reference_tip_velocity_m_s": [
+          0.02548023538018146,
+          -0.03415518056376146,
+          -0.029822619858078804
+        ],
+        "task_tracking_error_m": 0.0004428256958169793
+      },
+      "limitations": [
+        "Only recorded trace samples; not a continuous clearance guarantee.",
+        "Cooked convex surface distance excludes contact/rest offsets and does not prove a contact force.",
+        "Only the two fingers are reconstructed; palm and arm are not included."
+      ],
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat10_35/scene007/result.json",
+      "result_sha256": "23511f55d7415129376459e1144eac1be42e2e8d8c741ca42e4133cc0846055d",
+      "contact_export": "data/contact_models/closed_franka_hammer_physx_v4.json",
+      "contact_export_sha256": "b7294428120efc1b7c35c07825e837f0adf047840283357c25f7fd4e1890462f"
+    },
+    "nonnegative_quat100_35": {
+      "schema": "nonprehensile.sampled_finger_clearance.v1",
+      "sample_count": 395,
+      "table_local_z_m": 0.0,
+      "minimum_clearance_m": -7.651491161390217e-05,
+      "median_clearance_m": 0.015189257925620286,
+      "samples_below_table": 3,
+      "samples_within_0_1mm": 22,
+      "height_clamped_samples": 81,
+      "height_clamped_with_downward_feedforward": 81,
+      "worst_sample": {
+        "sim_time_s": 30.23,
+        "minimum_clearance_m": -7.651491161390217e-05,
+        "by_body_m": {
+          "panda_leftfinger": 0.006191774671099673,
+          "panda_rightfinger": -7.651491161390217e-05
+        },
+        "raw_task_target_c3_m": [
+          0.31900448633496975,
+          0.19164250897901222,
+          -0.013648747954217008
+        ],
+        "governed_task_target_c3_m": [
+          0.31900448633496975,
+          0.19164250897901222,
+          -0.013648747954217008
+        ],
+        "planner_tip_position_m": [
+          0.31731536984443665,
+          0.1914762705564499,
+          -0.014774858951568604
+        ],
+        "task_reference_floor_c3_m": -0.014532690653559655,
+        "applied_feedforward_force_n": [
+          -0.20396864681303073,
+          0.018381767241586636,
+          -0.5133573054691801
+        ],
+        "osc_reference_tip_velocity_m_s": [
+          0.1314555696312134,
+          -0.11407682626621098,
+          0.013732337343186967
+        ],
+        "task_tracking_error_m": 0.002036878913947289
+      },
+      "limitations": [
+        "Only recorded trace samples; not a continuous clearance guarantee.",
+        "Cooked convex surface distance excludes contact/rest offsets and does not prove a contact force.",
+        "Only the two fingers are reconstructed; palm and arm are not included."
+      ],
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat100_35/scene007/result.json",
+      "result_sha256": "27cf911af74273ba684d5bc42021465b7d67a254139bf70b0394126c62026245",
+      "contact_export": "data/contact_models/closed_franka_hammer_physx_v4.json",
+      "contact_export_sha256": "b7294428120efc1b7c35c07825e837f0adf047840283357c25f7fd4e1890462f"
+    }
+  },
+  "clearance_method_note": "New measured_finger_clearance_audits use each finger body pose and original cooked body vertices, superseding the approximate closed-hand sampled_finger_clearance fields retained above.",
+  "tests_this_turn": {
+    "clearance_solver_bridge": "18 passed",
+    "acceptance_and_shared_staging": "12 passed",
+    "compiled_native_frame_checks": 148
+  },
+  "updated_utc": "2026-09-08T19:23:59.768923+00:00",
+  "missing_osc_guard_evidence": "docs/evidence/contact_planner_m3_missing_osc_guard_20260908.json",
+  "new_guard_regression_tests": "29 passed (2 semantic guard + existing acceptance/staging/bridge tests); overlap with earlier test counts."
+}

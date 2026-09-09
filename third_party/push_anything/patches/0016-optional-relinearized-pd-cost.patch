@@ -1,0 +1,147 @@
+diff --git a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+--- a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
++++ b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+@@ -14,6 +14,8 @@
+ #include "drake/common/yaml/yaml_read_archive.h"
+ 
+ struct SamplingC3ControllerParams {
++  // Optional calibrated object-only PD cost; original C3 solve is unchanged.
++  std::optional<bool> use_relinearized_pd_cost;
+   std::string sampling_c3_options_file;  // C3 mode params
+   std::string reposition_params_file;    // repositioning mode params
+   std::string progress_params_file;      // mode switching params
+@@ -82,6 +84,7 @@
+     a->Visit(DRAKE_NVP(sampling_c3_options_file));
+     a->Visit(DRAKE_NVP(reposition_params_file));
+     a->Visit(DRAKE_NVP(progress_params_file));
++    a->Visit(DRAKE_NVP(use_relinearized_pd_cost));
+     a->Visit(DRAKE_NVP(sampling_params_file));
+     a->Visit(DRAKE_NVP(goal_params_file));
+     a->Visit(DRAKE_NVP(sim_params_file));
+diff --git a/systems/controllers/sampling_based_c3_controller.h b/systems/controllers/sampling_based_c3_controller.h
+--- a/systems/controllers/sampling_based_c3_controller.h
++++ b/systems/controllers/sampling_based_c3_controller.h
+@@ -204,6 +204,11 @@
+       const std::shared_ptr<c3::C3>& c3_object,
+       const bool& force_tracking_disabled, int num_objects,
+       const bool& print_cost_breakdown) const;
++  // Caller serializes access to the shared double/AutoDiff model contexts.
++  std::pair<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>>
++  SimulateRelinearizedPDCost(const std::vector<Eigen::VectorXd>& x_plan,
++                            const std::vector<Eigen::VectorXd>& u_plan,
++                            double dt, bool track_force) const;
+   /// Function for computing one control loop
+   drake::systems::EventStatus ComputePlan(
+       const drake::systems::Context<double>& context,
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -587,6 +587,70 @@
+   }
+ }
+ 
++// Update only the cost model. Scalar apparent inertia approximates horizontal
++// OSC response; it is not a replacement for the articulated Franka dynamics.
++std::pair<vector<VectorXd>, vector<VectorXd>>
++SamplingC3Controller::SimulateRelinearizedPDCost(
++    const vector<VectorXd>& x_plan, const vector<VectorXd>& u_plan,
++    double dt, bool track_force) const {
++  const VectorXd saved_x = plant_.GetPositionsAndVelocities(*context_);
++  const auto& body = plant_.GetBodyByName("end_effector_simple");
++  const auto& body_ad = plant_ad_.GetBodyByName("end_effector_simple");
++  const double saved_mass = body.get_mass(*context_);
++  const auto saved_mass_ad = body_ad.get_mass(*context_ad_);
++  const auto restore = [&]() {
++    UpdateContext(n_q_, n_v_, n_u_, plant_, context_, plant_ad_, context_ad_, saved_x);
++    body.SetMass(context_, saved_mass);
++    body_ad.SetMass(context_ad_, saved_mass_ad);
++  };
++  try {
++    constexpr double mass = 1.0;
++    body.SetMass(context_, mass);
++    body_ad.SetMass(context_ad_, drake::AutoDiffXd(mass));
++    VectorXd kp = VectorXd::Zero(n_x_), kd = VectorXd::Zero(n_x_);
++    kp.head<3>().setConstant(mass * 200.0);
++    kd.segment<3>(n_q_).setConstant(mass * 20.0);
++    vector<VectorXd> u;
++    for (const auto& raw : u_plan) {
++      VectorXd force = -mass * plant_.gravity_field().gravity_vector();
++      if (track_force) force -= raw;
++      u.push_back(force);
++    }
++    auto config = c3::LCSSimulateConfig();
++    config.regularized = true;
++    config.min_exp = -8;
++    const auto prediction = SimulateFOHPDRollout(
++        x_plan, u, kp, kd, n_q_, dt, sampling_c3_options_.lcs_dt_resolution, true,
++        [&](const VectorXd& state, const VectorXd& input) {
++          VectorXd current = state;
++          for (int j = 0; j < controller_params_.num_objects; ++j)
++            current.segment<4>(3 + 7 * j).normalize();
++          UpdateContext(n_q_, n_v_, n_u_, plant_, context_, plant_ad_, context_ad_, current);
++          const auto contacts = GetResolvedContactPairs(
++              plant_, *context_, contact_pairs_, sampling_c3_options_.resolve_contacts_to_for_cost,
++              sampling_c3_options_.num_friction_directions_per_contact_for_cost, false);
++          LCSFactoryOptions options = {
++              .contact_model = controller_params_.sampling_c3_options.contact_model,
++              .N = 1,
++              .dt = dt / sampling_c3_options_.lcs_dt_resolution,
++              .num_contacts = contacts.size(), .spring_stiffness = 0.0,
++              .num_friction_directions_per_contact = sampling_c3_options_.num_friction_directions_per_contact_for_cost,
++              .mu_per_contact = sampling_c3_options_.mu_for_cost,
++              .planar_normal_direction = sampling_c3_options_.planar_normal_direction};
++          const LCS fine = LCSFactory(plant_, *context_, plant_ad_, *context_ad_, contacts, options).GenerateLCS();
++          VectorXd next = fine.Simulate(current, input, config);
++          for (int j = 0; j < controller_params_.num_objects; ++j)
++            next.segment<4>(3 + 7 * j).normalize();
++          return next;
++        });
++    restore();
++    return prediction;
++  } catch (...) {
++    restore();
++    throw;
++  }
++}
++
+ // This function relies on the previously computed z_fin from Solve.
+ std::pair<double, vector<VectorXd>> SamplingC3Controller::CalcCost(
+     C3CostComputationType cost_type, const LCS& lcs_for_cost,
+@@ -634,6 +698,37 @@
+   // Declare the matrices to use for cost computation.
+   vector<MatrixXd> Q_cost = cost_mats.Q;
+   vector<MatrixXd> R_cost = cost_mats.R;
++
++  if (controller_params_.use_relinearized_pd_cost.value_or(false)) {
++    DRAKE_THROW_UNLESS(cost_type == C3CostComputationType::kSimImpedanceObjectCostOnly);
++    DRAKE_THROW_UNLESS(controller_params_.use_foh_pd_rollout.value_or(false));
++    bool valid = false;
++    std::pair<vector<VectorXd>, vector<VectorXd>> prediction;
++    // C3 solves remain parallel. Fine-model regeneration alone owns the
++    // shared plant contexts; no other parallel cost path reads those contexts.
++#pragma omp critical(c3_relinearized_pd_model)
++    {
++      try {
++        prediction = SimulateRelinearizedPDCost(x_plan, u_plan, lcs_for_plan.dt(), !force_tracking_disabled);
++        valid = true;
++      } catch (const std::exception& error) {
++        std::string message = error.what();
++        for (char& ch : message) if (ch < ' ') ch = ' ';
++        std::cout << "C3_RELINEARIZED_PD_COST_INVALID " << message << std::endl;
++      }
++    }
++    if (!valid) return {std::numeric_limits<double>::infinity(), XX};
++    XX = prediction.first;
++    UU = prediction.second;
++    for (int i = 0; i < N_ + 1; ++i) {
++      Q_cost[i].block(0, 0, 3, 3).setZero();
++      Q_cost[i].block(n_q_, n_q_, 3, 3).setZero();
++      if (i < N_) R_cost[i].setZero();
++    }
++    const double cost = TrajectoryEvaluator::ComputeQuadraticTrajectoryCost(
++        XX, x_desired, Q_cost, UU, R_cost);
++    return {cost, XX};
++  }
+ 
+   // Set a few more variables necessary for some of the cost types.
+   const int ee_vel_index = 3 + 7 * num_objects;

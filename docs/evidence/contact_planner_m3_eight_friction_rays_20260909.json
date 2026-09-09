@@ -1,0 +1,115 @@
+{
+  "scope": "Same two exact physical capture windows; supplied-plan sampled2.5ms offline replay;4 versus8 friction rays per nonplanar contact. No physical task runs or new C3 solves.",
+  "windows": {
+    "t106p35": {
+      "baseline_errors": {
+        "xy_m": 0.0036144070035886507,
+        "height_m": 6.022015983267806e-05,
+        "so3_rad": 0.0279674825194841
+      },
+      "eight_ray_errors": {
+        "xy_m": 0.0037975648338707947,
+        "height_m": 6.228363983650995e-05,
+        "so3_rad": 0.05206357315111422
+      },
+      "eligible_unshielded_contact": true,
+      "execution": {
+        "command": [
+          "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/frozen_pd_single_step_storage/bazel-bin/examples/sampling_c3/franka_sampling_c3_controller",
+          "--is_simulation=true",
+          "--demo_name=anything",
+          "--lcm_url=memq://",
+          "--offline_pd_replay_input=/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/offline_precise_t106p35/resolution30.txt",
+          "--offline_pd_sampled_references=true"
+        ],
+        "cwd": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/offline_eight_friction_rays/t106p35_expanded_vectors/runtime",
+        "env_overrides": {
+          "PUSH_ANYTHING_OFFLINE_PD_FIRST_PERIOD": "1"
+        },
+        "returncode": 0,
+        "elapsed_s": 0.615964719094336,
+        "binary_sha256": "f06501f9e01db95e980cbc80f08a19a15d1f2b3035a43c171f622fdb5f0593a2",
+        "num_friction_directions_before": 2,
+        "num_friction_directions_after": 4,
+        "options_sha256": "390f2155e249d069d15bc7b89ac06cabb49e362d4876548a4c51008b0c33ed5b",
+        "scope": "Offline supplied-plan replay only; no new C3 optimization or physical commands.",
+        "expanded_constant_per_contact_weight_vectors": [
+          "g_lambda_t_list",
+          "g_eta_t_list",
+          "g_lambda_list",
+          "g_eta_list",
+          "u_lambda_t_list",
+          "u_eta_t_list",
+          "u_lambda_list",
+          "u_eta_list",
+          "g_lambda_t_position_list",
+          "g_eta_t_position_list",
+          "g_lambda_position_list",
+          "g_eta_position_list",
+          "u_lambda_t_position_list",
+          "u_eta_t_position_list",
+          "u_lambda_position_list",
+          "u_eta_position_list"
+        ],
+        "initial_attempt_note": "Changing directions alone left fixed YAML weight vectors at20 instead of40 entries; constructor aborted. This retry expands all16 tangential/conic weight lists consistently."
+      },
+      "physical_comparison_artifact": "outputs/contact_planner_m3/workspace_height_20260908/offline_eight_friction_rays/t106p35_expanded_vectors/physical_comparison.json"
+    },
+    "t8p3": {
+      "baseline_errors": {
+        "xy_m": 0.00045807440279016726,
+        "height_m": 0.00019500022378823867,
+        "so3_rad": 0.020371353943505633
+      },
+      "eight_ray_errors": {
+        "xy_m": 0.00014262684114689235,
+        "height_m": 0.0002447104575939371,
+        "so3_rad": 0.01617012455443737
+      },
+      "eligible_unshielded_contact": true,
+      "execution": {
+        "command": [
+          "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/frozen_pd_single_step_storage/bazel-bin/examples/sampling_c3/franka_sampling_c3_controller",
+          "--is_simulation=true",
+          "--demo_name=anything",
+          "--lcm_url=memq://",
+          "--offline_pd_replay_input=/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/offline_first_period_regression/resolution30.txt",
+          "--offline_pd_sampled_references=true"
+        ],
+        "cwd": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/offline_eight_friction_rays/t8p3_expanded_vectors/runtime",
+        "env_overrides": {
+          "PUSH_ANYTHING_OFFLINE_PD_FIRST_PERIOD": "1"
+        },
+        "returncode": 0,
+        "elapsed_s": 0.5704751187004149,
+        "binary_sha256": "f06501f9e01db95e980cbc80f08a19a15d1f2b3035a43c171f622fdb5f0593a2",
+        "num_friction_directions_before": 2,
+        "num_friction_directions_after": 4,
+        "options_sha256": "390f2155e249d069d15bc7b89ac06cabb49e362d4876548a4c51008b0c33ed5b",
+        "scope": "Offline supplied-plan replay only; no new C3 optimization or physical commands.",
+        "expanded_constant_per_contact_weight_vectors": [
+          "g_lambda_t_list",
+          "g_eta_t_list",
+          "g_lambda_list",
+          "g_eta_list",
+          "u_lambda_t_list",
+          "u_eta_t_list",
+          "u_lambda_list",
+          "u_eta_list",
+          "g_lambda_t_position_list",
+          "g_eta_t_position_list",
+          "g_lambda_position_list",
+          "g_eta_position_list",
+          "u_lambda_t_position_list",
+          "u_eta_t_position_list",
+          "u_lambda_position_list",
+          "u_eta_position_list"
+        ],
+        "initial_attempt_note": "Changing directions alone left fixed YAML weight vectors at20 instead of40 entries; constructor aborted. This retry expands all16 tangential/conic weight lists consistently."
+      },
+      "physical_comparison_artifact": "outputs/contact_planner_m3/workspace_height_20260908/offline_eight_friction_rays/t8p3_expanded_vectors/physical_comparison.json"
+    }
+  },
+  "decision": "Not promoted: earlier8.3s window improves XY/SO3, but106.35s window worsens both. These remain two debug windows, no task success.",
+  "invalid_initial_attempts": "Changing only num_friction_directions left16 fixed weight vectors at20entries; both offline constructors aborted. Preserved original logs. Corrected attempts duplicate constant per-contact weights to40entries before the native planar-contact reduction."
+}

@@ -1,0 +1,1333 @@
+{
+  "schema": "nonprehensile.osc_inertia_physical_comparison.v1",
+  "runs": {
+    "osc_partial_variant12": {
+      "metrics": {
+        "final_planar_error_m": 0.049029912799596786,
+        "final_height_error_m": 0.0009856484830379486,
+        "final_rotation_error_rad": 0.3505699932575226,
+        "maximum_strict_dwell_steps": 0,
+        "maximum_abs_joint_effort_nm": 12.806185722351074,
+        "maximum_task_tracking_error_m": 0.01055807258155445,
+        "semantic_c1_guard_activation_count": 0,
+        "forbidden_robot_contact_ever": false,
+        "safe_robot_contact_ever": true
+      },
+      "scene_contract": {
+        "scene_pose_contract_pass": true,
+        "errors": {
+          "initial": {
+            "planar_m": 9.31054314169295e-09,
+            "height_m": 2.787606256937636e-10,
+            "rotation_rad": 4.2146848510894035e-08
+          },
+          "isaac_goal": {
+            "planar_m": 5.10815952635377e-07,
+            "height_m": 2.787606256937636e-10,
+            "rotation_rad": 4.2146848510894035e-08
+          },
+          "native_goal": {
+            "planar_m": 5.028005342921327e-07,
+            "height_m": 3.897229761129495e-14,
+            "rotation_rad": 0.0
+          }
+        },
+        "initial_yaw_deg": 0.0,
+        "goal_yaw_deg": 10.0,
+        "native_goal_hash_verified": true,
+        "physical_positive_legal_hand_contact": true,
+        "all_retained_trace_c1_flags_false": true,
+        "execution_sources_unchanged": true,
+        "execution_source_root": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/osc_inertia_variant",
+        "native_binary_sha256": "88b68b7032520b27c3de72737406f73c754bcf82ec6be56666d0738b1c0ad7ed"
+      },
+      "dynamics_records": 136,
+      "full_inverse_inertia_condition_quantiles": {
+        "minimum": 3741.89738933207,
+        "median": 4554.124919200067,
+        "p95": 5369.397830376202,
+        "maximum": 5495.6008091519125
+      },
+      "maximum_cached_vs_float64_inertia_abs_error": 3.417170493236199e-06,
+      "sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_partial_variant12/scene007/result.json": "7b1579c4b919e414afd5255d208a919b5256ed6b46148c802055240ea522ae2a",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_partial_variant12/scene007/effect_audit.jsonl": "92c784858fffa52411fb45b7687c035d4fddd0cf69f91913c4f27aec2e477eb6",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_partial_variant12/evaluation_config.json": "4b319167784db1166fbefb531d0ccfb778381cf133f429865eb92c8d31c4e534"
+      }
+    },
+    "osc_full_variant12": {
+      "metrics": {
+        "final_planar_error_m": 0.035692598670721054,
+        "final_height_error_m": 0.0009849835187196732,
+        "final_rotation_error_rad": 0.1856408566236496,
+        "maximum_strict_dwell_steps": 0,
+        "maximum_abs_joint_effort_nm": 13.086467742919922,
+        "maximum_task_tracking_error_m": 0.009426493268057848,
+        "semantic_c1_guard_activation_count": 97,
+        "forbidden_robot_contact_ever": false,
+        "safe_robot_contact_ever": true
+      },
+      "scene_contract": {
+        "scene_pose_contract_pass": true,
+        "errors": {
+          "initial": {
+            "planar_m": 9.31054314169295e-09,
+            "height_m": 2.787606256937636e-10,
+            "rotation_rad": 4.2146848510894035e-08
+          },
+          "isaac_goal": {
+            "planar_m": 5.10815952635377e-07,
+            "height_m": 2.787606256937636e-10,
+            "rotation_rad": 4.2146848510894035e-08
+          },
+          "native_goal": {
+            "planar_m": 5.028005342921327e-07,
+            "height_m": 3.897229761129495e-14,
+            "rotation_rad": 0.0
+          }
+        },
+        "initial_yaw_deg": 0.0,
+        "goal_yaw_deg": 10.0,
+        "native_goal_hash_verified": true,
+        "physical_positive_legal_hand_contact": true,
+        "all_retained_trace_c1_flags_false": true,
+        "execution_sources_unchanged": true,
+        "execution_source_root": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/osc_inertia_variant",
+        "native_binary_sha256": "88b68b7032520b27c3de72737406f73c754bcf82ec6be56666d0738b1c0ad7ed"
+      },
+      "dynamics_records": 138,
+      "full_inverse_inertia_condition_quantiles": {
+        "minimum": 3745.403084954395,
+        "median": 4419.086726637579,
+        "p95": 4893.18100390496,
+        "maximum": 5065.683190226577
+      },
+      "maximum_cached_vs_float64_inertia_abs_error": 4.49417697847565e-05,
+      "sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_variant12/scene007/result.json": "91af585236e701c762fa6a8f401d70602c3cba5b1be9a94b8b7d1376202a0160",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_variant12/scene007/effect_audit.jsonl": "81dd46fb9f3cc24fc07c93670f5b1248c3ee038ab264d3d4a0f392e9bbfaeded",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_variant12/evaluation_config.json": "ac42621358936cd9349cf5f838a7322e8606ff479b1368145caf301da824f5c7"
+      }
+    }
+  },
+  "limitations": [
+    "Both12s runs fail strict pose dwell; no acceptance successes.",
+    "Full mode changes task inertia and nullspace projection together.",
+    "Full mode has97 guarded servo steps (0.97s) versus0; short endpoint improvement does not establish long-horizon success.",
+    "Cached inertia checked against float64 algebra, not total physical acceleration or torque saturation per joint."
+  ],
+  "framework_controller": {
+    "path": "/data1/linsixu/IsaacLab-2.2.0/source/isaaclab/isaaclab/controllers/operational_space.py",
+    "sha256": "137c802ae74787eb9c8ef3bc85ad39d30c55c279471546c78ff0e125b0c3ffb4",
+    "mode_implementation_lines": [
+      427,
+      507
+    ]
+  },
+  "baseline_regression": {
+    "baseline": "outputs/contact_planner_m3/workspace_height_20260908/finite_hysteresis_pd12/scene007",
+    "variant": "outputs/contact_planner_m3/workspace_height_20260908/osc_partial_variant12/scene007",
+    "state_counts": [
+      240,
+      240
+    ],
+    "all_measured_states_exact": true,
+    "first_difference": null,
+    "result_comparison": {
+      "final_planar_error_m": [
+        0.049029912799596786,
+        0.049029912799596786
+      ],
+      "final_height_error_m": [
+        0.0009856484830379486,
+        0.0009856484830379486
+      ],
+      "final_rotation_error_rad": [
+        0.3505699932575226,
+        0.3505699932575226
+      ],
+      "maximum_strict_dwell_steps": [
+        0,
+        0
+      ],
+      "forbidden_robot_contact_ever": [
+        false,
+        false
+      ],
+      "safe_robot_contact_ever": [
+        true,
+        true
+      ],
+      "executed_sim_time_s": [
+        12.0,
+        12.0
+      ],
+      "maximum_abs_joint_effort_nm": [
+        12.806185722351074,
+        12.806185722351074
+      ]
+    },
+    "sha256": {
+      "outputs/contact_planner_m3/workspace_height_20260908/finite_hysteresis_pd12/scene007/result.json": "489476d7903ef1a9f6c4317d601f58beb6f16144f4fd20c88d8263b78a9c96bf",
+      "outputs/contact_planner_m3/workspace_height_20260908/finite_hysteresis_pd12/scene007/effect_audit.jsonl": "46cd8c1f9fdb8aa290417fa69e56fe9e5f9fa87ee17316b73082d09bcbee21ed",
+      "outputs/contact_planner_m3/workspace_height_20260908/osc_partial_variant12/scene007/result.json": "7b1579c4b919e414afd5255d208a919b5256ed6b46148c802055240ea522ae2a",
+      "outputs/contact_planner_m3/workspace_height_20260908/osc_partial_variant12/scene007/effect_audit.jsonl": "92c784858fffa52411fb45b7687c035d4fddd0cf69f91913c4f27aec2e477eb6"
+    }
+  },
+  "source_variant_provenance": {
+    "created_utc": "2026-09-09T00:49:05.999774+00:00",
+    "original_root": "/data1/linsixu/IsaacLab-nonPrehensile",
+    "variant_root": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/osc_inertia_variant",
+    "variant_scope": "Explicit partial/full OSC inertia choice in isolated executor/evaluator; stock IsaacLab controller is unchanged. No edits to active original execution sources.",
+    "changes": {
+      "scripts/run_c3_online_isaaclab_task.py": {
+        "original_sha256": "5b7bb37508c179f40be787383132afe74e5093ff1283007ac34244c9f4b741a7",
+        "variant_sha256": "d48f40e93c28e4a3bd745f49627b3fe369722385fab782b006251542cdef806e"
+      },
+      "scripts/evaluate_push_anything_isaaclab_c1.py": {
+        "original_sha256": "cb66b546c401038c6280e61876bd81bea81a0e8298b27c1e4315ea313a93d14d",
+        "variant_sha256": "34aab47547577dbcbddabf795ed0aa6995ec503e285a3d2bc53311b74eb3369d"
+      }
+    },
+    "shared_readonly_data_symlink": "/data1/linsixu/IsaacLab-nonPrehensile/data"
+  },
+  "diagnostic_nullspace_reconstruction": {
+    "schema": "nonprehensile.osc_nullspace_coupling.v1",
+    "dynamics_records": 192,
+    "consecutive_servo_pairs": 90,
+    "missing_previous_servo_records": 102,
+    "nullspace_kp": 10.0,
+    "nullspace_kd": 6.324555320336759,
+    "full_task_inverse_inertia_condition": {
+      "minimum": 3716.466764686057,
+      "median": 4477.786166886854,
+      "p95": 5062.727420646017,
+      "maximum": 5324.5506062306295
+    },
+    "partial_null_translation_acceleration_m_s2": {
+      "minimum": 0.0007462807285091403,
+      "median": 0.13293286180965302,
+      "p95": 0.26735074631063993,
+      "maximum": 0.2686287244147221
+    },
+    "partial_null_rotation_acceleration_rad_s2": {
+      "minimum": 0.005897881934101825,
+      "median": 1.0279943199051904,
+      "p95": 1.9614591473949574,
+      "maximum": 1.9726650133859116
+    },
+    "maximum_full_null_residual": 2.0635289934529663e-14,
+    "limitations": [
+      "Reconstructed instantaneous acceleration contribution, not measured total acceleration or task success.",
+      "Uses recorded cached dynamics before the final physics substep and the previous measured servo target.",
+      "Float64 algebra; physical float32 arithmetic, contacts and torque saturation require simulation validation.",
+      "This one debug trajectory does not establish conditioning across random initial poses."
+    ],
+    "source_result_sha256": "6a54cb6d7451db38e78f69b260aa89f9edd49918c05b351915cfe91d1a5d5018"
+  },
+  "long_validation": {
+    "output": "outputs/contact_planner_m3/workspace_height_20260908/osc_full_scene007_180",
+    "status": "running",
+    "session_id": 83555,
+    "max_sim_time_s": 180
+  },
+  "guard_counter_definition": {
+    "source": "scripts/run_c3_online_isaaclab_task.py:3500",
+    "meaning": "Number of guarded100Hz servo steps, not number of independent guard episodes",
+    "full_short_guarded_control_steps": 97,
+    "full_short_guarded_duration_s": 0.97
+  },
+  "short_plan_clearance": {
+    "osc_partial_variant12": {
+      "schema": "nonprehensile.planner_execution_clearance_audit.v1",
+      "planner_clearance_m": 0.025,
+      "requested_planner_clearance_m": 0.025,
+      "effective_clearance_logged": false,
+      "execution_stop_distance_m": 0.055,
+      "classification_margin_m": 0.0001,
+      "counts": {
+        "total_published_current_plans": 239,
+        "selected_c3_plans": 58,
+        "selected_plans_in_clearance_gap": 0,
+        "first50ms_enters_stop_from_clear_current": 0,
+        "selected_current_already_in_stop": 0,
+        "selected_below_planner_clearance": 0,
+        "missing_command_modes": 0
+      },
+      "examples": [],
+      "minimum_selected_horizon_distance_m": 0.07986111179175813,
+      "mesh_distance_query_maximum_difference_m": 0.0,
+      "source_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_partial_variant12/scene007/effect_audit.jsonl": "92c784858fffa52411fb45b7687c035d4fddd0cf69f91913c4f27aec2e477eb6",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_partial_variant12/scene007/shared_runtime_1788915049633103876/examples/sampling_c3/anything/parameters/sampling_c3_controller_params.yaml": "4a0a34d3b0bf4ae18f712fcf95523d517d266772a036a7b0bb60178ec962aa62",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_partial_variant12/scene007/shared_runtime_1788915049633103876/examples/sampling_c3/urdf/DOMINO_020_hammer_safe/DOMINO_020_hammer_safe_unsafe.obj": "c6f43974594800e2d3b2bf55250ab0d5c431ac74c9dedc0c5e5b80a2334e5d0c",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_partial_variant12/scene007/shared_runtime_1788915049633103876/examples/sampling_c3/anything/parameters/sampling_c3plus_options.yaml": "b74ca779d59bf7d325b2987b2a0f5aa31e01431dedd8290a38dedaeb84585da9",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_partial_variant12/scene007/controller_online.log": "da9d69cf5832545883be31ac72ed15811cc6022f5e818ae4ab0f7903caf2e4f3"
+      },
+      "limitations": [
+        "Published float32 current-location predictions, not all candidate plans.",
+        "Uses normalized predicted object rotations and native four-substep interpolation.",
+        "Predicted proximity does not itself prove actual contact or explain every execution hold."
+      ]
+    },
+    "osc_full_variant12": {
+      "schema": "nonprehensile.planner_execution_clearance_audit.v1",
+      "planner_clearance_m": 0.025,
+      "requested_planner_clearance_m": 0.025,
+      "effective_clearance_logged": false,
+      "execution_stop_distance_m": 0.055,
+      "classification_margin_m": 0.0001,
+      "counts": {
+        "total_published_current_plans": 239,
+        "selected_c3_plans": 107,
+        "selected_plans_in_clearance_gap": 20,
+        "first50ms_enters_stop_from_clear_current": 9,
+        "selected_current_already_in_stop": 8,
+        "selected_below_planner_clearance": 0,
+        "missing_command_modes": 0
+      },
+      "examples": [
+        {
+          "utime_us": 5500000,
+          "initial_distance_m": 0.05280511563361467,
+          "minimum_horizon_distance_m": 0.052214966923768584,
+          "minimum_first50ms_distance_m": 0.05233421342417683
+        },
+        {
+          "utime_us": 5550000,
+          "initial_distance_m": 0.05025240535289648,
+          "minimum_horizon_distance_m": 0.049856152455422006,
+          "minimum_first50ms_distance_m": 0.049855709184384985
+        },
+        {
+          "utime_us": 5600000,
+          "initial_distance_m": 0.051740138035045936,
+          "minimum_horizon_distance_m": 0.05100634535670271,
+          "minimum_first50ms_distance_m": 0.05109761211726839
+        },
+        {
+          "utime_us": 5649999,
+          "initial_distance_m": 0.05420581918378452,
+          "minimum_horizon_distance_m": 0.054149457424251,
+          "minimum_first50ms_distance_m": 0.0541442314617691
+        },
+        {
+          "utime_us": 5700000,
+          "initial_distance_m": 0.05605731760807892,
+          "minimum_horizon_distance_m": 0.0536574152616745,
+          "minimum_first50ms_distance_m": 0.05430534677777708
+        },
+        {
+          "utime_us": 5750000,
+          "initial_distance_m": 0.05580418923977737,
+          "minimum_horizon_distance_m": 0.05344217751840694,
+          "minimum_first50ms_distance_m": 0.054055857084784206
+        },
+        {
+          "utime_us": 5800000,
+          "initial_distance_m": 0.054756763762380985,
+          "minimum_horizon_distance_m": 0.05282654375658205,
+          "minimum_first50ms_distance_m": 0.05328296840958325
+        },
+        {
+          "utime_us": 5850000,
+          "initial_distance_m": 0.05512272545210217,
+          "minimum_horizon_distance_m": 0.052913916223794225,
+          "minimum_first50ms_distance_m": 0.05344021282595577
+        },
+        {
+          "utime_us": 5899999,
+          "initial_distance_m": 0.05495626793226585,
+          "minimum_horizon_distance_m": 0.05276332419625632,
+          "minimum_first50ms_distance_m": 0.05326537631452584
+        },
+        {
+          "utime_us": 5949999,
+          "initial_distance_m": 0.05539650756591181,
+          "minimum_horizon_distance_m": 0.052984276209106555,
+          "minimum_first50ms_distance_m": 0.05354772016396928
+        },
+        {
+          "utime_us": 6000000,
+          "initial_distance_m": 0.054755886853978274,
+          "minimum_horizon_distance_m": 0.05248531511303358,
+          "minimum_first50ms_distance_m": 0.05299762921130912
+        },
+        {
+          "utime_us": 6050000,
+          "initial_distance_m": 0.05526287034691306,
+          "minimum_horizon_distance_m": 0.052770640120900374,
+          "minimum_first50ms_distance_m": 0.053352913767123956
+        }
+      ],
+      "minimum_selected_horizon_distance_m": 0.049856152455422006,
+      "selected_plan_details": [
+        {
+          "utime_us": 2150000,
+          "initial_distance_m": 0.1165166581650922,
+          "minimum_horizon_distance_m": 0.1165166581650922,
+          "minimum_first50ms_distance_m": 0.1165166581650922,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2199999,
+          "initial_distance_m": 0.1145139872329294,
+          "minimum_horizon_distance_m": 0.1145139872329294,
+          "minimum_first50ms_distance_m": 0.1145139872329294,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2250000,
+          "initial_distance_m": 0.1114283652681195,
+          "minimum_horizon_distance_m": 0.1114283652681195,
+          "minimum_first50ms_distance_m": 0.1114283652681195,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2300000,
+          "initial_distance_m": 0.11002263339454492,
+          "minimum_horizon_distance_m": 0.11002263339454492,
+          "minimum_first50ms_distance_m": 0.11002263339454492,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2350000,
+          "initial_distance_m": 0.1099039842379281,
+          "minimum_horizon_distance_m": 0.1099039842379281,
+          "minimum_first50ms_distance_m": 0.1099039842379281,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2400000,
+          "initial_distance_m": 0.11081479275872023,
+          "minimum_horizon_distance_m": 0.11081479275872023,
+          "minimum_first50ms_distance_m": 0.11081479275872023,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2449999,
+          "initial_distance_m": 0.11263251715587719,
+          "minimum_horizon_distance_m": 0.11259875605992627,
+          "minimum_first50ms_distance_m": 0.11261652748085013,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2500000,
+          "initial_distance_m": 0.11450690278840014,
+          "minimum_horizon_distance_m": 0.11291517479534538,
+          "minimum_first50ms_distance_m": 0.11317605389810041,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2550000,
+          "initial_distance_m": 0.11556816923800126,
+          "minimum_horizon_distance_m": 0.11200823090981708,
+          "minimum_first50ms_distance_m": 0.11294198318525521,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2600000,
+          "initial_distance_m": 0.11539070209585701,
+          "minimum_horizon_distance_m": 0.11078587065911266,
+          "minimum_first50ms_distance_m": 0.11210967215969976,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2650000,
+          "initial_distance_m": 0.1141434303197411,
+          "minimum_horizon_distance_m": 0.10919882155542561,
+          "minimum_first50ms_distance_m": 0.11065016552337059,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2699999,
+          "initial_distance_m": 0.1121891095523535,
+          "minimum_horizon_distance_m": 0.11152143945383772,
+          "minimum_first50ms_distance_m": 0.11162051761438736,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2750000,
+          "initial_distance_m": 0.11109559012878895,
+          "minimum_horizon_distance_m": 0.11056350042312245,
+          "minimum_first50ms_distance_m": 0.11065133987629308,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2800000,
+          "initial_distance_m": 0.11109983194482408,
+          "minimum_horizon_distance_m": 0.11042375217350209,
+          "minimum_first50ms_distance_m": 0.11055325112197786,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2850000,
+          "initial_distance_m": 0.11131061282444411,
+          "minimum_horizon_distance_m": 0.11050993549650664,
+          "minimum_first50ms_distance_m": 0.11068062940072523,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2900000,
+          "initial_distance_m": 0.11149122203343259,
+          "minimum_horizon_distance_m": 0.11065494231515237,
+          "minimum_first50ms_distance_m": 0.11084041268585933,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 2949999,
+          "initial_distance_m": 0.1116180588118315,
+          "minimum_horizon_distance_m": 0.11076612858488862,
+          "minimum_first50ms_distance_m": 0.11098359882942962,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3000000,
+          "initial_distance_m": 0.11171947877946543,
+          "minimum_horizon_distance_m": 0.11089364569857797,
+          "minimum_first50ms_distance_m": 0.11107302045716984,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3050000,
+          "initial_distance_m": 0.11181904438997933,
+          "minimum_horizon_distance_m": 0.11099859596366875,
+          "minimum_first50ms_distance_m": 0.11116616656911092,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3099999,
+          "initial_distance_m": 0.11191409853520934,
+          "minimum_horizon_distance_m": 0.11106601288912757,
+          "minimum_first50ms_distance_m": 0.11124376108683902,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3150000,
+          "initial_distance_m": 0.11199808843638731,
+          "minimum_horizon_distance_m": 0.11111666685737666,
+          "minimum_first50ms_distance_m": 0.11130999362561969,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3199999,
+          "initial_distance_m": 0.11206472928490707,
+          "minimum_horizon_distance_m": 0.11116102496447874,
+          "minimum_first50ms_distance_m": 0.11136630145083566,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3250000,
+          "initial_distance_m": 0.11211931256096451,
+          "minimum_horizon_distance_m": 0.11120726142257835,
+          "minimum_first50ms_distance_m": 0.11141842242294053,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3300000,
+          "initial_distance_m": 0.11216909248901093,
+          "minimum_horizon_distance_m": 0.11125981120726813,
+          "minimum_first50ms_distance_m": 0.11147151041303516,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3349999,
+          "initial_distance_m": 0.11222379029058939,
+          "minimum_horizon_distance_m": 0.11131442355816928,
+          "minimum_first50ms_distance_m": 0.11152676198643934,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3400000,
+          "initial_distance_m": 0.11228642101867474,
+          "minimum_horizon_distance_m": 0.11137459752505667,
+          "minimum_first50ms_distance_m": 0.11158783073016577,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3449999,
+          "initial_distance_m": 0.112347691598529,
+          "minimum_horizon_distance_m": 0.11143106364710119,
+          "minimum_first50ms_distance_m": 0.11164589380410023,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3500000,
+          "initial_distance_m": 0.11241679863463974,
+          "minimum_horizon_distance_m": 0.11149406803060397,
+          "minimum_first50ms_distance_m": 0.1117108670426978,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3550000,
+          "initial_distance_m": 0.11248571941101737,
+          "minimum_horizon_distance_m": 0.11155937406116823,
+          "minimum_first50ms_distance_m": 0.1117772854604461,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3599999,
+          "initial_distance_m": 0.11255658655785492,
+          "minimum_horizon_distance_m": 0.11161631867789278,
+          "minimum_first50ms_distance_m": 0.11183924335101345,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3650000,
+          "initial_distance_m": 0.11263125637839701,
+          "minimum_horizon_distance_m": 0.1116790912921747,
+          "minimum_first50ms_distance_m": 0.11190631241433074,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3699999,
+          "initial_distance_m": 0.11269823140594147,
+          "minimum_horizon_distance_m": 0.11173869806263742,
+          "minimum_first50ms_distance_m": 0.11196860616765882,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3750000,
+          "initial_distance_m": 0.11276213025010057,
+          "minimum_horizon_distance_m": 0.11179744599166293,
+          "minimum_first50ms_distance_m": 0.11202921094560878,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3800000,
+          "initial_distance_m": 0.11282337551030326,
+          "minimum_horizon_distance_m": 0.11185582030306823,
+          "minimum_first50ms_distance_m": 0.11208852130678162,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 3849999,
+          "initial_distance_m": 0.11288963475334338,
+          "minimum_horizon_distance_m": 0.11191303940576999,
+          "minimum_first50ms_distance_m": 0.11214912648668374,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 5350000,
+          "initial_distance_m": 0.07317723664895458,
+          "minimum_horizon_distance_m": 0.06591011211329381,
+          "minimum_first50ms_distance_m": 0.06819098959583607,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 5399999,
+          "initial_distance_m": 0.06863587329836654,
+          "minimum_horizon_distance_m": 0.06276311689757608,
+          "minimum_first50ms_distance_m": 0.06476774837828736,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 5450000,
+          "initial_distance_m": 0.06084524074758473,
+          "minimum_horizon_distance_m": 0.057499674390623944,
+          "minimum_first50ms_distance_m": 0.058683917367919614,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 5500000,
+          "initial_distance_m": 0.05280511563361467,
+          "minimum_horizon_distance_m": 0.052214966923768584,
+          "minimum_first50ms_distance_m": 0.05233421342417683,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 5550000,
+          "initial_distance_m": 0.05025240535289648,
+          "minimum_horizon_distance_m": 0.049856152455422006,
+          "minimum_first50ms_distance_m": 0.049855709184384985,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 5600000,
+          "initial_distance_m": 0.051740138035045936,
+          "minimum_horizon_distance_m": 0.05100634535670271,
+          "minimum_first50ms_distance_m": 0.05109761211726839,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 5649999,
+          "initial_distance_m": 0.05420581918378452,
+          "minimum_horizon_distance_m": 0.054149457424251,
+          "minimum_first50ms_distance_m": 0.0541442314617691,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 5700000,
+          "initial_distance_m": 0.05605731760807892,
+          "minimum_horizon_distance_m": 0.0536574152616745,
+          "minimum_first50ms_distance_m": 0.05430534677777708,
+          "enters_stop_from_clear_current": true
+        },
+        {
+          "utime_us": 5750000,
+          "initial_distance_m": 0.05580418923977737,
+          "minimum_horizon_distance_m": 0.05344217751840694,
+          "minimum_first50ms_distance_m": 0.054055857084784206,
+          "enters_stop_from_clear_current": true
+        },
+        {
+          "utime_us": 5800000,
+          "initial_distance_m": 0.054756763762380985,
+          "minimum_horizon_distance_m": 0.05282654375658205,
+          "minimum_first50ms_distance_m": 0.05328296840958325,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 5850000,
+          "initial_distance_m": 0.05512272545210217,
+          "minimum_horizon_distance_m": 0.052913916223794225,
+          "minimum_first50ms_distance_m": 0.05344021282595577,
+          "enters_stop_from_clear_current": true
+        },
+        {
+          "utime_us": 5899999,
+          "initial_distance_m": 0.05495626793226585,
+          "minimum_horizon_distance_m": 0.05276332419625632,
+          "minimum_first50ms_distance_m": 0.05326537631452584,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 5949999,
+          "initial_distance_m": 0.05539650756591181,
+          "minimum_horizon_distance_m": 0.052984276209106555,
+          "minimum_first50ms_distance_m": 0.05354772016396928,
+          "enters_stop_from_clear_current": true
+        },
+        {
+          "utime_us": 6000000,
+          "initial_distance_m": 0.054755886853978274,
+          "minimum_horizon_distance_m": 0.05248531511303358,
+          "minimum_first50ms_distance_m": 0.05299762921130912,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 6050000,
+          "initial_distance_m": 0.05526287034691306,
+          "minimum_horizon_distance_m": 0.052770640120900374,
+          "minimum_first50ms_distance_m": 0.053352913767123956,
+          "enters_stop_from_clear_current": true
+        },
+        {
+          "utime_us": 6100000,
+          "initial_distance_m": 0.05477643281515815,
+          "minimum_horizon_distance_m": 0.05235751267444827,
+          "minimum_first50ms_distance_m": 0.0529091050809966,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 6149999,
+          "initial_distance_m": 0.05532658509624639,
+          "minimum_horizon_distance_m": 0.052767374761400664,
+          "minimum_first50ms_distance_m": 0.05336420268428156,
+          "enters_stop_from_clear_current": true
+        },
+        {
+          "utime_us": 6199999,
+          "initial_distance_m": 0.05487245928436379,
+          "minimum_horizon_distance_m": 0.05236418932692583,
+          "minimum_first50ms_distance_m": 0.052934618215485445,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 6250000,
+          "initial_distance_m": 0.055296901072129735,
+          "minimum_horizon_distance_m": 0.05257934770834503,
+          "minimum_first50ms_distance_m": 0.05321325955305409,
+          "enters_stop_from_clear_current": true
+        },
+        {
+          "utime_us": 6300000,
+          "initial_distance_m": 0.05491580586805008,
+          "minimum_horizon_distance_m": 0.05171599360091551,
+          "minimum_first50ms_distance_m": 0.05244899959095247,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 6350000,
+          "initial_distance_m": 0.055292080364210086,
+          "minimum_horizon_distance_m": 0.052190361496164274,
+          "minimum_first50ms_distance_m": 0.05286589494315449,
+          "enters_stop_from_clear_current": true
+        },
+        {
+          "utime_us": 6399999,
+          "initial_distance_m": 0.05493403251084168,
+          "minimum_horizon_distance_m": 0.05145499053312902,
+          "minimum_first50ms_distance_m": 0.0521745072449748,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 6449999,
+          "initial_distance_m": 0.055325380726566994,
+          "minimum_horizon_distance_m": 0.051516407095149715,
+          "minimum_first50ms_distance_m": 0.0522972164578059,
+          "enters_stop_from_clear_current": true
+        },
+        {
+          "utime_us": 8199999,
+          "initial_distance_m": 0.1462141820973797,
+          "minimum_horizon_distance_m": 0.12815371373813395,
+          "minimum_first50ms_distance_m": 0.13355261917472547,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 8250000,
+          "initial_distance_m": 0.14261139042246074,
+          "minimum_horizon_distance_m": 0.1241373948639611,
+          "minimum_first50ms_distance_m": 0.12996422275073446,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 8299999,
+          "initial_distance_m": 0.13583212265386205,
+          "minimum_horizon_distance_m": 0.12344709726265558,
+          "minimum_first50ms_distance_m": 0.12735028026977277,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 8350000,
+          "initial_distance_m": 0.12841084188639307,
+          "minimum_horizon_distance_m": 0.12333729746322385,
+          "minimum_first50ms_distance_m": 0.12470547779147996,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 8400000,
+          "initial_distance_m": 0.12079998063407438,
+          "minimum_horizon_distance_m": 0.12075162032218156,
+          "minimum_first50ms_distance_m": 0.12078446438077746,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 8450000,
+          "initial_distance_m": 0.1199023187500193,
+          "minimum_horizon_distance_m": 0.1199023187500193,
+          "minimum_first50ms_distance_m": 0.1199023187500193,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 8500000,
+          "initial_distance_m": 0.11922880819837292,
+          "minimum_horizon_distance_m": 0.11922880819837292,
+          "minimum_first50ms_distance_m": 0.11922880819837292,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 9950000,
+          "initial_distance_m": 0.12166191700151231,
+          "minimum_horizon_distance_m": 0.07185930051599931,
+          "minimum_first50ms_distance_m": 0.10334886223435,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10000000,
+          "initial_distance_m": 0.1176745133654901,
+          "minimum_horizon_distance_m": 0.07371051807790967,
+          "minimum_first50ms_distance_m": 0.10290126607487922,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10049999,
+          "initial_distance_m": 0.11180125169299789,
+          "minimum_horizon_distance_m": 0.08471978026218512,
+          "minimum_first50ms_distance_m": 0.10410128985198984,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10100000,
+          "initial_distance_m": 0.10919914478138172,
+          "minimum_horizon_distance_m": 0.08147276495090595,
+          "minimum_first50ms_distance_m": 0.10275703442357312,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10150000,
+          "initial_distance_m": 0.10791013795139631,
+          "minimum_horizon_distance_m": 0.08154664511332473,
+          "minimum_first50ms_distance_m": 0.10257218754594258,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10200000,
+          "initial_distance_m": 0.10791465174734428,
+          "minimum_horizon_distance_m": 0.08136894347288648,
+          "minimum_first50ms_distance_m": 0.10192394185141246,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10250000,
+          "initial_distance_m": 0.10963490823263204,
+          "minimum_horizon_distance_m": 0.0841815336503575,
+          "minimum_first50ms_distance_m": 0.10366705907932346,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10299999,
+          "initial_distance_m": 0.11231405916517737,
+          "minimum_horizon_distance_m": 0.09878706260527566,
+          "minimum_first50ms_distance_m": 0.10892094741334339,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10350000,
+          "initial_distance_m": 0.11599663726197271,
+          "minimum_horizon_distance_m": 0.10658015172264808,
+          "minimum_first50ms_distance_m": 0.11321792696284176,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10400000,
+          "initial_distance_m": 0.12045078111814621,
+          "minimum_horizon_distance_m": 0.1101700651777201,
+          "minimum_first50ms_distance_m": 0.11660745438140868,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10450000,
+          "initial_distance_m": 0.12457291775080398,
+          "minimum_horizon_distance_m": 0.11346246475483303,
+          "minimum_first50ms_distance_m": 0.11983513808912101,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10500000,
+          "initial_distance_m": 0.12780709417077354,
+          "minimum_horizon_distance_m": 0.11694111391988385,
+          "minimum_first50ms_distance_m": 0.12290143380341449,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10549999,
+          "initial_distance_m": 0.13028567862725896,
+          "minimum_horizon_distance_m": 0.11926053582326503,
+          "minimum_first50ms_distance_m": 0.12518834212056545,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10600000,
+          "initial_distance_m": 0.13229834536452398,
+          "minimum_horizon_distance_m": 0.12235018520914247,
+          "minimum_first50ms_distance_m": 0.12739398360925697,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10650000,
+          "initial_distance_m": 0.13430339574463074,
+          "minimum_horizon_distance_m": 0.12402086018799777,
+          "minimum_first50ms_distance_m": 0.12907418734325884,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10700000,
+          "initial_distance_m": 0.1362526348301146,
+          "minimum_horizon_distance_m": 0.12452813551931201,
+          "minimum_first50ms_distance_m": 0.1300173883232038,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10750000,
+          "initial_distance_m": 0.13764403569974915,
+          "minimum_horizon_distance_m": 0.12590406956994352,
+          "minimum_first50ms_distance_m": 0.13124999967667758,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10799999,
+          "initial_distance_m": 0.13852873269786298,
+          "minimum_horizon_distance_m": 0.12738776579273203,
+          "minimum_first50ms_distance_m": 0.1318953962535465,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10850000,
+          "initial_distance_m": 0.13912786300913366,
+          "minimum_horizon_distance_m": 0.12741495680385626,
+          "minimum_first50ms_distance_m": 0.13215333371063467,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10900000,
+          "initial_distance_m": 0.13943040896270056,
+          "minimum_horizon_distance_m": 0.12734442118133438,
+          "minimum_first50ms_distance_m": 0.13218981744737382,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 10950000,
+          "initial_distance_m": 0.13943807330850624,
+          "minimum_horizon_distance_m": 0.12610825278054907,
+          "minimum_first50ms_distance_m": 0.1320873332526299,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11000000,
+          "initial_distance_m": 0.13924969857880098,
+          "minimum_horizon_distance_m": 0.12595028789578322,
+          "minimum_first50ms_distance_m": 0.1319295238412081,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11049999,
+          "initial_distance_m": 0.13898978569525056,
+          "minimum_horizon_distance_m": 0.1258254605991067,
+          "minimum_first50ms_distance_m": 0.13176239741663154,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11100000,
+          "initial_distance_m": 0.13877149567174876,
+          "minimum_horizon_distance_m": 0.12577206780006803,
+          "minimum_first50ms_distance_m": 0.13164212629182073,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11150000,
+          "initial_distance_m": 0.13862622708224262,
+          "minimum_horizon_distance_m": 0.12580253343773168,
+          "minimum_first50ms_distance_m": 0.13159808001480416,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11200000,
+          "initial_distance_m": 0.1385712259263634,
+          "minimum_horizon_distance_m": 0.12586268148401306,
+          "minimum_first50ms_distance_m": 0.1316059897299658,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11250000,
+          "initial_distance_m": 0.13859436771047878,
+          "minimum_horizon_distance_m": 0.12591132358563561,
+          "minimum_first50ms_distance_m": 0.13164024281954026,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11299999,
+          "initial_distance_m": 0.13865781706310967,
+          "minimum_horizon_distance_m": 0.12596347260364144,
+          "minimum_first50ms_distance_m": 0.13169298395061713,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11350000,
+          "initial_distance_m": 0.138733740550538,
+          "minimum_horizon_distance_m": 0.12598783545716982,
+          "minimum_first50ms_distance_m": 0.13173662500679534,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11400000,
+          "initial_distance_m": 0.13879166006901528,
+          "minimum_horizon_distance_m": 0.12600381755395132,
+          "minimum_first50ms_distance_m": 0.13176960748952546,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11450000,
+          "initial_distance_m": 0.13883388078346343,
+          "minimum_horizon_distance_m": 0.12596556532132683,
+          "minimum_first50ms_distance_m": 0.13176606977682337,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11500000,
+          "initial_distance_m": 0.13884428218430933,
+          "minimum_horizon_distance_m": 0.12595300636241233,
+          "minimum_first50ms_distance_m": 0.13176489074847111,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11549999,
+          "initial_distance_m": 0.1388270270676566,
+          "minimum_horizon_distance_m": 0.12590461443186363,
+          "minimum_first50ms_distance_m": 0.13173257927035226,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11600000,
+          "initial_distance_m": 0.1387952669947671,
+          "minimum_horizon_distance_m": 0.12589205066239337,
+          "minimum_first50ms_distance_m": 0.1317169722933673,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11650000,
+          "initial_distance_m": 0.1387646169218568,
+          "minimum_horizon_distance_m": 0.1258996398241992,
+          "minimum_first50ms_distance_m": 0.13170492042738427,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11750000,
+          "initial_distance_m": 0.138696236162838,
+          "minimum_horizon_distance_m": 0.12514721415327515,
+          "minimum_first50ms_distance_m": 0.13121018361701112,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11799999,
+          "initial_distance_m": 0.13849673862071044,
+          "minimum_horizon_distance_m": 0.12443068307307664,
+          "minimum_first50ms_distance_m": 0.13066829028250465,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11850000,
+          "initial_distance_m": 0.1380135555677933,
+          "minimum_horizon_distance_m": 0.12474399987844781,
+          "minimum_first50ms_distance_m": 0.13066794586674038,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11899999,
+          "initial_distance_m": 0.13756720610612932,
+          "minimum_horizon_distance_m": 0.12538081326080713,
+          "minimum_first50ms_distance_m": 0.13087559947289162,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 11950000,
+          "initial_distance_m": 0.13753081875883819,
+          "minimum_horizon_distance_m": 0.12709040923430617,
+          "minimum_first50ms_distance_m": 0.13127494466500275,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 12000000,
+          "initial_distance_m": 0.13796852651514244,
+          "minimum_horizon_distance_m": 0.1274224275156291,
+          "minimum_first50ms_distance_m": 0.1316893161829959,
+          "enters_stop_from_clear_current": false
+        },
+        {
+          "utime_us": 12049999,
+          "initial_distance_m": 0.13863130086582856,
+          "minimum_horizon_distance_m": 0.12751221599419704,
+          "minimum_first50ms_distance_m": 0.13198896425352705,
+          "enters_stop_from_clear_current": false
+        }
+      ],
+      "mesh_distance_query_maximum_difference_m": 0.0,
+      "source_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_variant12/scene007/effect_audit.jsonl": "81dd46fb9f3cc24fc07c93670f5b1248c3ee038ab264d3d4a0f392e9bbfaeded",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_variant12/scene007/shared_runtime_1788915389936064634/examples/sampling_c3/anything/parameters/sampling_c3_controller_params.yaml": "4a0a34d3b0bf4ae18f712fcf95523d517d266772a036a7b0bb60178ec962aa62",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_variant12/scene007/shared_runtime_1788915389936064634/examples/sampling_c3/urdf/DOMINO_020_hammer_safe/DOMINO_020_hammer_safe_unsafe.obj": "c6f43974594800e2d3b2bf55250ab0d5c431ac74c9dedc0c5e5b80a2334e5d0c",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_variant12/scene007/shared_runtime_1788915389936064634/examples/sampling_c3/anything/parameters/sampling_c3plus_options.yaml": "b74ca779d59bf7d325b2987b2a0f5aa31e01431dedd8290a38dedaeb84585da9",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_variant12/scene007/controller_online.log": "17b205a494c56afa79ab9cb48c54c505d88d2663d1a40587e014eb4f4e7698ae"
+      },
+      "limitations": [
+        "Published float32 current-location predictions, not all candidate plans.",
+        "Uses normalized predicted object rotations and native four-substep interpolation.",
+        "Predicted proximity does not itself prove actual contact or explain every execution hold."
+      ]
+    }
+  },
+  "short_guard_overlap": {
+    "plans": [
+      {
+        "utime_us": 5700000,
+        "initial_distance_m": 0.05605731760807892,
+        "minimum_horizon_distance_m": 0.0536574152616745,
+        "minimum_first50ms_distance_m": 0.05430534677777708,
+        "enters_stop_from_clear_current": true,
+        "retained_servo_steps": 1,
+        "guarded_retained_servo_steps": 0,
+        "measurements": [
+          {
+            "utime_us": 5710000,
+            "guard_active": false,
+            "guard_distance_m": 0.056055301871419355
+          }
+        ]
+      },
+      {
+        "utime_us": 5750000,
+        "initial_distance_m": 0.05580418923977737,
+        "minimum_horizon_distance_m": 0.05344217751840694,
+        "minimum_first50ms_distance_m": 0.054055857084784206,
+        "enters_stop_from_clear_current": true,
+        "retained_servo_steps": 0,
+        "guarded_retained_servo_steps": 0,
+        "measurements": []
+      },
+      {
+        "utime_us": 5850000,
+        "initial_distance_m": 0.05512272545210217,
+        "minimum_horizon_distance_m": 0.052913916223794225,
+        "minimum_first50ms_distance_m": 0.05344021282595577,
+        "enters_stop_from_clear_current": true,
+        "retained_servo_steps": 0,
+        "guarded_retained_servo_steps": 0,
+        "measurements": []
+      },
+      {
+        "utime_us": 5949999,
+        "initial_distance_m": 0.05539650756591181,
+        "minimum_horizon_distance_m": 0.052984276209106555,
+        "minimum_first50ms_distance_m": 0.05354772016396928,
+        "enters_stop_from_clear_current": true,
+        "retained_servo_steps": 0,
+        "guarded_retained_servo_steps": 0,
+        "measurements": []
+      },
+      {
+        "utime_us": 6050000,
+        "initial_distance_m": 0.05526287034691306,
+        "minimum_horizon_distance_m": 0.052770640120900374,
+        "minimum_first50ms_distance_m": 0.053352913767123956,
+        "enters_stop_from_clear_current": true,
+        "retained_servo_steps": 0,
+        "guarded_retained_servo_steps": 0,
+        "measurements": []
+      },
+      {
+        "utime_us": 6149999,
+        "initial_distance_m": 0.05532658509624639,
+        "minimum_horizon_distance_m": 0.052767374761400664,
+        "minimum_first50ms_distance_m": 0.05336420268428156,
+        "enters_stop_from_clear_current": true,
+        "retained_servo_steps": 0,
+        "guarded_retained_servo_steps": 0,
+        "measurements": []
+      },
+      {
+        "utime_us": 6250000,
+        "initial_distance_m": 0.055296901072129735,
+        "minimum_horizon_distance_m": 0.05257934770834503,
+        "minimum_first50ms_distance_m": 0.05321325955305409,
+        "enters_stop_from_clear_current": true,
+        "retained_servo_steps": 1,
+        "guarded_retained_servo_steps": 0,
+        "measurements": [
+          {
+            "utime_us": 6260000,
+            "guard_active": false,
+            "guard_distance_m": 0.05529417526524731
+          }
+        ]
+      },
+      {
+        "utime_us": 6350000,
+        "initial_distance_m": 0.055292080364210086,
+        "minimum_horizon_distance_m": 0.052190361496164274,
+        "minimum_first50ms_distance_m": 0.05286589494315449,
+        "enters_stop_from_clear_current": true,
+        "retained_servo_steps": 1,
+        "guarded_retained_servo_steps": 0,
+        "measurements": [
+          {
+            "utime_us": 6360000,
+            "guard_active": false,
+            "guard_distance_m": 0.05529088088933139
+          }
+        ]
+      },
+      {
+        "utime_us": 6449999,
+        "initial_distance_m": 0.055325380726566994,
+        "minimum_horizon_distance_m": 0.051516407095149715,
+        "minimum_first50ms_distance_m": 0.0522972164578059,
+        "enters_stop_from_clear_current": true,
+        "retained_servo_steps": 1,
+        "guarded_retained_servo_steps": 0,
+        "measurements": [
+          {
+            "utime_us": 6460000,
+            "guard_active": false,
+            "guard_distance_m": 0.05532454103835794
+          }
+        ]
+      }
+    ],
+    "entry_plans": 9,
+    "plans_with_any_retained_guarded_step": 0,
+    "plans_with_no_retained_servo_step": 5,
+    "limitations": [
+      "Joins next50ms post-step retained servo timestamps to published planner clock with1us truncation allowance.",
+      "Some servo samples are decimated; absence of a retained guard is not absence of guarding.",
+      "This sparse join does not establish a per-plan causal match. Counter increments locate guarding in intervals without filling missing servo samples."
+    ],
+    "guard_counter_increase_intervals": [
+      {
+        "previous_measurement_utime_us": 5410000,
+        "measurement_utime_us": 5510000,
+        "guarded_control_steps_delta": 2
+      },
+      {
+        "previous_measurement_utime_us": 5510000,
+        "measurement_utime_us": 5610000,
+        "guarded_control_steps_delta": 10
+      },
+      {
+        "previous_measurement_utime_us": 5610000,
+        "measurement_utime_us": 5710000,
+        "guarded_control_steps_delta": 9
+      },
+      {
+        "previous_measurement_utime_us": 5710000,
+        "measurement_utime_us": 5810000,
+        "guarded_control_steps_delta": 9
+      },
+      {
+        "previous_measurement_utime_us": 5810000,
+        "measurement_utime_us": 5910000,
+        "guarded_control_steps_delta": 9
+      },
+      {
+        "previous_measurement_utime_us": 5910000,
+        "measurement_utime_us": 6010000,
+        "guarded_control_steps_delta": 9
+      },
+      {
+        "previous_measurement_utime_us": 6010000,
+        "measurement_utime_us": 6110000,
+        "guarded_control_steps_delta": 9
+      },
+      {
+        "previous_measurement_utime_us": 6110000,
+        "measurement_utime_us": 6210000,
+        "guarded_control_steps_delta": 9
+      },
+      {
+        "previous_measurement_utime_us": 6210000,
+        "measurement_utime_us": 6260000,
+        "guarded_control_steps_delta": 4
+      },
+      {
+        "previous_measurement_utime_us": 6260000,
+        "measurement_utime_us": 6310000,
+        "guarded_control_steps_delta": 5
+      },
+      {
+        "previous_measurement_utime_us": 6310000,
+        "measurement_utime_us": 6360000,
+        "guarded_control_steps_delta": 4
+      },
+      {
+        "previous_measurement_utime_us": 6360000,
+        "measurement_utime_us": 6410000,
+        "guarded_control_steps_delta": 5
+      },
+      {
+        "previous_measurement_utime_us": 6410000,
+        "measurement_utime_us": 6460000,
+        "guarded_control_steps_delta": 4
+      },
+      {
+        "previous_measurement_utime_us": 6460000,
+        "measurement_utime_us": 6510000,
+        "guarded_control_steps_delta": 5
+      },
+      {
+        "previous_measurement_utime_us": 6510000,
+        "measurement_utime_us": 6610000,
+        "guarded_control_steps_delta": 4
+      }
+    ]
+  }
+}

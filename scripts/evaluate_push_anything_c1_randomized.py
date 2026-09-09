@@ -21,7 +21,7 @@ def parse_args() -> argparse.Namespace:
         default=(
             repo_root
             / "data/manifests/contact_planner_m3"
-            / "hammer_c1_front180_eval50_seed20260901.jsonl"
+            / "hammer_c1_outward180_eval50_seed20260902.jsonl"
         ),
     )
     parser.add_argument(
@@ -29,7 +29,7 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=(
             repo_root
-            / "outputs/contact_planner_m3/hammer_c1_front180_eval50_seed20260901"
+            / "outputs/contact_planner_m3/hammer_c1_outward180_eval50_seed20260902"
         ),
     )
     parser.add_argument(
@@ -49,9 +49,43 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--timeout-s", type=float, default=180.0)
     parser.add_argument("--tcpq-port", type=int, default=7730)
+    parser.add_argument("--semantic-guard-clearance-m", type=float, default=0.025)
+    parser.add_argument("--semantic-guard-stop-distance-m", type=float, default=0.055)
+    parser.add_argument(
+        "--quaternion-weight",
+        type=float,
+        default=5.0,
+        help="fixed quaternion weight used by yaw-regularized and joint-pose modes",
+    )
+    parser.add_argument(
+        "--objective-mode",
+        choices=("push-anything", "yaw-regularized", "joint-pose"),
+        default="push-anything",
+        help=(
+            "controller objective schedule; acceptance always requires the "
+            "same joint XY+SO(3) terminal gate"
+        ),
+    )
+    parser.add_argument("--num-additional-samples-repos", type=int, default=4)
+    parser.add_argument("--num-additional-samples-c3", type=int, default=5)
+    parser.add_argument("--planning-horizon", type=int, default=10)
+    parser.add_argument("--progress-enforced-cost-drop", type=float, default=0.5)
+    parser.add_argument("--progress-enforced-over-n-loops", type=int, default=35)
+    parser.add_argument(
+        "--controller-position-success-threshold", type=float, default=0.02
+    )
+    parser.add_argument(
+        "--controller-orientation-success-threshold", type=float, default=0.1
+    )
     parser.add_argument("--build", action="store_true")
     parser.add_argument("--rerun", action="store_true")
     parser.add_argument("--limit", type=int)
+    parser.add_argument(
+        "--scene-id",
+        action="append",
+        dest="scene_ids",
+        help="run only this scene ID; repeat to select multiple scenes",
+    )
     return parser.parse_args()
 
 
@@ -69,7 +103,10 @@ def load_manifest(path: Path) -> list[dict[str, Any]]:
             if not line.strip():
                 continue
             scene = json.loads(line)
-            if scene.get("schema") != "nonprehensile.push_anything_c1_scene.v1":
+            if scene.get("schema") not in (
+                "nonprehensile.push_anything_c1_scene.v1",
+                "nonprehensile.push_anything_c1_scene.v2",
+            ):
                 raise ValueError(f"invalid schema at {path}:{line_number}")
             if scene.get("asset_id") != "020_hammer:0" or scene.get("clutter_count") != 0:
                 raise ValueError(f"scene outside the C1 single-hammer gate: {scene}")
@@ -102,14 +139,36 @@ def result_from_artifacts(scene: dict[str, Any], run_dir: Path) -> dict[str, Any
     geometry = load_json(geometry_path) if geometry_path.is_file() else {}
     c1 = load_json(c1_path) if c1_path.is_file() else {}
     joint = load_json(joint_path) if joint_path.is_file() else {}
+    runner_path = run_dir / "runner.log"
+    runner_text = (
+        runner_path.read_text(encoding="utf-8", errors="replace")
+        if runner_path.is_file()
+        else ""
+    )
+    child_process_crash = "exited before monitoring completed" in runner_text
+    evaluable = (
+        geometry_path.is_file()
+        and c1_path.is_file()
+        and joint_path.is_file()
+        and not child_process_crash
+    )
     return {
         "scene_id": scene["scene_id"],
         "initial_xy_m": scene["initial_xy_m"],
         "goal_xy_m": scene["goal_xy_m"],
         "goal_distance_m": scene["goal_distance_m"],
         "goal_direction_deg": scene["goal_direction_deg"],
+        "goal_direction_relative_deg": scene.get(
+            "goal_direction_relative_deg", scene["goal_direction_deg"]
+        ),
+        "goal_direction_relative_limit_deg": scene.get(
+            "goal_direction_relative_limit_deg", 90.0
+        ),
         "goal_yaw_deg": scene["goal_yaw_deg"],
         "sampling_seed": scene["sampling_seed"],
+        "evaluable": evaluable,
+        "failure_kind": None if evaluable else "infrastructure",
+        "child_process_crash": child_process_crash,
         "geometry_pass": bool(geometry.get("accepted", False)),
         "c1_pass": bool(c1.get("c1_pass", False)),
         "accepted": bool(joint.get("accepted", False)),
@@ -122,41 +181,87 @@ def result_from_artifacts(scene: dict[str, Any], run_dir: Path) -> dict[str, Any
     }
 
 
-def direction_bin(angle: float) -> str:
-    if angle < -45.0:
-        return "[-90,-45)"
+def _format_angle(angle: float) -> str:
+    return f"{angle:g}"
+
+
+def direction_bin(angle: float, limit: float = 90.0) -> str:
+    midpoint = 0.5 * limit
+    if angle < -midpoint:
+        return f"[-{_format_angle(limit)},-{_format_angle(midpoint)})"
     if angle < 0.0:
-        return "[-45,0)"
-    if angle < 45.0:
-        return "[0,45)"
-    return "[45,90]"
+        return f"[-{_format_angle(midpoint)},0)"
+    if angle < midpoint:
+        return f"[0,{_format_angle(midpoint)})"
+    return f"[{_format_angle(midpoint)},{_format_angle(limit)}]"
 
 
 def summarize(results: list[dict[str, Any]], total_scenes: int) -> dict[str, Any]:
     bins: dict[str, dict[str, int]] = {}
     for result in results:
-        name = direction_bin(float(result["goal_direction_deg"]))
-        bucket = bins.setdefault(name, {"attempted": 0, "accepted": 0})
+        name = direction_bin(
+            float(
+                result.get(
+                    "goal_direction_relative_deg", result["goal_direction_deg"]
+                )
+            ),
+            float(result.get("goal_direction_relative_limit_deg", 90.0)),
+        )
+        bucket = bins.setdefault(
+            name,
+            {
+                "attempted": 0,
+                "evaluable": 0,
+                "geometry_pass": 0,
+                "c1_pass": 0,
+                "accepted": 0,
+            },
+        )
         bucket["attempted"] += 1
+        bucket["evaluable"] += int(result.get("evaluable", True))
+        if not result.get("evaluable", True):
+            continue
+        bucket["geometry_pass"] += int(result["geometry_pass"])
+        bucket["c1_pass"] += int(result["c1_pass"])
         bucket["accepted"] += int(result["accepted"])
     attempted = len(results)
-    geometry_successes = sum(int(item["geometry_pass"]) for item in results)
-    c1_successes = sum(int(item["c1_pass"]) for item in results)
-    joint_successes = sum(int(item["accepted"]) for item in results)
+    evaluated = [item for item in results if item.get("evaluable", True)]
+    evaluable = len(evaluated)
+    geometry_successes = sum(int(item["geometry_pass"]) for item in evaluated)
+    c1_successes = sum(int(item["c1_pass"]) for item in evaluated)
+    joint_successes = sum(int(item["accepted"]) for item in evaluated)
+    legal_contact_scenes = sum(
+        int((item.get("legal_safe_contact_rows") or 0) > 0) for item in evaluated
+    )
+    c1_violation_scenes = sum(
+        int((item.get("c1_violation_rows") or 0) > 0) for item in evaluated
+    )
     return {
         "schema": "nonprehensile.push_anything_c1_eval_summary.v1",
         "total_scenes": total_scenes,
         "attempted": attempted,
+        "evaluable": evaluable,
+        "infrastructure_failures": attempted - evaluable,
         "remaining": total_scenes - attempted,
         "geometry_successes": geometry_successes,
         "c1_successes": c1_successes,
         "joint_successes": joint_successes,
-        "geometry_success_rate": geometry_successes / attempted if attempted else None,
-        "c1_success_rate": c1_successes / attempted if attempted else None,
-        "joint_success_rate": joint_successes / attempted if attempted else None,
+        "geometry_success_rate": geometry_successes / evaluable if evaluable else None,
+        "c1_success_rate": c1_successes / evaluable if evaluable else None,
+        "joint_success_rate": joint_successes / evaluable if evaluable else None,
+        "legal_contact_scenes": legal_contact_scenes,
+        "no_legal_contact_scenes": evaluable - legal_contact_scenes,
+        "c1_violation_scenes": c1_violation_scenes,
         "by_direction_deg": bins,
         "failed_scene_ids": [
-            item["scene_id"] for item in results if not item["accepted"]
+            item["scene_id"]
+            for item in evaluated
+            if not item["accepted"]
+        ],
+        "infrastructure_failure_scene_ids": [
+            item["scene_id"]
+            for item in results
+            if not item.get("evaluable", True)
         ],
     }
 
@@ -179,8 +284,35 @@ def main() -> int:
     args = parse_args()
     if args.timeout_s <= 0.0 or not 1 <= args.tcpq_port <= 65535:
         raise ValueError("timeout/port is invalid")
+    if args.semantic_guard_clearance_m <= 0.0:
+        raise ValueError("semantic guard clearance must be positive")
+    if args.semantic_guard_stop_distance_m < args.semantic_guard_clearance_m:
+        raise ValueError("semantic guard stop distance must be at least its clearance")
+    if args.quaternion_weight <= 0.0:
+        raise ValueError("quaternion weight must be positive")
+    if args.num_additional_samples_repos <= 0:
+        raise ValueError("reposition sample count must be positive")
+    if args.num_additional_samples_c3 <= 0:
+        raise ValueError("C3 sample count must be positive")
+    if args.planning_horizon <= 0:
+        raise ValueError("planning horizon must be positive")
+    if not 0.0 <= args.progress_enforced_cost_drop <= 1.0:
+        raise ValueError("progress cost drop must be in [0, 1]")
+    if args.progress_enforced_over_n_loops <= 1:
+        raise ValueError("progress window must contain at least two loops")
+    if args.controller_position_success_threshold <= 0.0:
+        raise ValueError("controller position threshold must be positive")
+    if args.controller_orientation_success_threshold <= 0.0:
+        raise ValueError("controller orientation threshold must be positive")
     repo_root = Path(__file__).resolve().parents[1]
     scenes = load_manifest(args.manifest.resolve())
+    if args.scene_ids:
+        requested = set(args.scene_ids)
+        available = {scene["scene_id"] for scene in scenes}
+        missing = sorted(requested - available)
+        if missing:
+            raise ValueError(f"scene IDs are absent from the manifest: {missing}")
+        scenes = [scene for scene in scenes if scene["scene_id"] in requested]
     if args.limit is not None:
         if args.limit <= 0:
             raise ValueError("limit must be positive")
@@ -195,6 +327,21 @@ def main() -> int:
                 "scene_count": len(scenes),
                 "timeout_s": args.timeout_s,
                 "tcpq_port": args.tcpq_port,
+                "objective_mode": args.objective_mode,
+                "semantic_guard_clearance_m": args.semantic_guard_clearance_m,
+                "semantic_guard_stop_distance_m": args.semantic_guard_stop_distance_m,
+                "quaternion_weight": args.quaternion_weight,
+                "num_additional_samples_repos": args.num_additional_samples_repos,
+                "num_additional_samples_c3": args.num_additional_samples_c3,
+                "planning_horizon": args.planning_horizon,
+                "progress_enforced_cost_drop": args.progress_enforced_cost_drop,
+                "progress_enforced_over_n_loops": args.progress_enforced_over_n_loops,
+                "controller_position_success_threshold_m": (
+                    args.controller_position_success_threshold
+                ),
+                "controller_orientation_success_threshold_rad": (
+                    args.controller_orientation_success_threshold
+                ),
                 "upstream_root": str(args.upstream_root.resolve()),
             },
             indent=2,
@@ -216,7 +363,26 @@ def main() -> int:
                 "--goal-distance", str(first["goal_distance_m"]),
                 "--goal-direction-deg", str(first["goal_direction_deg"]),
                 "--goal-yaw-deg", str(first["goal_yaw_deg"]),
-                "--quaternion-weight", "5",
+                "--quaternion-weight", str(args.quaternion_weight),
+                "--objective-mode", args.objective_mode,
+                "--num-additional-samples-repos",
+                str(args.num_additional_samples_repos),
+                "--num-additional-samples-c3",
+                str(args.num_additional_samples_c3),
+                "--planning-horizon",
+                str(args.planning_horizon),
+                "--progress-enforced-cost-drop",
+                str(args.progress_enforced_cost_drop),
+                "--progress-enforced-over-n-loops",
+                str(args.progress_enforced_over_n_loops),
+                "--controller-position-success-threshold",
+                str(args.controller_position_success_threshold),
+                "--controller-orientation-success-threshold",
+                str(args.controller_orientation_success_threshold),
+                "--semantic-guard-clearance",
+                str(args.semantic_guard_clearance_m),
+                "--semantic-guard-stop-distance",
+                str(args.semantic_guard_stop_distance_m),
                 "--sampling-seed", str(first["sampling_seed"]),
                 "--output-manifest", str(output_root / "initial_stage_manifest.json"),
             ],
@@ -251,7 +417,8 @@ def main() -> int:
         run_dir.mkdir(parents=True, exist_ok=True)
         print(
             f"START {scene_index}/{len(scenes)} {scene['scene_id']} "
-            f"dir={scene['goal_direction_deg']}deg "
+            f"world_dir={scene['goal_direction_deg']}deg "
+            f"relative_dir={scene.get('goal_direction_relative_deg', scene['goal_direction_deg'])}deg "
             f"yaw={scene['goal_yaw_deg']}deg",
             flush=True,
         )
@@ -266,11 +433,30 @@ def main() -> int:
             "--goal-distance", str(scene["goal_distance_m"]),
             "--goal-direction-deg", str(scene["goal_direction_deg"]),
             "--goal-yaw-deg", str(scene["goal_yaw_deg"]),
-            "--quaternion-weight", "5",
-            "--sampling-seed", str(scene["sampling_seed"]),
-            "--semantic-guard-clearance", "0.025",
-            "--semantic-guard-stop-distance", "0.055",
-            "--output-manifest", str(run_dir / "stage_manifest.json"),
+            "--quaternion-weight", str(args.quaternion_weight),
+            "--objective-mode", args.objective_mode,
+            "--num-additional-samples-repos",
+            str(args.num_additional_samples_repos),
+            "--num-additional-samples-c3",
+            str(args.num_additional_samples_c3),
+            "--planning-horizon",
+            str(args.planning_horizon),
+            "--progress-enforced-cost-drop",
+            str(args.progress_enforced_cost_drop),
+            "--progress-enforced-over-n-loops",
+            str(args.progress_enforced_over_n_loops),
+            "--controller-position-success-threshold",
+            str(args.controller_position_success_threshold),
+            "--controller-orientation-success-threshold",
+            str(args.controller_orientation_success_threshold),
+            "--sampling-seed",
+            str(scene["sampling_seed"]),
+            "--semantic-guard-clearance",
+            str(args.semantic_guard_clearance_m),
+            "--semantic-guard-stop-distance",
+            str(args.semantic_guard_stop_distance_m),
+            "--output-manifest",
+            str(run_dir / "stage_manifest.json"),
         ]
         stage_status = run_logged(
             stage_command, run_dir / "stage.log", cwd=repo_root
@@ -347,7 +533,10 @@ def main() -> int:
 
     summary = write_progress(output_root, results, len(scenes))
     print(json.dumps(summary, indent=2), flush=True)
-    return 0 if summary["joint_successes"] == len(scenes) else 1
+    return 0 if (
+        summary["evaluable"] == len(scenes)
+        and summary["joint_successes"] == len(scenes)
+    ) else 1
 
 
 if __name__ == "__main__":

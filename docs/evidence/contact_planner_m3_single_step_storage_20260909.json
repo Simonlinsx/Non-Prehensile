@@ -1,0 +1,197 @@
+{
+  "schema": "nonprehensile.single_step_lcs_storage_regression.v1",
+  "scope": "Only LCS per-step storage length changes to1. Outer horizon and integration steps, contact matrices, cost and solver are unchanged.",
+  "binary": {
+    "created_utc": "2026-09-09T04:47:19.284883+00:00",
+    "native_binary_sha256": "f06501f9e01db95e980cbc80f08a19a15d1f2b3035a43c171f622fdb5f0593a2",
+    "compiled_profile": "canonical through0022 including0021;0016 and0019 single-step LCS N=1 storage only",
+    "build_passed": true,
+    "patch_checks_passed": true,
+    "patch_sha256": {
+      "0001-safe-only-sampling-mesh.patch": "f27e297f9ea6f6b87685bd26798ebf0c48fffeb28c78de2ead92e50ffaec5fbd",
+      "0002-c3-no-gurobi-optional-m.patch": "d9cf91c327bdb1c0183da232b451331be8b00dcb38e2bf5c657af64ac8a8fc69",
+      "0003-online-isaac-bridge-build.patch": "3eb6441365ed5a6be86678967fe2aa683beba3ceba15d0aca4cff419c9c7bcb2",
+      "0004-target-only-pose-effect-guard.patch": "2121a5e77f1ef313402a61402561f73592831765596605352a5d197f97bb317d",
+      "0005-fix-best-object-plan-channel.patch": "035c3e7479e1bf0644b81e17ff559e1992ef4164b424e84c618990b342ef9005",
+      "0006-signed-yaw-acceptance-deadband.patch": "6ab8c38128a9ff608cc0167fbd726bd93fd14dde168a17dafbe8f089114a62dc",
+      "0007-closed-gripper-convex-contact.patch": "8b34a29a2d9a128414db9d1f191b4d32d0c59d0eb94d2785e6412aa0fdd2fd3c",
+      "0008-synchronous-simulation-plan-clock.patch": "85b86963c62ed8f7a2a8d6f2d69cbd3c15c833a494f3b08283526136841cd7a4",
+      "0009-actor-workspace-constraints.patch": "64d25fa0bc8378331744f66e7948fcd154b05ec302a57a6b4b59be19646dbee3",
+      "0010-c3-solver-diagnostic-bindings.patch": "a3c49074de3456ec38654272aecf0ad7e8ef410094c4eafbe01f6d82f26814ba",
+      "0011-nonnegative-contact-force-constraints.patch": "a657acaab5ea4003290ed7301fb3a6c26a55b9c884e5ff0b6d5e7431e37d93a9",
+      "0012-fix-semantic-guard-quaternion-order.patch": "c4e7edf6c62c93ac6372cfe496044ab51a67dd41f2101319fbd2c0e80c5af0b0",
+      "0013-optional-foh-pd-rollout.patch": "22648c09ba1c06e74b5bfbb4f33a41b9ccc2a140b512891361144ed039624dcc",
+      "0014-readonly-pd-reference-comparison.patch": "638148ead88c4fb2ef2ed0b669ff94097ed05e699ee98b57e1539f3c2e4b78a2",
+      "0015-readonly-pd-inertia-calibration.patch": "6a0620c89b560e8dcbc717996cf8a8217892d8894db2de1fa8597c331b8c2749",
+      "0016-optional-relinearized-pd-cost.patch": "4a0835d69efc467e9716b8411b2d71411caf8bf6278383ae31097f6e0a9311e2",
+      "0017-optional-osc-matched-coarse-dynamics.patch": "192d7ef4b8d1dc682ab23b301852a1715accd83ed0459ed05276ded266aeade8",
+      "0018-planner-finger-table-clearance.patch": "7ef7cb5dbda70c9e2d35ea7f547d597a0fb8a2cd7dc24e79f64273cdec2f660a",
+      "0019-offline-pd-reference-replay.patch": "eb14a41b1baf515c4712b8e64173d6c6f77f16e9ad887902052afbc8b2353b50",
+      "0020-finite-cost-hysteresis.patch": "e198343805bd2e8b5b35433dd334c00c8505a44b2626bf737e7e46b97be9e5d4",
+      "0021-align-closed-gripper-planning-clearance.patch": "a84e95b114c002c2b291584ca0d2956ce866d3c02b7f5bee84ab3ee721a97ca5",
+      "0022-readonly-precise-pd-capture.patch": "87ba2bd88caa20a81bc6cea24d9ca9f28a2d26be994fcca6e761baaf056e34f4"
+    },
+    "compiled_source_sha256": {
+      "systems/controllers/sampling_based_c3_controller.cc": "dd31371eec519cd4a17bce9da5d05ef3fd0c1c0f3841fe48377f9b0e9db6885e",
+      "systems/controllers/sampling_based_c3_controller.h": "527601a00846fa43f263849d2db720ef28dd2aac298a7979a72b609ef2d10fdb",
+      "examples/sampling_c3/franka_sampling_c3_controller.cc": "fcc1c22ea40cf5768487564973264214101096d49dbee7719ad53eb9378f8938"
+    }
+  },
+  "comparisons": {
+    "active4": [
+      {
+        "elapsed_s": {
+          "before": 0.2099171271547675,
+          "after": 0.20126830600202084
+        },
+        "all_native_prediction_and_reference_records_exact": true,
+        "record_count": 1
+      },
+      {
+        "elapsed_s": {
+          "before": 0.20993212005123496,
+          "after": 0.19991655880585313
+        },
+        "all_native_prediction_and_reference_records_exact": true,
+        "record_count": 1
+      }
+    ],
+    "foh15": [
+      {
+        "elapsed_s": {
+          "before": 0.3314314899034798,
+          "after": 0.2774853459559381
+        },
+        "all_native_prediction_and_reference_records_exact": true,
+        "record_count": 1
+      },
+      {
+        "elapsed_s": {
+          "before": 0.3152105347253382,
+          "after": 0.2751886397600174
+        },
+        "all_native_prediction_and_reference_records_exact": true,
+        "record_count": 1
+      }
+    ],
+    "sampled30": [
+      {
+        "elapsed_s": {
+          "before": 0.9129776889458299,
+          "after": 0.40377665078267455
+        },
+        "all_native_prediction_and_reference_records_exact": true,
+        "record_count": 96
+      },
+      {
+        "elapsed_s": {
+          "before": 0.9033548929728568,
+          "after": 0.40961581794545054
+        },
+        "all_native_prediction_and_reference_records_exact": true,
+        "record_count": 96
+      }
+    ],
+    "sampled60": [
+      {
+        "elapsed_s": {
+          "before": 4.467293077148497,
+          "after": 0.6137935388833284
+        },
+        "all_native_prediction_and_reference_records_exact": true,
+        "record_count": 116
+      },
+      {
+        "elapsed_s": {
+          "before": 4.236580984201282,
+          "after": 0.6248273071832955
+        },
+        "all_native_prediction_and_reference_records_exact": true,
+        "record_count": 116
+      }
+    ],
+    "calibration8p3": [
+      {
+        "elapsed_s": {
+          "before": 0.8961010538041592,
+          "after": 0.400892814155668
+        },
+        "all_native_prediction_and_reference_records_exact": true,
+        "record_count": 96
+      },
+      {
+        "elapsed_s": {
+          "before": 0.8857189449481666,
+          "after": 0.4146272698417306
+        },
+        "all_native_prediction_and_reference_records_exact": true,
+        "record_count": 96
+      }
+    ]
+  },
+  "tested_inputs": 5,
+  "paired_repeats_per_input": 2,
+  "all_records_exact": true,
+  "timing_limitation": "Illustrative paired process timings under concurrent simulation load, not a real-time control guarantee.",
+  "source_dependency_sha256": {
+    "/data1/linsixu/c3-push-anything/core/lcs.cc": "0b59d6b0cf7f0f757ab3aa9f73a42ceb2268c9944f71784db7cce0fa646be9e2",
+    "/data1/linsixu/c3-push-anything/multibody/lcs_factory.cc": "dc4d51e7f9156cc533571181266bfcf1c89e887cac571a921c91c5fc26a83b0e"
+  },
+  "artifacts": "outputs/contact_planner_m3/workspace_height_20260908/single_step_storage_regression",
+  "new_independent_task_successes": 0,
+  "physical_regression": {
+    "baseline_scene_directory": "outputs/contact_planner_m3/workspace_height_20260908/osc_full_aligned_clearance12/scene007",
+    "all240_measured_object_states_exact": true,
+    "all_retained_servo_trace_rows_exact": true,
+    "servo_trace_rows": 140,
+    "scene_pose_contract": {
+      "scene_pose_contract_pass": true,
+      "errors": {
+        "initial": {
+          "planar_m": 9.31054314169295e-09,
+          "height_m": 2.787606256937636e-10,
+          "rotation_rad": 5.16191365590357e-08
+        },
+        "isaac_goal": {
+          "planar_m": 5.10815952635377e-07,
+          "height_m": 2.787606256937636e-10,
+          "rotation_rad": 4.2146848510894035e-08
+        },
+        "native_goal": {
+          "planar_m": 5.028005342921327e-07,
+          "height_m": 3.897229761129495e-14,
+          "rotation_rad": 0.0
+        }
+      },
+      "initial_yaw_deg": 0.0,
+      "goal_yaw_deg": 10.0
+    },
+    "native_goal_hash_verified": true,
+    "execution_source_hashes_verified": true,
+    "positive_legal_hand_contact": true,
+    "metrics": {
+      "executed_sim_time_s": 12.0,
+      "final_planar_error_m": 0.04702223837375641,
+      "final_rotation_error_rad": 0.3791143596172333,
+      "maximum_strict_dwell_steps": 0,
+      "semantic_c1_guard_activation_count": 21,
+      "forbidden_robot_contact_ever": false,
+      "online_closed_loop_success": false,
+      "command_counts": {
+        "fresh": 239,
+        "planner_cycles": 240,
+        "ready": 239,
+        "stale": 1,
+        "watchdog": 1
+      }
+    },
+    "native_binary_sha256": "f06501f9e01db95e980cbc80f08a19a15d1f2b3035a43c171f622fdb5f0593a2",
+    "source_sha256": {
+      "outputs/contact_planner_m3/workspace_height_20260908/single_step_storage_full_aligned12/scene007/result.json": "bc040abd3d84ac21f6b4f541ec78a910949f7295453e9049106f0dd9e5a82373",
+      "outputs/contact_planner_m3/workspace_height_20260908/osc_full_aligned_clearance12/scene007/result.json": "a05b3005e13a5c0bb179fb40b4ec3d1e5ba54cd63adfa4ae82e01de1e501e9a1",
+      "outputs/contact_planner_m3/workspace_height_20260908/single_step_storage_full_aligned12/scene007/effect_audit.jsonl": "4cb83375f8edd3dd23cd5a8036544e08d6163e335f7037084e3218be27bd42ac",
+      "outputs/contact_planner_m3/workspace_height_20260908/osc_full_aligned_clearance12/scene007/effect_audit.jsonl": "86e0fa458a49208fd90f425837836c7c3abb54940e884f434858763d43c6dc40"
+    },
+    "scope": "Physical regression for matrix-storage optimization plus synchronous10s wait on one12s debug scene. No new task success."
+  }
+}

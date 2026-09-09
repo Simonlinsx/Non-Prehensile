@@ -1,0 +1,173 @@
+{
+  "schema": "nonprehensile.fr3_osc_batch_audit.v1",
+  "freeze_sha256": "70b5474bc3dfd373eb83dc9a8fe034935c03bb65e1e5e4b6100bd3a47a94b34d",
+  "simulation_acceptance_pass": false,
+  "total_fixed_scenes": 50,
+  "successes": 0,
+  "success_rate": 0.0,
+  "successful_scene_ids": [],
+  "missing_scene_ids": [
+    "scene004",
+    "scene005",
+    "scene006",
+    "scene008",
+    "scene009",
+    "scene010",
+    "scene011",
+    "scene012",
+    "scene013",
+    "scene014",
+    "scene015",
+    "scene016",
+    "scene017",
+    "scene018",
+    "scene019",
+    "scene020",
+    "scene021",
+    "scene022",
+    "scene023",
+    "scene024",
+    "scene025",
+    "scene026",
+    "scene027",
+    "scene028",
+    "scene029",
+    "scene030",
+    "scene031",
+    "scene032",
+    "scene033",
+    "scene034",
+    "scene035",
+    "scene036",
+    "scene037",
+    "scene038",
+    "scene039",
+    "scene040",
+    "scene041",
+    "scene042",
+    "scene043",
+    "scene044",
+    "scene045",
+    "scene046",
+    "scene047",
+    "scene048",
+    "scene049"
+  ],
+  "invalid_scene_ids": {
+    "scene001": "ValueError: Missing valid physics step count",
+    "scene007": "ValueError: Missing valid physics step count"
+  },
+  "c1_violation_scene_ids": [],
+  "scene_audits": [
+    {
+      "scene_id": "scene000",
+      "valid": true,
+      "success": false,
+      "c1_violation": false,
+      "final_pose_errors": [
+        0.06869591975194388,
+        0.0009872335940599442,
+        0.41087617227841133
+      ],
+      "physical_safe_contact": true,
+      "scene_pose_audit": {
+        "scene_pose_contract_pass": true,
+        "errors": {
+          "initial": {
+            "planar_m": 1.599360451399534e-08,
+            "height_m": 2.787606256937636e-10,
+            "rotation_rad": 0.0
+          },
+          "isaac_goal": {
+            "planar_m": 9.022888048285859e-09,
+            "height_m": 2.787606256937636e-10,
+            "rotation_rad": 0.0
+          },
+          "native_goal": {
+            "planar_m": 0.0,
+            "height_m": 0.0,
+            "rotation_rad": 0.0
+          }
+        },
+        "initial_yaw_deg": -32.4,
+        "goal_yaw_deg": -27.4
+      },
+      "executed_sim_time_s": 180.0,
+      "result_sha256": "87b116227e8ae68e50a1bda9c1b7d7be01ea1f972de43db0ad52a628c5499093"
+    },
+    {
+      "scene_id": "scene002",
+      "valid": true,
+      "success": false,
+      "c1_violation": false,
+      "final_pose_errors": [
+        0.10249940447092191,
+        0.0009848596528172493,
+        0.24436547539942166
+      ],
+      "physical_safe_contact": true,
+      "scene_pose_audit": {
+        "scene_pose_contract_pass": true,
+        "errors": {
+          "initial": {
+            "planar_m": 6.664001849799715e-09,
+            "height_m": 2.787606256937636e-10,
+            "rotation_rad": 7.300048299977715e-08
+          },
+          "isaac_goal": {
+            "planar_m": 1.4494679546479372e-08,
+            "height_m": 2.787606256937636e-10,
+            "rotation_rad": 7.300048299977715e-08
+          },
+          "native_goal": {
+            "planar_m": 0.0,
+            "height_m": 0.0,
+            "rotation_rad": 0.0
+          }
+        },
+        "initial_yaw_deg": 169.2,
+        "goal_yaw_deg": 179.2
+      },
+      "executed_sim_time_s": 180.0,
+      "result_sha256": "196afd4394c1c36d7614bcf7e93bf4619c74438e179b30379465ccb0d7eb1349"
+    },
+    {
+      "scene_id": "scene003",
+      "valid": true,
+      "success": false,
+      "c1_violation": false,
+      "final_pose_errors": [
+        0.049201089656123985,
+        0.0009852014482021332,
+        0.32818675567278244
+      ],
+      "physical_safe_contact": true,
+      "scene_pose_audit": {
+        "scene_pose_contract_pass": true,
+        "errors": {
+          "initial": {
+            "planar_m": 8.860867448217733e-09,
+            "height_m": 2.787606256937636e-10,
+            "rotation_rad": 2.9802322387695312e-08
+          },
+          "isaac_goal": {
+            "planar_m": 5.545687227799432e-09,
+            "height_m": 2.787606256937636e-10,
+            "rotation_rad": 0.0
+          },
+          "native_goal": {
+            "planar_m": 0.0,
+            "height_m": 0.0,
+            "rotation_rad": 0.0
+          }
+        },
+        "initial_yaw_deg": -176.4,
+        "goal_yaw_deg": -171.4
+      },
+      "executed_sim_time_s": 180.0,
+      "result_sha256": "4a6802293ce5b88eff7bd6194e13f49f821cb47fdc1ae6fa6b1c3b235d2f04d9"
+    }
+  ],
+  "audit_source_sha256": "723b11e656ba9c83b6996adb3f8251248d4b02f3a52933e2ef80e134fb2903a1",
+  "repository_commit_and_push_completed": false
+}

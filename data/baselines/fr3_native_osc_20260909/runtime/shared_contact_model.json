@@ -1,0 +1,377 @@
+{
+  "schema": "nonprehensile.shared_physx_contact_model.v1",
+  "source_export": "/data1/linsixu/IsaacLab-nonPrehensile/data/contact_models/fr3_stock_hammer_physx_20260909_v2.json",
+  "source_export_sha256": "821cb1788e0bf82b50bf69c9cde1823eb4965d4d68d8c56e6f241c93211c2268",
+  "robot_model_contract": {
+    "schema": "nonprehensile.fr3_robot_model.v1",
+    "robot": "FR3",
+    "end_effector": "stock_closed_gripper",
+    "official_urdf": "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/fr3_official.urdf",
+    "official_urdf_sha256": "8895aa6caf7486fffb6705d34ced6fcb17698d714e5281adea9d43e2986384cd",
+    "simulation_urdf": "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/fr3_isaac.urdf",
+    "native_urdf": "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/fr3_native.urdf",
+    "simulation_urdf_sha256": "b500db5814f1b9f481c7956a48febb7bbcb711ef64c9089a0fae52b0418d297c",
+    "native_urdf_sha256": "996586d9b23aae4e573c3486e14d5311c05a52d7cb0481f0236ff7a537097ece",
+    "removed_empty_fixed_frames": [
+      "base",
+      "fr3_link0_accelerometer_top",
+      "fr3_link0_accelerometer_bottom",
+      "fr3_link1_accelerometer_top",
+      "fr3_link1_accelerometer_bottom",
+      "fr3_link2_accelerometer_top",
+      "fr3_link2_accelerometer_bottom",
+      "fr3_link3_accelerometer_top",
+      "fr3_link3_accelerometer_bottom",
+      "fr3_link4_accelerometer_top",
+      "fr3_link4_accelerometer_bottom",
+      "fr3_link5_accelerometer_top",
+      "fr3_link5_accelerometer_bottom",
+      "fr3_link8",
+      "fr3_hand_tcp"
+    ],
+    "internal_name_aliases": {
+      "fr3_link0": "panda_link0",
+      "fr3_link0_visual": "panda_link0_visual",
+      "fr3_link0_collision": "panda_link0_collision",
+      "fr3_link1": "panda_link1",
+      "fr3_link1_visual": "panda_link1_visual",
+      "fr3_link1_collision": "panda_link1_collision",
+      "fr3_joint1": "panda_joint1",
+      "fr3_link2": "panda_link2",
+      "fr3_link2_visual": "panda_link2_visual",
+      "fr3_link2_collision": "panda_link2_collision",
+      "fr3_joint2": "panda_joint2",
+      "fr3_link3": "panda_link3",
+      "fr3_link3_visual": "panda_link3_visual",
+      "fr3_link3_collision": "panda_link3_collision",
+      "fr3_joint3": "panda_joint3",
+      "fr3_link4": "panda_link4",
+      "fr3_link4_visual": "panda_link4_visual",
+      "fr3_link4_collision": "panda_link4_collision",
+      "fr3_joint4": "panda_joint4",
+      "fr3_link5": "panda_link5",
+      "fr3_link5_visual": "panda_link5_visual",
+      "fr3_link5_collision": "panda_link5_collision",
+      "fr3_joint5": "panda_joint5",
+      "fr3_link6": "panda_link6",
+      "fr3_link6_visual": "panda_link6_visual",
+      "fr3_link6_collision": "panda_link6_collision",
+      "fr3_joint6": "panda_joint6",
+      "fr3_link7": "panda_link7",
+      "fr3_link7_visual": "panda_link7_visual",
+      "fr3_link7_collision": "panda_link7_collision",
+      "fr3_joint7": "panda_joint7",
+      "fr3_hand_joint": "panda_hand_joint",
+      "fr3_hand": "panda_hand",
+      "fr3_hand_visual": "panda_hand_visual",
+      "fr3_hand_collision": "panda_hand_collision",
+      "fr3_leftfinger": "panda_leftfinger",
+      "fr3_leftfinger_visual": "panda_leftfinger_visual",
+      "fr3_rightfinger": "panda_rightfinger",
+      "fr3_rightfinger_visual": "panda_rightfinger_visual",
+      "fr3_finger_joint1": "panda_finger_joint1",
+      "fr3_finger_joint2": "panda_finger_joint2"
+    },
+    "body_masses_kg": {
+      "panda_link0": 2.3966,
+      "panda_link1": 2.9274653454,
+      "panda_link2": 2.9355370338,
+      "panda_link3": 2.2449013699,
+      "panda_link4": 2.6155955791,
+      "panda_link5": 2.3271207594,
+      "panda_link6": 1.8170376524,
+      "panda_link7": 0.6271432862,
+      "panda_hand": 0.6544,
+      "panda_leftfinger": 0.0291,
+      "panda_rightfinger": 0.0291
+    },
+    "mesh_sha256": {
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/visual/link0.dae": "3c52a112d1610d645934945b80ea8d9bb3d1635f345098480a33a537bd43224e",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/collision/link0.stl": "56990396d712b2ebb89f7d29083973c823babd3bfa605f2d2863bd1069d29788",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/visual/link1.dae": "5c5846eabc714aefc82ef051a4d09c4fc1c092bca6258b1290227345dd217fcb",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/collision/link1.stl": "e023cf1db282e07f38597d4e7f9edae03cd0dc338974677b31639f677411dc18",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/visual/link2.dae": "90a1bd38abdc53d0141719cd8e040f788db337b768a845bb6d53c5c52590498f",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/collision/link2.stl": "3117fd3aea238c07fc1bf678784d38497bfdd603a7760bf36b7fb31b15f0624e",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/visual/link3.dae": "1c7a2a8124e39ad07096c0cce8461b0e650f6752900cfd777bf87c181e81749b",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/collision/link3.stl": "1f21215bdb62892271a263969c92dc1be15c409ec8fc96b6bdec3c28d77f0e6e",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/visual/link4.dae": "dd134cf13cdaced2b67739e4d9fe2ca011cc533936397d9f6303fc740424e2a2",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/collision/link4.stl": "b9574ef02cdf234dff9f12359e00f6c11a4b062cf73d1db20894c57f5a9d716a",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/visual/link5.dae": "cbcabd369e044eba3f1c2cab84b9ed2ebc1b2f424c6104ad9c5d7410e92fabfe",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/collision/link5.stl": "c174872b06547dc6acdd027679e476d4cddffe0224cb048763bdbf4f68fe7542",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/visual/link6.dae": "907b16fea84931f4881174234065bb647700abf105b432c3ff65360e0ad5cf8b",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/collision/link6.stl": "9ad5c4698aed204cd505e74356adfbb955196913d0b75a616c3865b319d39e6b",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/visual/link7.dae": "b9d05ac502ff269b1323705de811d07a8eb9920ce711b32ee0497bf16b74989b",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robots/fr3/collision/link7.stl": "c48646a72ed0264e5f90b221327fd2b72163935ec7bc1cde9612ac1dcf23eabf",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robot_ee/franka_hand_white/visual/hand.dae": "1b50601d3157f810176aba6db7164d6bdb4ec8b6546a8a725baba2fa2a21c58a",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robot_ee/franka_hand_white/collision/hand.stl": "94493e94f30fe940f2c8ca2f155c3bbe67bbff406d3edf5e261670d2f0f6e2ed",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/vendor/franka_description/meshes/robot_ee/franka_hand_white/visual/finger.dae": "12c7bc9b55ffd0d1d0e3442d3e213ecc4fbebbced15259a20195af464f871fcd"
+    },
+    "task_tip_from_hand_m": 0.1034,
+    "armature_kg_m2": [
+      0.605721456,
+      0.605721456,
+      0.462474144,
+      0.462474144,
+      0.205544064,
+      0.205544064,
+      0.205544064
+    ],
+    "joint_limits": {
+      "panda_joint1": {
+        "effort": 87.0,
+        "lower": -2.9007,
+        "upper": 2.9007,
+        "velocity": 2.62
+      },
+      "panda_joint2": {
+        "effort": 87.0,
+        "lower": -1.8361,
+        "upper": 1.8361,
+        "velocity": 2.62
+      },
+      "panda_joint3": {
+        "effort": 87.0,
+        "lower": -2.9007,
+        "upper": 2.9007,
+        "velocity": 2.62
+      },
+      "panda_joint4": {
+        "effort": 87.0,
+        "lower": -3.077,
+        "upper": -0.1169,
+        "velocity": 2.62
+      },
+      "panda_joint5": {
+        "effort": 12.0,
+        "lower": -2.8763,
+        "upper": 2.8763,
+        "velocity": 5.26
+      },
+      "panda_joint6": {
+        "effort": 12.0,
+        "lower": 0.4398,
+        "upper": 4.6216,
+        "velocity": 4.18
+      },
+      "panda_joint7": {
+        "effort": 12.0,
+        "lower": -3.0508,
+        "upper": 3.0508,
+        "velocity": 5.26
+      },
+      "panda_finger_joint1": {
+        "effort": 100.0,
+        "lower": 0.0,
+        "upper": 0.04,
+        "velocity": 0.2
+      },
+      "panda_finger_joint2": {
+        "effort": 100.0,
+        "lower": 0.0,
+        "upper": 0.04,
+        "velocity": 0.2
+      }
+    },
+    "joint_dynamics": {
+      "panda_joint1": {
+        "D": 1.0,
+        "K": 7000.0,
+        "damping": 0.003,
+        "friction": 0.2,
+        "gear_ratio": 120.0,
+        "motor_inertia": 4.206399e-05,
+        "mu_coulomb": 0.0,
+        "mu_viscous": 16.0
+      },
+      "panda_joint2": {
+        "D": 1.0,
+        "K": 7000.0,
+        "damping": 0.003,
+        "friction": 0.2,
+        "gear_ratio": 120.0,
+        "motor_inertia": 4.206399e-05,
+        "mu_coulomb": 0.0,
+        "mu_viscous": 16.0
+      },
+      "panda_joint3": {
+        "D": 1.0,
+        "K": 7000.0,
+        "damping": 0.003,
+        "friction": 0.2,
+        "gear_ratio": 120.0,
+        "motor_inertia": 3.211626e-05,
+        "mu_coulomb": 0.0,
+        "mu_viscous": 16.0
+      },
+      "panda_joint4": {
+        "D": 1.0,
+        "K": 7000.0,
+        "damping": 0.003,
+        "friction": 0.2,
+        "gear_ratio": 120.0,
+        "motor_inertia": 3.211626e-05,
+        "mu_coulomb": 0.0,
+        "mu_viscous": 16.0
+      },
+      "panda_joint5": {
+        "D": 1.0,
+        "K": 7000.0,
+        "damping": 0.003,
+        "friction": 0.2,
+        "gear_ratio": 80.0,
+        "motor_inertia": 3.211626e-05,
+        "mu_coulomb": 0.0,
+        "mu_viscous": 16.0
+      },
+      "panda_joint6": {
+        "D": 1.0,
+        "K": 7000.0,
+        "damping": 0.003,
+        "friction": 0.2,
+        "gear_ratio": 80.0,
+        "motor_inertia": 3.211626e-05,
+        "mu_coulomb": 0.0,
+        "mu_viscous": 16.0
+      },
+      "panda_joint7": {
+        "D": 1.0,
+        "K": 7000.0,
+        "damping": 0.003,
+        "friction": 0.2,
+        "gear_ratio": 80.0,
+        "motor_inertia": 3.211626e-05,
+        "mu_coulomb": 0.0,
+        "mu_viscous": 16.0
+      },
+      "panda_finger_joint1": {
+        "damping": 0.3
+      },
+      "panda_finger_joint2": {
+        "damping": 0.3
+      }
+    },
+    "armature_note": "Official expanded FR3 dynamics: gear_ratio squared times motor_inertia; nominal manufacturer model, not measured hardware identification.",
+    "joint_friction_note": "Drake ignores URDF Coulomb friction. Isaac arm friction explicitly zero for the nominal matched baseline; viscous damping retained on both sides.",
+    "native_fingers": "fixed at commanded closed position",
+    "native_collision_geometry": false,
+    "physical_mesh_geometry_changed": false,
+    "manifest_path": "/data1/linsixu/IsaacLab-nonPrehensile/data/robot_models/fr3_stock_20260909/robot_model_manifest.json",
+    "manifest_sha256": "01351d54b1141f661789b53e54beed1f9e535c2dc532de8ed13bfc3e15860b06"
+  },
+  "asset_contract": {
+    "robot_urdf_sha256": "b500db5814f1b9f481c7956a48febb7bbcb711ef64c9089a0fae52b0418d297c"
+  },
+  "source_target_dynamics": {
+    "inertia_frame": "body_axes_about_com",
+    "mass_kg": 0.05000000074505806,
+    "com_position_body_m": [
+      0.0008606847259216011,
+      0.01310434564948082,
+      0.004963570274412632
+    ],
+    "inertia_body_about_com_kg_m2": [
+      [
+        0.00012598921603057534,
+        -3.2291328011524456e-07,
+        -3.455264163676475e-08
+      ],
+      [
+        -3.229133369586634e-07,
+        2.1895753889111802e-05,
+        -2.5314270715171006e-06
+      ],
+      [
+        -3.455264163676475e-08,
+        -2.5314270715171006e-06,
+        0.00010837729496415704
+      ]
+    ]
+  },
+  "target_inertial_c3": {
+    "mass_kg": 0.05000000074505806,
+    "com_position_body_m": [
+      0.013095396901658053,
+      0.004977997660025285,
+      0.0009120319360427151
+    ],
+    "inertia_body_about_com_kg_m2": [
+      [
+        2.191176803547735e-05,
+        -2.5508954531095594e-06,
+        -1.2921862271670461e-06
+      ],
+      [
+        -2.55089545310956e-06,
+        0.0001083795605218205,
+        2.0820169180399395e-07
+      ],
+      [
+        -1.2921862271670461e-06,
+        2.0820169180399363e-07,
+        0.00012597093632654642
+      ]
+    ],
+    "inertia_frame": "body_axes_about_com"
+  },
+  "source_target_support": null,
+  "contact_friction": null,
+  "support_sphere_centers_c3_m": null,
+  "planner_clock_mode": "simulation",
+  "enforce_actor_workspace_bounds": true,
+  "c3_end_on_qp_step": true,
+  "c3_admm_iterations": 3,
+  "c3_qp_max_iterations": 2000,
+  "c3_nonnegative_contact_forces": true,
+  "c3_quaternion_cost_weight": 100.0,
+  "c3_pd_rollout_interpolation": "zoh",
+  "c3_pd_rollout_kp": null,
+  "c3_pd_rollout_kd": null,
+  "c3_progress_window_loops": null,
+  "c3_progress_cost_drop": null,
+  "c3_final_contact_scaling_mode": "ee",
+  "spatial_safe_sampling": true,
+  "execution_height_mode": "optimized",
+  "physical_target_source": "existing Isaac visual-mesh PhysX cooked convexes",
+  "target_convex_count": 16,
+  "finger_convex_count": 8,
+  "orientation": "measured panda_hand FK, refreshed each replan and held over the prediction horizon",
+  "reference_offset_m": 0.1034,
+  "support_quaternion_wxyz": [
+    -0.4937799140314683,
+    0.5013379099086276,
+    0.506216296031207,
+    0.4985847553024161
+  ],
+  "files": {
+    "examples/sampling_c3/urdf/shared_physx_contact/target_00.obj": "1b5be559c708db73d528eb942585d82d63f324ceac386d1e705c67a036e9dc3e",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_01.obj": "1d0bf8d8f5082104f79e9e649e9ca9bcee5d6c6c1ca65fc6c5cc2ef07c415501",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_02.obj": "4a598d24f828a9a40d073d29a6eb5c1b728d37225caf654a4e2c0283a7867943",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_03.obj": "2f44394ac1c291dd7aa7a2c700d37ad3815bc7664f082c2e6bab82e432b1f6ec",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_04.obj": "44eee0f2dabab9755df45511e55183c42c6464eb926b3ba61c09ca6dfff64822",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_05.obj": "a5cda3c3485c5dcd3fa11e79a0a99ce6da3f825e2f52e9a3cf904859fff4ee15",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_06.obj": "b2c6401e590d2eae7f2cf319a3c2717dc03bb33eeb906b3658af1fba7303c118",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_07.obj": "3bb285e5acd64b48f3af52bfa92336d2c49878f62ef0eb05792fdec7f963232a",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_08.obj": "4fe7b16c870d1e7cfe646cb9784d961053a553ed18e14eef228d72ec6353e98b",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_09.obj": "1117a9ca34f44f1550de2e68107257c87f26e57563cda3c910d0a5465e775ba9",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_10.obj": "3041c2e86f1685845d86b5733ac31314099a5f5445c83e78d62a64fd6ce38fe5",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_11.obj": "5af2fbac1bc248ec9bc71ae78dfe5fdd03e305136c18cb23ef1695d4408d35d1",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_12.obj": "ebf3eff1e1f77e2c40cec3611f20b1c63bfc7ca40a36d715820af0b0e3e843e2",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_13.obj": "ab4c21df7670ccbeab2164f0bc0e47f0bf9ddf1c0c78916c26fb4fdc2cda2410",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_14.obj": "d95c79af9cd2eda86cbdfc5b1592f2ec62277bfbabdfc83579c5fe15d66b5124",
+    "examples/sampling_c3/urdf/shared_physx_contact/target_15.obj": "051d144151fc2751aa8d85abe7832a0e24afd5499ec1eda4320d255221d58782",
+    "examples/sampling_c3/urdf/shared_physx_contact/panda_leftfinger_0.obj": "44d90f376dce07864f20493caf8a12c2d70e7cb99551230fc921c3b8b55289c7",
+    "examples/sampling_c3/urdf/shared_physx_contact/panda_leftfinger_1.obj": "088b443856d969638182f8a4f38e612995fd6c5181130722a9cc7dfbefb94de1",
+    "examples/sampling_c3/urdf/shared_physx_contact/panda_leftfinger_2.obj": "b8fd458d7417d5b8cd83728620f4faeb7040835c9765048e75a72412047000c2",
+    "examples/sampling_c3/urdf/shared_physx_contact/panda_leftfinger_3.obj": "f0d247f0403017ac45bc508c460ab93258e61964dbedc5cc041e9dbe0566b7ed",
+    "examples/sampling_c3/urdf/shared_physx_contact/panda_rightfinger_0.obj": "ea4d13a3410ef97e1fd4553504e57ca6390a9f042e45d190ce238c9761ba86bd",
+    "examples/sampling_c3/urdf/shared_physx_contact/panda_rightfinger_1.obj": "2580d64b24cf48d6646f7efde1cbd98b73d65141e7d34f257024546cff493515",
+    "examples/sampling_c3/urdf/shared_physx_contact/panda_rightfinger_2.obj": "89e0df74e8452ddc77813c01b021c6887fdf6b5bcc01bb974f6fcb3b6697f295",
+    "examples/sampling_c3/urdf/shared_physx_contact/panda_rightfinger_3.obj": "a8d68d4cd38d788b7fa92b3609a740be47e0a082644b0d437faab9328755da23"
+  },
+  "unchanged": [
+    "Isaac physical assets",
+    "C3+ algorithm",
+    "safe sampling mesh",
+    "acceptance thresholds"
+  ]
+}

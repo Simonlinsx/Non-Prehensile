@@ -1,0 +1,54 @@
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -1708,6 +1708,50 @@
+     hyst_repos_to_c3_frac = progress_params_.hyst_repos_to_c3_frac_position;
+     hyst_repos_to_repos_frac =
+         progress_params_.hyst_repos_to_repos_frac_position;
++  }
++
++  // Capture full-precision replay inputs without running a counterfactual
++  // model or modifying the selected command. Disabled unless explicitly set.
++  if (const char* capture = std::getenv("PUSH_ANYTHING_PD_CAPTURE_TIME_S")) {
++    char* end = nullptr;
++    const double requested = std::strtod(capture, &end);
++    if (end == capture || *end != '\0' || !std::isfinite(requested) || requested < 0)
++      throw std::invalid_argument("Invalid PUSH_ANYTHING_PD_CAPTURE_TIME_S");
++    if (std::abs(context.get_time() - requested) < 1e-6) {
++      const auto& solved = c3_objects.at(SampleIndex::kCurrentLocation);
++      const LCS coarse = solved->GetLCS();
++      vector<VectorXd> x, u, lambda;
++      for (const auto& z : solved->GetFullSolution()) {
++        x.push_back(z.segment(0, n_x_));
++        lambda.push_back(z.segment(n_x_, n_lambda_));
++        u.push_back(z.segment(n_x_ + n_lambda_, n_u_));
++      }
++      x.push_back(coarse.A().back() * x.back() + coarse.B().back() * u.back() +
++                  coarse.D().back() * lambda.back() + coarse.d().back());
++      std::ostringstream record;
++      record << std::setprecision(17)
++             << "C3_PD_REPLAY_CAPTURE {\"utime_us\":"
++             << static_cast<int64_t>(context.get_time() * 1e6)
++             << ",\"dt_s\":" << coarse.dt()
++             << ",\"force_tracking_enabled\":" << (!force_tracking_disabled ? "true" : "false");
++      const auto write_vectors = [&](const char* key, const vector<VectorXd>& values) {
++        record << ",\"" << key << "\":[";
++        for (int k = 0; k < static_cast<int>(values.size()); ++k) {
++          if (k) record << ',';
++          record << '[';
++          for (int j = 0; j < values[k].size(); ++j) {
++            if (j) record << ',';
++            record << values[k][j];
++          }
++          record << ']';
++        }
++        record << ']';
++      };
++      write_vectors("raw_states", x);
++      write_vectors("raw_forces", u);
++      record << '}';
++      std::cout << record.str() << std::endl;
++    }
+   }
+ 
+   // Review the cost results to determine the best sample.

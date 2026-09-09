@@ -1,0 +1,33 @@
+diff --git a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+--- a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
++++ b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+@@ -59,4 +59,6 @@
+   bool include_end_effector_orientation;
+   int control_loop_delay_ms;
++  // Synchronous simulators hold measured time while solving.
++  std::optional<bool> use_simulation_time_for_plans;
+ 
+   int num_objects;
+@@ -85,4 +87,5 @@
+     a->Visit(DRAKE_NVP(lcm_channels_simulation_file));
+     a->Visit(DRAKE_NVP(include_end_effector_orientation));
++    a->Visit(DRAKE_NVP(use_simulation_time_for_plans));
+     a->Visit(DRAKE_NVP(control_loop_delay_ms));
+ 
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -1619,6 +1619,11 @@
+       std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count() /
+       1e6;
+-  filtered_solve_time_ = (1 - solve_time_filter_constant_) * solve_time +
+-                         (solve_time_filter_constant_)*filtered_solve_time_;
++  // A lockstep simulator does not advance its measurement clock while this
++  // solve runs. Wall-clock latency must not shift simulated trajectory knots
++  // or feed a fictitious advance into the next initial-state prediction.
++  filtered_solve_time_ = controller_params_.use_simulation_time_for_plans.value_or(false)
++      ? 0.0
++      : (1 - solve_time_filter_constant_) * solve_time +
++            solve_time_filter_constant_ * filtered_solve_time_;
+ 
+   if (verbose_) {

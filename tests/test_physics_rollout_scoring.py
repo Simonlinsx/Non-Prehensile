@@ -8,6 +8,7 @@ from dapl.contact_planner import (
     joint_threshold_cost,
     rank_physics_rollout_pairs,
     rank_physics_rollouts,
+    rank_safe_plateau_rollouts,
 )
 
 
@@ -141,3 +142,32 @@ def test_two_step_fallback_rejects_pairs_with_an_illegal_effect() -> None:
     assert not bool(valid[0])
     assert first.item() == -1
     assert second.item() == -1
+
+
+def test_plateau_escape_selects_only_bounded_safe_setup_contact() -> None:
+    best, valid, scores = rank_safe_plateau_rollouts(
+        current_cost=torch.tensor([5.0]),
+        rollout_cost=torch.tensor([[5.2, 5.1, 4.9, 5.3]]),
+        rollout_rotation_error=torch.tensor([[0.2, 0.6, 0.2, 0.2]]),
+        legal_safe_contact=torch.tensor([[True, True, False, True]]),
+        maximum_cost_increase=0.25,
+        transient_rotation_cap_rad=0.5,
+    )
+    assert bool(valid[0])
+    assert best.item() == 0
+    assert torch.isfinite(scores[0, 0])
+    assert torch.isinf(scores[0, 1:]).all()
+
+
+def test_plateau_escape_fails_closed_outside_trust_region() -> None:
+    best, valid, scores = rank_safe_plateau_rollouts(
+        current_cost=torch.tensor([5.0]),
+        rollout_cost=torch.tensor([[5.4]]),
+        rollout_rotation_error=torch.tensor([[0.2]]),
+        legal_safe_contact=torch.tensor([[True]]),
+        maximum_cost_increase=0.25,
+        transient_rotation_cap_rad=0.5,
+    )
+    assert not bool(valid[0])
+    assert best.item() == -1
+    assert torch.isinf(scores).all()

@@ -1,0 +1,120 @@
+{
+  "manifest": "/data1/linsixu/IsaacLab-nonPrehensile/data/manifests/contact_planner_m3/combined_eraser_short_seed20260902/hammer_teacher_combined_128_seed20260902.jsonl",
+  "profile": "combined",
+  "scene_count": 128,
+  "sample_count": 2048,
+  "c2_protected_to_blocker_distance_m": {
+    "audit_mode": "midpoint_blocked",
+    "endpoint_clearance_threshold": 0.005,
+    "midpoint_blocked_distance_threshold": 0.005,
+    "midpoint_clearance_threshold": null,
+    "path_clearance_threshold": null,
+    "path_samples": null,
+    "start": {
+      "minimum": 7.456565941793896e-05,
+      "mean": 0.021771512167828074,
+      "p50": 0.028150467348538398,
+      "p95": 0.035927023319872076,
+      "maximum": 0.036348217771376125
+    },
+    "straight_path_midpoint": {
+      "minimum": 3.619212162085705e-05,
+      "mean": 0.00041640603792287667,
+      "p50": 0.0003756659208211708,
+      "p95": 0.0008289755051485737,
+      "maximum": 0.0010651094185219626
+    },
+    "goal": {
+      "minimum": 7.717127787102434e-05,
+      "mean": 0.020085282763132695,
+      "p50": 0.027469025293462044,
+      "p95": 0.03538526958047217,
+      "maximum": 0.03636576314042627
+    },
+    "whole_target_start": {
+      "minimum": 5.227583105015681e-05,
+      "mean": 0.018641089357621026,
+      "p50": 0.025705939631431585,
+      "p95": 0.035927023319872076,
+      "maximum": 0.036348217771376125
+    },
+    "whole_target_goal": {
+      "minimum": 6.976206966644872e-05,
+      "mean": 0.013823182183206944,
+      "p50": 0.006796414658031879,
+      "p95": 0.03538526958047217,
+      "maximum": 0.03636576314042627
+    },
+    "interpolated_pose_sweep_protected_min": null,
+    "interpolated_pose_sweep_whole_target_min": null,
+    "midpoint_blocked_fraction": 1.0,
+    "midpoint_clear_fraction": null,
+    "full_sweep_clear_fraction": null,
+    "endpoint_clear_and_midpoint_blocked_fraction": 0.234375
+  },
+  "c3_tcp_to_safe_root_corridor": {
+    "surface_distance_m": {
+      "minimum": 0.003482557161689426,
+      "mean": 0.00578402446591446,
+      "p50": 0.005574548796539614,
+      "p95": 0.007745918902904674,
+      "maximum": 0.008512832488994121
+    },
+    "obstacle_root_to_segment_m": {
+      "minimum": 0.03499999999999988,
+      "mean": 0.03500000000000001,
+      "p50": 0.035,
+      "p95": 0.03500000000000005,
+      "maximum": 0.03500000000000006
+    },
+    "tcp_to_obstacle_surface_m": {
+      "minimum": 0.16562585441812933,
+      "mean": 0.16748648553888168,
+      "p50": 0.1671228158185845,
+      "p95": 0.16959258419841658,
+      "maximum": 0.17024726376221916
+    },
+    "target_start_to_obstacle_surface_m": {
+      "minimum": 0.00011747056833332308,
+      "mean": 0.003831357440572277,
+      "p50": 0.0009220760772613481,
+      "p95": 0.016709168039207373,
+      "maximum": 0.022270931332101437
+    },
+    "obstacle_root_to_tcp_m": {
+      "minimum": 0.0876798490237735,
+      "mean": 0.09910272027857173,
+      "p50": 0.09756191828563282,
+      "p95": 0.1096702645246951,
+      "maximum": 0.11212869383493776
+    },
+    "obstacle_root_to_target_m": {
+      "minimum": 0.08767984902377349,
+      "mean": 0.09910272027857171,
+      "p50": 0.09756191828563282,
+      "p95": 0.10967026452469508,
+      "maximum": 0.11212869383493776
+    },
+    "reset_clear_and_direct_corridor_blocked_fraction": 0.234375
+  },
+  "combined_obstacle_pair_clearance_m": {
+    "minimum": 8.30196174147993e-05,
+    "mean": 0.05348108359296197,
+    "p50": 0.04746339846994997,
+    "p95": 0.14242564709305552,
+    "maximum": 0.15245691853950755,
+    "clear_fraction": 0.71875
+  },
+  "candidate_valid_scene_count": 7,
+  "valid_scene_indices": [
+    24,
+    32,
+    34,
+    62,
+    84,
+    97,
+    126
+  ],
+  "valid_scene_count": 7,
+  "filtered_manifest_output": "data/manifests/contact_planner_m3/combined_eraser_short_seed20260902/hammer_teacher_combined_valid_seed20260902.jsonl"
+}

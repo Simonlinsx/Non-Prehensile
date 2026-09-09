@@ -1,0 +1,66 @@
+{
+  "manifest": "/data1/linsixu/IsaacLab-nonPrehensile/data/manifests/contact_planner_m3/typed_clutter_audit_seed20260901/hammer_teacher_c2_16_seed20260901.jsonl",
+  "profile": "c2",
+  "scene_count": 16,
+  "sample_count": 4096,
+  "c2_protected_to_blocker_distance_m": {
+    "audit_mode": "midpoint_blocked",
+    "endpoint_clearance_threshold": 0.005,
+    "midpoint_blocked_distance_threshold": 0.005,
+    "midpoint_clearance_threshold": null,
+    "path_clearance_threshold": null,
+    "path_samples": null,
+    "start": {
+      "minimum": 0.00039715091361035943,
+      "mean": 0.02143909548628927,
+      "p50": 0.024693647394886636,
+      "p95": 0.0324482202233071,
+      "maximum": 0.03249368103017501
+    },
+    "straight_path_midpoint": {
+      "minimum": 5.111542713322762e-05,
+      "mean": 0.0003492970277077434,
+      "p50": 0.0002768030503773356,
+      "p95": 0.0006818744469838883,
+      "maximum": 0.0007172613865779159
+    },
+    "goal": {
+      "minimum": 0.00032176826535371264,
+      "mean": 0.017040107393702503,
+      "p50": 0.019497626234555126,
+      "p95": 0.03206542236883201,
+      "maximum": 0.032520499645479026
+    },
+    "whole_target_start": {
+      "minimum": 0.0001815266620390162,
+      "mean": 0.0156966290477869,
+      "p50": 0.015753428926210507,
+      "p95": 0.0324482202233071,
+      "maximum": 0.03249368103017501
+    },
+    "whole_target_goal": {
+      "minimum": 0.00018250827693773003,
+      "mean": 0.014669715690165043,
+      "p50": 0.011975948507169107,
+      "p95": 0.03206542236883201,
+      "maximum": 0.032520499645479026
+    },
+    "interpolated_pose_sweep_protected_min": null,
+    "interpolated_pose_sweep_whole_target_min": null,
+    "midpoint_blocked_fraction": 1.0,
+    "midpoint_clear_fraction": null,
+    "full_sweep_clear_fraction": null,
+    "endpoint_clear_and_midpoint_blocked_fraction": 0.375
+  },
+  "candidate_valid_scene_count": 6,
+  "valid_scene_indices": [
+    0,
+    5,
+    6,
+    11,
+    13,
+    15
+  ],
+  "valid_scene_count": 6,
+  "filtered_manifest_output": "data/manifests/contact_planner_m3/typed_clutter_audit_seed20260901/hammer_teacher_c2_valid_seed20260901.jsonl"
+}

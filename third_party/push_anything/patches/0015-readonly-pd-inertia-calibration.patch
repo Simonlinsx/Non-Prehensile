@@ -1,0 +1,136 @@
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -1424,6 +1424,132 @@
+   // and could be considered as a repositioning target.
+   MaintainSampleBuffers(x_lcs_curr);
+ 
++  // Diagnostic only: regenerate the fine LCS with a scalar apparent inertia,
++  // matched acceleration-domain OSC gains and gravity compensation. Restore
++  // both plant contexts before ordinary planning continues, including on error.
++  if (const char* audit = std::getenv("PUSH_ANYTHING_DIAGNOSTIC_PD_CALIBRATION");
++      audit != nullptr && std::string(audit) == "1" &&
++      context.get_time() >= 8.2 && context.get_time() <= 8.8) {
++    const auto& solved = c3_objects.at(SampleIndex::kCurrentLocation);
++    const LCS coarse = solved->GetLCS();
++    vector<VectorXd> x, raw_u, lambda;
++    for (const auto& z : solved->GetFullSolution()) {
++      x.push_back(z.segment(0, n_x_));
++      lambda.push_back(z.segment(n_x_, n_lambda_));
++      raw_u.push_back(z.segment(n_x_ + n_lambda_, n_u_));
++    }
++    x.push_back(coarse.A().back() * x.back() + coarse.B().back() * raw_u.back() +
++                coarse.D().back() * lambda.back() + coarse.d().back());
++    UpdateContext(n_q_, n_v_, n_u_, plant_, context_, plant_ad_, context_ad_, x_lcs_curr);
++    const auto& body = plant_.GetBodyByName("end_effector_simple");
++    const auto& body_ad = plant_ad_.GetBodyByName("end_effector_simple");
++    const double original_mass = body.get_mass(*context_);
++    const auto original_mass_ad = body_ad.get_mass(*context_ad_);
++    const auto restore_mass = [&]() {
++      UpdateContext(n_q_, n_v_, n_u_, plant_, context_, plant_ad_, context_ad_, x_lcs_curr);
++      body.SetMass(context_, original_mass);
++      body_ad.SetMass(context_ad_, original_mass_ad);
++    };
++    try {
++      const char* geometry_audit = std::getenv("PUSH_ANYTHING_DIAGNOSTIC_PD_RELINEARIZE");
++      const bool audit_geometry = geometry_audit != nullptr && std::string(geometry_audit) == "1";
++      for (double mass : {0.057, 1.0}) {
++      for (bool relinearize : {false, true}) {
++        if (relinearize && !audit_geometry) continue;
++        int fine_step = 0;
++        try {
++        UpdateContext(n_q_, n_v_, n_u_, plant_, context_, plant_ad_, context_ad_, x_lcs_curr);
++        body.SetMass(context_, mass);
++        body_ad.SetMass(context_ad_, drake::AutoDiffXd(mass));
++        const auto contacts = GetResolvedContactPairs(
++            plant_, *context_, contact_pairs_, sampling_c3_options_.resolve_contacts_to_for_cost,
++            sampling_c3_options_.num_friction_directions_per_contact_for_cost, false);
++        LCSFactoryOptions options = {
++            .contact_model = controller_params_.sampling_c3_options.contact_model,
++            .N = N_ * sampling_c3_options_.lcs_dt_resolution,
++            .dt = dt_ / sampling_c3_options_.lcs_dt_resolution,
++            .num_contacts = contacts.size(), .spring_stiffness = 0.0,
++            .num_friction_directions_per_contact = sampling_c3_options_.num_friction_directions_per_contact_for_cost,
++            .mu_per_contact = sampling_c3_options_.mu_for_cost,
++            .planar_normal_direction = sampling_c3_options_.planar_normal_direction};
++        const LCS fine = LCSFactory(plant_, *context_, plant_ad_, *context_ad_, contacts, options).GenerateLCS();
++        VectorXd kp = VectorXd::Zero(n_x_), kd = VectorXd::Zero(n_x_);
++        kp.head<3>().setConstant(mass * 200.0);
++        kd.segment<3>(n_q_).setConstant(mass * 20.0);
++        vector<VectorXd> u;
++        for (const auto& raw : raw_u) {
++          VectorXd force = -mass * plant_.gravity_field().gravity_vector();
++          if (!force_tracking_disabled) force -= raw;
++          u.push_back(force);
++        }
++        auto config = c3::LCSSimulateConfig();
++        config.regularized = true;
++        config.min_exp = -8;
++        const auto prediction = SimulateFOHPDRollout(
++            x, u, kp, kd, n_q_, coarse.dt(), sampling_c3_options_.lcs_dt_resolution, true,
++            [&](const VectorXd& state, const VectorXd& input) {
++              ++fine_step;
++              if (!relinearize) return fine.Simulate(state, input, config);
++              // Same Anitescu LCP; refresh its local geometry/dynamics at every
++              // predicted fine step instead of freezing one linearization.
++              VectorXd current = state;
++              for (int j = 0; j < controller_params_.num_objects; ++j)
++                current.segment<4>(3 + 7 * j).normalize();
++              UpdateContext(n_q_, n_v_, n_u_, plant_, context_, plant_ad_, context_ad_, current);
++              const auto step_contacts = GetResolvedContactPairs(
++                  plant_, *context_, contact_pairs_, sampling_c3_options_.resolve_contacts_to_for_cost,
++                  sampling_c3_options_.num_friction_directions_per_contact_for_cost, false);
++              auto step_options = options;
++              step_options.num_contacts = step_contacts.size();
++              const LCS step_lcs = LCSFactory(plant_, *context_, plant_ad_, *context_ad_, step_contacts, step_options).GenerateLCS();
++              VectorXd next = step_lcs.Simulate(current, input, config);
++              for (int j = 0; j < controller_params_.num_objects; ++j)
++                next.segment<4>(3 + 7 * j).normalize();
++              return next;
++            });
++        std::ostringstream record;
++        record << std::setprecision(17)
++               << "C3_PD_CALIBRATION {\"utime_us\":" << static_cast<int64_t>(context.get_time() * 1e6)
++               << ",\"dt_s\":" << coarse.dt() << ",\"actor_mass_kg\":" << mass
++               << ",\"contact_geometry\":\"" << (relinearize ? "relinearized" : "frozen") << "\""
++               << ",\"original_actor_mass_kg\":" << original_mass
++               << ",\"acceleration_kp\":200,\"acceleration_kd\":20,\"force_sign\":-1"
++               << ",\"gravity_compensated\":true,\"force_tracking_enabled\":" << (!force_tracking_disabled ? "true" : "false")
++               << ",\"states\":[";
++        for (int k = 0; k < static_cast<int>(prediction.first.size()); ++k) {
++          if (k) record << ',';
++          record << '[';
++          for (int j = 0; j < n_x_; ++j) {
++            if (j) record << ',';
++            record << prediction.first[k][j];
++          }
++          record << ']';
++        }
++        record << "]}";
++        std::cout << record.str() << std::endl;
++        } catch (const std::exception& error) {
++          // A counterfactual model failure must not alter the active controller.
++          restore_mass();
++          std::string message = error.what();
++          for (char& ch : message) if (ch < ' ') ch = ' ';
++          std::ostringstream record;
++          record << std::setprecision(17)
++                 << "C3_PD_CALIBRATION {\"utime_us\":" << static_cast<int64_t>(context.get_time() * 1e6)
++                 << ",\"dt_s\":" << coarse.dt() << ",\"actor_mass_kg\":" << mass
++                 << ",\"contact_geometry\":\"" << (relinearize ? "relinearized" : "frozen") << "\""
++                 << ",\"failed_fine_step\":" << fine_step
++                 << ",\"error\":" << std::quoted(message) << '}';
++          std::cout << record.str() << std::endl;
++        }
++      }
++      }
++    } catch (...) {
++      restore_mass();
++      throw;
++    }
++    restore_mass();
++  }
++
+   // Augment the considered samples with the best from the buffer, if eligible.
+   AugmentSamplesWithBuffer(c3_objects);
+ 

@@ -4,8 +4,9 @@
 M1 deliberately uses no learned policy and no RGB-D predictor.  Isaac Lab
 supplies the target pose, goal pose, metric target point cloud, and oracle
 ``safe``/``protected`` scores.  The planner selects C1-legal handle contacts,
-rejects kinematically unreachable or semantically unsafe joint paths, executes
-one short push, observes the new object pose, and replans.
+rejects kinematically unreachable or semantically unsafe joint paths, then
+either executes one short macro push or keeps a legal contact for live-state
+micro pushes before observing the object pose and globally replanning.
 """
 
 from __future__ import annotations
@@ -36,7 +37,39 @@ parser.add_argument("--servo-gain", type=float, default=3.0)
 parser.add_argument("--joint-action-scale-rad", type=float, default=0.12)
 parser.add_argument("--push-steps", type=int, default=18)
 parser.add_argument("--retreat-steps", type=int, default=12)
+parser.add_argument("--retreat-lift-m", type=float, default=0.050)
 parser.add_argument("--inter-push-settle-steps", type=int, default=3)
+parser.add_argument(
+    "--contact-execution-mode",
+    choices=("macro", "persistent"),
+    default="macro",
+    help=(
+        "macro executes one fixed push before retreating; persistent keeps a "
+        "measured legal contact and recomputes a deployable XY/yaw micro-push "
+        "from live state feedback"
+    ),
+)
+parser.add_argument("--persistent-micro-steps", type=int, default=3)
+parser.add_argument("--persistent-micro-distance-m", type=float, default=0.002)
+parser.add_argument("--persistent-max-contact-travel-m", type=float, default=0.060)
+parser.add_argument(
+    "--persistent-cost-regression-tolerance", type=float, default=0.25
+)
+parser.add_argument(
+    "--persistent-max-moment-arm-error-m", type=float, default=0.010
+)
+parser.add_argument(
+    "--persistent-minimum-goal-axis-cosine", type=float, default=0.2
+)
+parser.add_argument(
+    "--persistent-yaw-moment-gain-m-per-rad", type=float, default=0.04
+)
+parser.add_argument(
+    "--persistent-yaw-rate-moment-gain-m-s-per-rad", type=float, default=0.02
+)
+parser.add_argument(
+    "--persistent-max-axis-deviation-rad", type=float, default=1.56
+)
 parser.add_argument("--final-hold-steps", type=int, default=5)
 parser.add_argument("--dwell-steps", type=int, default=5)
 parser.add_argument("--ik-max-evaluations", type=int, default=500)
@@ -50,6 +83,37 @@ parser.add_argument("--hand-yaw-samples", type=int, default=5)
 parser.add_argument("--hand-yaw-span-deg", type=float, default=60.0)
 parser.add_argument("--contact-distance-m", type=float, default=0.010)
 parser.add_argument("--gate-contact-distance-m", type=float, default=0.010)
+parser.add_argument("--physical-contact-force-threshold-n", type=float, default=0.02)
+parser.add_argument(
+    "--safety-scope",
+    choices=("c1", "c1-c2", "c1-c3", "combined"),
+    default="c1",
+    help=(
+        "Typed constraints enforced during both shadow rollouts and the real "
+        "execution. C1 is always active; C2 is target-protected/clutter and "
+        "C3 is whole-robot/clutter."
+    ),
+)
+parser.add_argument("--protected-clearance-m", type=float, default=0.005)
+parser.add_argument("--robot-obstacle-clearance-m", type=float, default=0.005)
+parser.add_argument(
+    "--rollout-protected-clearance-m",
+    type=float,
+    default=0.010,
+    help=(
+        "conservative C2 clearance used only to reject shadow-rollout "
+        "candidates; actual C2 failure remains a localized physical contact"
+    ),
+)
+parser.add_argument(
+    "--rollout-robot-obstacle-clearance-m",
+    type=float,
+    default=0.010,
+    help=(
+        "conservative C3 clearance used only to reject shadow-rollout "
+        "candidates; actual C3 failure remains a filtered physical contact"
+    ),
+)
 parser.add_argument("--forbidden-clearance-m", type=float, default=0.020)
 parser.add_argument("--approach-clearance-m", type=float, default=0.015)
 parser.add_argument("--support-clearance-m", type=float, default=0.002)
@@ -78,12 +142,55 @@ parser.add_argument("--rollout-predicate-violation-weight", type=float, default=
 parser.add_argument("--rollout-mean-ratio-weight", type=float, default=0.25)
 parser.add_argument("--rollout-minimum-cost-improvement", type=float, default=0.02)
 parser.add_argument(
+    "--rollout-search-rotation-scale-rad",
+    type=float,
+    default=0.10,
+    help=(
+        "rotation scale used only while ranking finite-horizon physics "
+        "rollouts; final success always retains the task's 0.10-rad gate"
+    ),
+)
+parser.add_argument(
     "--rollout-lookahead-steps", type=int, choices=(1, 2), default=1
 )
 parser.add_argument("--rollout-lookahead-intermediate-weight", type=float, default=0.25)
+parser.add_argument(
+    "--rollout-plateau-escape-actions",
+    type=int,
+    default=0,
+    help=(
+        "maximum number of C1-safe non-improving setup contacts per episode; "
+        "zero keeps the fail-closed monotonic controller"
+    ),
+)
+parser.add_argument("--rollout-maximum-cost-increase", type=float, default=0.35)
+parser.add_argument("--rollout-transient-rotation-cap-rad", type=float, default=0.50)
+parser.add_argument(
+    "--rollout-plateau-ranking",
+    choices=("joint", "rotation", "planar"),
+    default="joint",
+    help="diagnostic ranking among bounded C1-safe setup contacts",
+)
+parser.add_argument(
+    "--rollout-diversify-plateau-across-envs",
+    action="store_true",
+    help=(
+        "beam diagnostic: when identical parallel scenes reach a plateau, "
+        "assign different ranked safe setup contacts to different envs"
+    ),
+)
 parser.add_argument("--rollout-restore-position-tolerance-m", type=float, default=1e-5)
 parser.add_argument("--rollout-restore-rotation-tolerance-rad", type=float, default=1e-4)
 parser.add_argument("--output", type=Path, required=True)
+parser.add_argument(
+    "--replay-plan-json",
+    type=Path,
+    default=None,
+    help=(
+        "Replay the physics-rollout-selected actions from a prior single-scene "
+        "result without recording its shadow rollouts."
+    ),
+)
 parser.add_argument(
     "--video",
     action="store_true",
@@ -151,9 +258,11 @@ from dapl.contact_planner import (
     OraclePlanningScene,
     OracleSafeContactPlanner,
     PhysicsRolloutScoringConfig,
+    goal_wrench_contact_axis,
     joint_threshold_cost,
     rank_physics_rollout_pairs,
     rank_physics_rollouts,
+    rank_safe_plateau_rollouts,
 )
 from dapl.contact_planner.isaac_visualization import (
     M1MarkerUpdateWrapper,
@@ -164,6 +273,7 @@ from IsaacLab_nonPrehensile.tasks.manager_based.isaaclab_nonprehensile import md
 from IsaacLab_nonPrehensile.tasks.manager_based.isaaclab_nonprehensile.mdp.observations import (
     get_end_effector_pointcloud_in_env_frame,
     get_object_pointcloud_in_env_frame,
+    get_pusher_contact_pointcloud_in_env_frame,
 )
 
 
@@ -260,9 +370,18 @@ class FrankaEndpointIK:
                 )
             )
 
+        # Measured simulator joints can overshoot the URDF limits by a tiny
+        # amount while tracking a push.  SciPy rejects such a seed before it
+        # evaluates the bounded IK problem, so project only the optimizer's
+        # initial guess back into the valid interval.  The measured state is
+        # still retained as the regularization reference and all solved paths
+        # continue through the existing collision/safety validation.
+        bounded_seed = np.clip(
+            np.asarray(seed, dtype=np.float64), self.lower, self.upper
+        )
         result = least_squares(
             residual,
-            seed,
+            bounded_seed,
             bounds=(self.lower, self.upper),
             max_nfev=self.max_evaluations,
             ftol=1.0e-10,
@@ -381,7 +500,9 @@ def _preflight_candidate(
         q_end=q_precontact,
         bridge=bridge,
         hand_points_local=hand_points_local,
-        target_points=forbidden_points,
+        # Safe means "legal deliberate contact", not collision-free transit.
+        # The full target remains an obstacle until q_precontact is reached.
+        target_points=target_points,
         target_translation=np.zeros(3),
         target_center=target_center,
         target_yaw_delta=0.0,
@@ -508,7 +629,9 @@ def _quaternion_distance(
         torch.linalg.vector_norm(first - second, dim=-1),
         torch.linalg.vector_norm(first + second, dim=-1),
     )
-    return 2.0 * torch.asin(torch.clamp(0.5 * chord, max=1.0))
+    # For unit quaternions the sign-invariant chord is
+    # ``2 sin(theta / 4)``, not ``2 sin(theta / 2)``.
+    return 4.0 * torch.asin(torch.clamp(0.5 * chord, max=1.0))
 
 
 def _quaternion_multiply(first: torch.Tensor, second: torch.Tensor) -> torch.Tensor:
@@ -551,6 +674,27 @@ def _finite_float_or_none(value: torch.Tensor) -> float | None:
     return result if math.isfinite(result) else None
 
 
+def _strict_json_value(value):
+    """Recursively replace non-finite diagnostics with JSON ``null``.
+
+    Empty semantic point sets legitimately produce infinite clearances.  They
+    are useful internally, but strict JSON deliberately rejects ``inf`` and
+    ``nan``.  Normalize only at the output boundary so planner comparisons
+    retain their fail-closed mathematical values.
+    """
+
+    if isinstance(value, (float, np.floating)):
+        scalar = float(value)
+        return scalar if math.isfinite(scalar) else None
+    if isinstance(value, dict):
+        return {key: _strict_json_value(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_strict_json_value(item) for item in value]
+    if isinstance(value, tuple):
+        return [_strict_json_value(item) for item in value]
+    return value
+
+
 def _signed_yaw_error(base) -> torch.Tensor:
     target_rotation = matrix_from_quat(base.scene["target"].data.root_quat_w)
     goal_quaternion = base.command_manager.get_command("target_object_pose")[:, 3:7]
@@ -574,11 +718,69 @@ def main() -> None:
         raise ValueError("path-samples must be >=2 and dwell-steps positive")
     if args_cli.servo_gain < 1.0:
         raise ValueError("servo-gain must be at least 1.0")
+    if args_cli.retreat_lift_m <= 0.0:
+        raise ValueError("retreat-lift-m must be positive")
     if args_cli.joint_action_scale_rad <= 0.0:
         raise ValueError("joint-action-scale-rad must be positive")
+    if args_cli.persistent_micro_steps <= 0:
+        raise ValueError("persistent-micro-steps must be positive")
+    if args_cli.persistent_micro_distance_m <= 0.0:
+        raise ValueError("persistent-micro-distance-m must be positive")
+    if args_cli.persistent_max_contact_travel_m <= 0.0:
+        raise ValueError("persistent-max-contact-travel-m must be positive")
+    if args_cli.persistent_cost_regression_tolerance < 0.0:
+        raise ValueError(
+            "persistent-cost-regression-tolerance must be non-negative"
+        )
+    if args_cli.persistent_max_moment_arm_error_m < 0.0:
+        raise ValueError(
+            "persistent-max-moment-arm-error-m must be non-negative"
+        )
+    if not -1.0 <= args_cli.persistent_minimum_goal_axis_cosine <= 1.0:
+        raise ValueError(
+            "persistent-minimum-goal-axis-cosine must lie in [-1, 1]"
+        )
+    if args_cli.persistent_yaw_moment_gain_m_per_rad < 0.0:
+        raise ValueError("persistent yaw moment gain must be non-negative")
+    if args_cli.persistent_yaw_rate_moment_gain_m_s_per_rad < 0.0:
+        raise ValueError("persistent yaw-rate moment gain must be non-negative")
+    if not 0.0 <= args_cli.persistent_max_axis_deviation_rad <= math.pi:
+        raise ValueError("persistent maximum axis deviation must lie in [0, pi]")
+    if (
+        args_cli.contact_execution_mode == "persistent"
+        and args_cli.safety_scope != "c1"
+    ):
+        raise ValueError(
+            "persistent contact execution is currently validated only for "
+            "--safety-scope c1"
+        )
     if args_cli.gate_contact_distance_m < args_cli.contact_distance_m:
         raise ValueError(
             "gate-contact-distance-m must be at least contact-distance-m"
+        )
+    if args_cli.physical_contact_force_threshold_n < 0.0:
+        raise ValueError("physical contact force threshold must be non-negative")
+    if (
+        args_cli.protected_clearance_m < 0.0
+        or args_cli.robot_obstacle_clearance_m < 0.0
+        or args_cli.rollout_protected_clearance_m < 0.0
+        or args_cli.rollout_robot_obstacle_clearance_m < 0.0
+    ):
+        raise ValueError("typed safety clearances must be non-negative")
+    if (
+        args_cli.rollout_protected_clearance_m
+        < args_cli.protected_clearance_m
+        or args_cli.rollout_robot_obstacle_clearance_m
+        < args_cli.robot_obstacle_clearance_m
+    ):
+        raise ValueError(
+            "shadow-rollout safety clearances must be at least the actual "
+            "collision clearances"
+        )
+    if args_cli.safety_scope != "c1" and args_cli.physics_rollout_candidates == 0:
+        raise ValueError(
+            "clutter safety scopes require --physics-rollout-candidates > 0 so "
+            "C2/C3 can reject unsafe contacts before real execution"
         )
     if not 0.0 <= args_cli.adaptive_dynamics_alpha <= 1.0:
         raise ValueError("adaptive-dynamics-alpha must be in [0, 1]")
@@ -592,11 +794,17 @@ def main() -> None:
         raise ValueError(
             "--physics-rollout-candidates cannot exceed --output-candidates"
         )
-    if args_cli.physics_rollout_candidates > 0 and args_cli.video:
-        raise ValueError(
-            "physics rollout and video cannot share one environment; run the "
-            "quantitative rollout evaluator first and replay selected actions later"
-        )
+    if args_cli.rollout_search_rotation_scale_rad <= 0.0:
+        raise ValueError("rollout-search-rotation-scale-rad must be positive")
+    if args_cli.replay_plan_json is not None:
+        if args_cli.num_envs != 1:
+            raise ValueError("replay-plan-json requires --num-envs 1")
+        if args_cli.physics_rollout_candidates != 0:
+            raise ValueError(
+                "replay-plan-json requires --physics-rollout-candidates 0"
+            )
+        if not args_cli.replay_plan_json.is_file():
+            raise FileNotFoundError(args_cli.replay_plan_json)
     if (
         args_cli.rollout_restore_position_tolerance_m <= 0.0
         or args_cli.rollout_restore_rotation_tolerance_rad <= 0.0
@@ -604,6 +812,12 @@ def main() -> None:
         raise ValueError("rollout restore tolerances must be positive")
     if args_cli.rollout_lookahead_intermediate_weight < 0.0:
         raise ValueError("rollout lookahead intermediate weight must be non-negative")
+    if args_cli.rollout_plateau_escape_actions < 0:
+        raise ValueError("rollout plateau escape actions must be non-negative")
+    if args_cli.rollout_maximum_cost_increase < 0.0:
+        raise ValueError("rollout maximum cost increase must be non-negative")
+    if args_cli.rollout_transient_rotation_cap_rad <= 0.0:
+        raise ValueError("rollout transient rotation cap must be positive")
     if (
         args_cli.inside_yaw_weight_m_per_rad < 0.0
         or args_cli.predicted_yaw_guard_rad <= 0.0
@@ -632,7 +846,10 @@ def main() -> None:
         hand_yaw_span_deg=args_cli.hand_yaw_span_deg,
     )
     planner = OracleSafeContactPlanner(planner_cfg)
+    enforce_c2 = args_cli.safety_scope in ("c1-c2", "combined")
+    enforce_c3 = args_cli.safety_scope in ("c1-c3", "combined")
     rollout_scoring_cfg = PhysicsRolloutScoringConfig(
+        rotation_threshold_rad=args_cli.rollout_search_rotation_scale_rad,
         predicate_violation_weight=(
             args_cli.rollout_predicate_violation_weight
         ),
@@ -641,6 +858,24 @@ def main() -> None:
     )
     ik = FrankaEndpointIK(args_cli.ik_max_evaluations)
 
+    replay_actions: dict[int, dict[str, object]] = {}
+    if args_cli.replay_plan_json is not None:
+        replay_payload = json.loads(args_cli.replay_plan_json.read_text())
+        replay_rows = replay_payload.get("rows", [])
+        if len(replay_rows) != 1:
+            raise ValueError("replay result must contain exactly one scene row")
+        for diagnostic in replay_rows[0].get("plans", []):
+            if not diagnostic.get("physics_rollout_selected", False):
+                continue
+            replay_index = int(diagnostic["replan"])
+            if replay_index in replay_actions:
+                raise ValueError(
+                    f"duplicate selected replay action at replan {replay_index}"
+                )
+            replay_actions[replay_index] = diagnostic
+        if not replay_actions:
+            raise ValueError("replay result contains no selected rollout actions")
+
     env_cfg = parse_env_cfg(
         args_cli.task,
         device=args_cli.device,
@@ -648,6 +883,11 @@ def main() -> None:
         use_fabric=True,
     )
     env_cfg.use_torch_compile = False
+    # A 50 g target starts sliding at roughly 0.15 N with the configured
+    # friction.  The old 0.5 N gate could therefore miss genuine pushes.
+    env_cfg.physical_contact_force_threshold_n = float(
+        args_cli.physical_contact_force_threshold_n
+    )
     env_cfg.seed = args_cli.seed
     env_cfg.disable_obs_noise = True
     if args_cli.video:
@@ -679,6 +919,8 @@ def main() -> None:
         "time_out",
         "reached",
         "forbidden_region_contact",
+        "protected_region_collision",
+        "robot_obstacle_collision",
         "object_dropped",
     ):
         term = getattr(env_cfg.terminations, term_name, None)
@@ -693,6 +935,8 @@ def main() -> None:
         render_mode="rgb_array" if args_cli.video else None,
     )
     video_markers = None
+    selective_video = args_cli.video and args_cli.physics_rollout_candidates > 0
+    selective_video_path: Path | None = None
     if args_cli.video:
         video_markers = create_m1_video_markers(
             env, goal_ghost_opacity=args_cli.goal_ghost_opacity
@@ -709,26 +953,42 @@ def main() -> None:
                 + args_cli.push_steps
                 + args_cli.retreat_steps
                 + args_cli.inter_push_settle_steps
+                + (
+                    math.ceil(
+                        args_cli.persistent_max_contact_travel_m
+                        / args_cli.persistent_micro_distance_m
+                    )
+                    * args_cli.persistent_micro_steps
+                    if args_cli.contact_execution_mode == "persistent"
+                    else 0
+                )
             )
             + args_cli.final_hold_steps
         )
         video_length = args_cli.video_length or configured_horizon
         video_folder = args_cli.video_folder.expanduser().resolve()
-        env = gym.wrappers.RecordVideo(
-            env,
-            video_folder=str(video_folder),
-            step_trigger=lambda step: step == 0,
-            video_length=video_length,
-            name_prefix=args_cli.video_name_prefix,
-            disable_logger=True,
-        )
+        if selective_video:
+            video_folder.mkdir(parents=True, exist_ok=True)
+            selective_video_path = (
+                video_folder / f"{args_cli.video_name_prefix}-actual-only.mp4"
+            )
+        else:
+            env = gym.wrappers.RecordVideo(
+                env,
+                video_folder=str(video_folder),
+                step_trigger=lambda step: step == 0,
+                video_length=video_length,
+                name_prefix=args_cli.video_name_prefix,
+                disable_logger=True,
+            )
         print(
             "M1_VIDEO",
             f"folder={video_folder}",
             f"name_prefix={args_cli.video_name_prefix}",
-            f"length={video_length}",
+            f"length={'actual-only' if selective_video else video_length}",
             flush=True,
         )
+    selective_video_writer = None
     try:
         env.reset()
         base = env.unwrapped
@@ -757,9 +1017,26 @@ def main() -> None:
         )
         if np.any(ik.lower >= ik.upper):
             raise RuntimeError("invalid Franka IK bounds after action-limit alignment")
+
+        if selective_video_path is not None:
+            import imageio.v2 as imageio
+
+            selective_video_writer = imageio.get_writer(
+                selective_video_path,
+                fps=10,
+                codec="libx264",
+                quality=8,
+            )
+
+        def capture_actual_frame() -> None:
+            if selective_video_writer is not None:
+                selective_video_writer.append_data(env.render())
+
+        capture_actual_frame()
         zero_action = torch.zeros((base.num_envs, 7), device=base.device)
         for _ in range(args_cli.settle_steps):
             env.step(zero_action)
+            capture_actual_frame()
 
         initial_target_position = (
             base.scene["target"].data.root_pos_w[:, :3] - base.scene.env_origins
@@ -773,6 +1050,9 @@ def main() -> None:
 
         safe_contact_ever = torch.zeros(base.num_envs, dtype=torch.bool, device=base.device)
         forbidden_contact_ever = torch.zeros_like(safe_contact_ever)
+        protected_obstacle_collision_ever = torch.zeros_like(safe_contact_ever)
+        robot_obstacle_collision_ever = torch.zeros_like(safe_contact_ever)
+        constraint_violation_ever = torch.zeros_like(safe_contact_ever)
         forbidden_hand_contact_ever = torch.zeros_like(safe_contact_ever)
         arm_target_contact_ever = torch.zeros_like(safe_contact_ever)
         strict_pose_ever = torch.zeros_like(safe_contact_ever)
@@ -787,6 +1067,11 @@ def main() -> None:
         dwell = torch.zeros(base.num_envs, dtype=torch.long, device=base.device)
         selected_pushes = torch.zeros_like(dwell)
         planned_contact_attempts = torch.zeros_like(dwell)
+        persistent_micro_updates = torch.zeros_like(dwell)
+        persistent_fallback_macro_pushes = torch.zeros_like(dwell)
+        persistent_contact_travel = torch.zeros(
+            base.num_envs, device=base.device
+        )
         adaptive_translation_gain = torch.full(
             (base.num_envs,),
             planner_cfg.translation_efficiency,
@@ -809,9 +1094,21 @@ def main() -> None:
             minimum_planar_error, torch.inf
         )
         minimum_safe_distance = torch.full_like(minimum_planar_error, torch.inf)
+        minimum_protected_obstacle_clearance = torch.full_like(
+            minimum_planar_error, torch.inf
+        )
+        minimum_robot_obstacle_clearance = torch.full_like(
+            minimum_planar_error, torch.inf
+        )
+        maximum_target_hand_sensor_force = torch.zeros_like(minimum_planar_error)
+        maximum_target_arm_sensor_force = torch.zeros_like(minimum_planar_error)
         rollout_candidate_evaluations = torch.zeros_like(dwell)
         rollout_legal_evaluations = torch.zeros_like(dwell)
+        rollout_c1_violation_evaluations = torch.zeros_like(dwell)
+        rollout_c2_violation_evaluations = torch.zeros_like(dwell)
+        rollout_c3_violation_evaluations = torch.zeros_like(dwell)
         rollout_selected_actions = torch.zeros_like(dwell)
+        rollout_plateau_escape_actions = torch.zeros_like(dwell)
         rollout_transition_position_error_sum = torch.zeros_like(
             minimum_planar_error
         )
@@ -824,18 +1121,86 @@ def main() -> None:
         ]
         global_step = 0
 
+        def audited_contact_state(
+            contact_distance_m: float,
+        ) -> dict[str, torch.Tensor]:
+            """Evaluate exactly the typed predicates selected for this run."""
+
+            return mdp.domino_affordance_contact_state(
+                base,
+                contact_distance_m=contact_distance_m,
+                protected_clearance_m=args_cli.protected_clearance_m,
+                robot_obstacle_clearance_m=args_cli.robot_obstacle_clearance_m,
+                physical_contact_force_threshold_n=(
+                    args_cli.physical_contact_force_threshold_n
+                ),
+                evaluate_protected=enforce_c2,
+                evaluate_robot_obstacle=enforce_c3,
+                require_physical_protected_contact=enforce_c2,
+                robot_target_sensor_name="target_robot_contacts",
+                hand_target_sensor_name="target_hand_contacts",
+                robot_obstacle_sensor_name=(
+                    tuple(
+                        [f"robot_obstacle_link{index}_contacts" for index in range(8)]
+                        + [
+                            "robot_obstacle_hand_contacts",
+                            "robot_obstacle_leftfinger_contacts",
+                            "robot_obstacle_rightfinger_contacts",
+                        ]
+                    )
+                    if enforce_c3
+                    else None
+                ),
+                target_obstacle_sensor_name=(
+                    "target_obstacle_contacts" if enforce_c2 else None
+                ),
+            )
+
+        def typed_violation(state: dict[str, torch.Tensor]) -> torch.Tensor:
+            violation = state["forbidden_robot_contact"].clone()
+            if enforce_c2:
+                violation.logical_or_(state["protected_obstacle_collision"])
+            if enforce_c3:
+                violation.logical_or_(state["robot_obstacle_collision"])
+            return violation
+
+        def maximum_filtered_force(sensor_name: str) -> torch.Tensor:
+            """Return the current per-environment peak filtered contact force."""
+
+            if sensor_name not in base.scene.sensors:
+                return torch.zeros_like(minimum_planar_error)
+            force_matrix = base.scene.sensors[sensor_name].data.force_matrix_w
+            if force_matrix is None:
+                return torch.zeros_like(minimum_planar_error)
+            return torch.linalg.vector_norm(force_matrix, dim=-1).reshape(
+                base.num_envs, -1
+            ).amax(dim=1)
+
         def update_metrics() -> None:
             nonlocal global_step
             planar, height, rotation = _pose_errors(base)
-            contact = mdp.domino_affordance_contact_state(
-                base,
-                contact_distance_m=args_cli.contact_distance_m,
-                evaluate_protected=False,
+            contact = audited_contact_state(args_cli.contact_distance_m)
+            maximum_target_hand_sensor_force.copy_(
+                torch.maximum(
+                    maximum_target_hand_sensor_force,
+                    maximum_filtered_force("target_hand_contacts"),
+                )
             )
-            safe_now = contact["safe_robot_contact"]
+            maximum_target_arm_sensor_force.copy_(
+                torch.maximum(
+                    maximum_target_arm_sensor_force,
+                    maximum_filtered_force("target_robot_contacts"),
+                )
+            )
+            safe_now = contact["legal_physical_safe_hand_contact"]
             forbidden_now = contact["forbidden_robot_contact"]
+            c2_now = contact["protected_obstacle_collision"]
+            c3_now = contact["robot_obstacle_collision"]
             safe_contact_ever.logical_or_(safe_now)
             forbidden_contact_ever.logical_or_(forbidden_now)
+            protected_obstacle_collision_ever.logical_or_(c2_now)
+            robot_obstacle_collision_ever.logical_or_(c3_now)
+            constraint_violation_ever.logical_or_(typed_violation(contact))
             forbidden_hand_contact_ever.logical_or_(
                 contact["forbidden_hand_contact"]
             )
@@ -853,7 +1218,7 @@ def main() -> None:
             success.logical_or_(
                 (dwell >= args_cli.dwell_steps)
                 & safe_contact_ever
-                & ~forbidden_contact_ever
+                & ~constraint_violation_ever
             )
             minimum_planar_error.copy_(torch.minimum(minimum_planar_error, planar))
             minimum_height_error.copy_(torch.minimum(minimum_height_error, height))
@@ -881,6 +1246,18 @@ def main() -> None:
             minimum_safe_distance.copy_(
                 torch.minimum(minimum_safe_distance, contact["minimum_safe_distance"])
             )
+            minimum_protected_obstacle_clearance.copy_(
+                torch.minimum(
+                    minimum_protected_obstacle_clearance,
+                    contact["protected_clearance"],
+                )
+            )
+            minimum_robot_obstacle_clearance.copy_(
+                torch.minimum(
+                    minimum_robot_obstacle_clearance,
+                    contact["robot_obstacle_clearance"],
+                )
+            )
             global_step += 1
 
         def execute_phase(
@@ -898,7 +1275,7 @@ def main() -> None:
                 moving = (
                     plan_enabled
                     & ~success
-                    & ~forbidden_contact_ever
+                    & ~constraint_violation_ever
                     & ~freeze_active
                 )
                 desired = torch.where(moving[:, None], desired, current)
@@ -911,13 +1288,14 @@ def main() -> None:
                     max=1.0,
                 )
                 env.step(action)
+                capture_actual_frame()
                 update_metrics()
             for _ in range(endpoint_hold_steps):
                 current = robot.data.joint_pos[:, joint_ids]
                 moving = (
                     plan_enabled
                     & ~success
-                    & ~forbidden_contact_ever
+                    & ~constraint_violation_ever
                     & ~freeze_active
                 )
                 desired = torch.where(moving[:, None], q_end, current)
@@ -930,6 +1308,7 @@ def main() -> None:
                     max=1.0,
                 )
                 env.step(action)
+                capture_actual_frame()
                 update_metrics()
 
         def execute_until_safe_contact(
@@ -962,7 +1341,7 @@ def main() -> None:
                     plan_enabled
                     & ~contact_latched
                     & ~success
-                    & ~forbidden_contact_ever
+                    & ~constraint_violation_ever
                     & ~freeze_active
                 )
                 desired = torch.where(moving[:, None], desired_endpoint, current)
@@ -975,16 +1354,13 @@ def main() -> None:
                     max=1.0,
                 )
                 env.step(action)
+                capture_actual_frame()
                 update_metrics()
-                state = mdp.domino_affordance_contact_state(
-                    base,
-                    contact_distance_m=args_cli.gate_contact_distance_m,
-                    evaluate_protected=False,
-                )
+                state = audited_contact_state(args_cli.gate_contact_distance_m)
                 legal_now = (
                     plan_enabled
-                    & state["legal_safe_robot_contact"]
-                    & ~forbidden_contact_ever
+                    & state["legal_physical_safe_hand_contact"]
+                    & ~constraint_violation_ever
                 )
                 newly_latched = legal_now & ~contact_latched
                 if bool(newly_latched.any()):
@@ -1001,18 +1377,14 @@ def main() -> None:
                 finished = (
                     ~plan_enabled
                     | contact_latched
-                    | forbidden_contact_ever
+                    | constraint_violation_ever
                     | success
                     | freeze_active
                 )
                 if bool(finished.all()):
                     break
 
-            final_state = mdp.domino_affordance_contact_state(
-                base,
-                contact_distance_m=args_cli.gate_contact_distance_m,
-                evaluate_protected=False,
-            )
+            final_state = audited_contact_state(args_cli.gate_contact_distance_m)
             missed = plan_enabled & ~contact_latched
             safe_distance_at_gate[missed] = final_state["minimum_safe_distance"][
                 missed
@@ -1026,6 +1398,423 @@ def main() -> None:
                 q_at_contact,
                 safe_distance_at_gate,
                 forbidden_distance_at_gate,
+            )
+
+        def execute_persistent_contact_servo(
+            *,
+            q_contact_actual: torch.Tensor,
+            macro_bridges: list[
+                tuple[pin.SE3, np.ndarray, np.ndarray] | None
+            ],
+            fallback_push_axis_xy: torch.Tensor,
+            hand_points_local: torch.Tensor,
+            enabled: torch.Tensor,
+        ) -> tuple[torch.Tensor, torch.Tensor, list[dict[str, object]]]:
+            """Advance a legal contact through live-state micro replans.
+
+            The global planner still owns contact selection and collision-free
+            acquisition.  Once physical C1-legal contact is measured, this
+            servo applies only a 2-D deployable feedback law: every short
+            chunk it reads the target pose, yaw rate, current safe contact and
+            COM, recomputes a bounded goal/yaw push axis, then resolves IK for
+            one small Cartesian advance.  Contact loss, normalized pose-cost
+            regression, IK failure, or any typed safety violation hands
+            control back to the outer planner for a proper lift/reposition.
+            """
+
+            nonlocal persistent_micro_updates, persistent_contact_travel
+
+            active_servo = enabled.clone()
+            commanded_travel = torch.zeros(
+                base.num_envs, device=base.device
+            )
+            pulse_micro_updates = torch.zeros_like(persistent_micro_updates)
+            initial_planar, _, initial_rotation = _pose_errors(base)
+            best_cost = (
+                torch.clamp(initial_planar - 0.02, min=0.0) / 0.02
+                + torch.clamp(initial_rotation - 0.10, min=0.0) / 0.10
+            )
+            diagnostics: list[dict[str, object]] = [
+                {
+                    "event": "persistent_contact_servo",
+                    "micro_updates": 0,
+                    "commanded_contact_travel_m": 0.0,
+                    "release_reason": "not_enabled",
+                    "initial_joint_threshold_cost": float(best_cost[env_id].item()),
+                    "minimum_joint_threshold_cost": float(best_cost[env_id].item()),
+                    "trace": [],
+                }
+                for env_id in range(base.num_envs)
+            ]
+            for env_id in torch.nonzero(
+                enabled, as_tuple=False
+            ).flatten().tolist():
+                diagnostics[env_id]["release_reason"] = "max_contact_travel"
+
+            maximum_chunks = int(math.ceil(
+                args_cli.persistent_max_contact_travel_m
+                / args_cli.persistent_micro_distance_m
+            ))
+            for micro_index in range(maximum_chunks):
+                moving = (
+                    active_servo
+                    & ~success
+                    & ~constraint_violation_ever
+                    & ~freeze_active
+                )
+                if not bool(moving.any()):
+                    break
+
+                target_points_live = get_object_pointcloud_in_env_frame(
+                    base, SceneEntityCfg("target")
+                ).reshape(base.num_envs, -1, 3)
+                affordance_live = mdp.domino_target_affordance(
+                    base, SceneEntityCfg("target")
+                ).reshape(base.num_envs, -1, 2)
+                pusher_points_live = (
+                    get_pusher_contact_pointcloud_in_env_frame(base)
+                )
+                target_position_live = (
+                    base.scene["target"].data.root_pos_w[:, :3]
+                    - base.scene.env_origins
+                )
+                target_com_live = (
+                    base.scene["target"].data.root_com_pos_w
+                    - base.scene.env_origins
+                )
+                goal_live = base.command_manager.get_command(
+                    "target_object_pose"
+                )
+                # _signed_yaw_error is goal-minus-current, while the shared
+                # deployable contact servo uses current-minus-goal.
+                current_minus_goal_yaw = -_signed_yaw_error(base)
+                yaw_rate = base.scene["target"].data.root_ang_vel_w[:, 2]
+
+                q_start = robot.data.joint_pos[:, joint_ids].clone()
+                q_micro = q_start.clone()
+                chunk_valid = moving.clone()
+                axes = torch.zeros(
+                    (base.num_envs, 2),
+                    device=base.device,
+                    dtype=target_position_live.dtype,
+                )
+                requested_moments = torch.full(
+                    (base.num_envs,), torch.nan, device=base.device
+                )
+                achieved_moments = torch.full_like(
+                    requested_moments, torch.nan
+                )
+                goal_axis_cosines = torch.full_like(
+                    requested_moments, torch.nan
+                )
+
+                for env_id in torch.nonzero(
+                    moving, as_tuple=False
+                ).flatten().tolist():
+                    bridge = macro_bridges[env_id]
+                    if bridge is None:
+                        chunk_valid[env_id] = False
+                        diagnostics[env_id]["release_reason"] = "missing_ik_bridge"
+                        continue
+                    safe_mask = (
+                        affordance_live[env_id, :, 0]
+                        >= planner_cfg.safe_threshold
+                    ) & (
+                        affordance_live[env_id, :, 1]
+                        < planner_cfg.protected_threshold
+                    )
+                    if not bool(safe_mask.any()):
+                        chunk_valid[env_id] = False
+                        diagnostics[env_id]["release_reason"] = "no_live_safe_points"
+                        continue
+                    safe_points = target_points_live[env_id, safe_mask]
+                    pairwise = torch.cdist(
+                        pusher_points_live[env_id], safe_points
+                    )
+                    # Match the global planner's pressure-center model.  A
+                    # single nearest mesh point can jump between opposite
+                    # handle faces and corrupt the moment arm by centimetres.
+                    target_distance = pairwise.amin(dim=0)
+                    patch_weights = torch.clamp(
+                        1.0
+                        - target_distance
+                        / (2.0 * planner_cfg.contact_distance_m),
+                        min=0.0,
+                    ).square()
+                    if float(patch_weights.sum().item()) <= 1.0e-8:
+                        patch_weights.zero_()
+                        patch_weights[target_distance.argmin()] = 1.0
+                    contact_point = torch.sum(
+                        patch_weights[:, None] * safe_points, dim=0
+                    ) / patch_weights.sum()
+                    contact_xy = contact_point[:2].detach().cpu().numpy()
+                    goal_delta_xy = (
+                        goal_live[env_id, :2]
+                        - target_position_live[env_id, :2]
+                    ).detach().cpu().numpy()
+                    fallback_axis = (
+                        fallback_push_axis_xy[env_id]
+                        .detach()
+                        .cpu()
+                        .numpy()
+                    )
+                    if float(np.linalg.norm(goal_delta_xy)) <= 1.0e-6:
+                        goal_delta_xy = fallback_axis
+                    try:
+                        axis, requested, achieved = goal_wrench_contact_axis(
+                            goal_delta_xy_m=goal_delta_xy,
+                            contact_point_xy_m=contact_xy,
+                            object_com_xy_m=(
+                                target_com_live[env_id, :2]
+                                .detach()
+                                .cpu()
+                                .numpy()
+                            ),
+                            signed_yaw_error_rad=float(
+                                current_minus_goal_yaw[env_id].item()
+                            ),
+                            object_yaw_rate_rad_s=float(yaw_rate[env_id].item()),
+                            yaw_moment_gain_m_per_rad=(
+                                args_cli.persistent_yaw_moment_gain_m_per_rad
+                            ),
+                            yaw_rate_moment_gain_m_s_per_rad=(
+                                args_cli
+                                .persistent_yaw_rate_moment_gain_m_s_per_rad
+                            ),
+                            max_axis_deviation_rad=(
+                                args_cli.persistent_max_axis_deviation_rad
+                            ),
+                        )
+                    except ValueError:
+                        fallback_norm = float(np.linalg.norm(fallback_axis))
+                        if fallback_norm <= 1.0e-8:
+                            chunk_valid[env_id] = False
+                            diagnostics[env_id]["release_reason"] = (
+                                "undefined_micro_push_axis"
+                            )
+                            continue
+                        axis = fallback_axis / fallback_norm
+                        requested = math.nan
+                        achieved = math.nan
+                    axes[env_id] = torch.as_tensor(
+                        axis, device=base.device, dtype=axes.dtype
+                    )
+                    requested_moments[env_id] = requested
+                    achieved_moments[env_id] = achieved
+                    goal_norm = float(np.linalg.norm(goal_delta_xy))
+                    goal_axis_cosine = float(
+                        np.dot(axis, goal_delta_xy / goal_norm)
+                    )
+                    goal_axis_cosines[env_id] = goal_axis_cosine
+                    if (
+                        goal_axis_cosine
+                        < args_cli.persistent_minimum_goal_axis_cosine
+                    ):
+                        chunk_valid[env_id] = False
+                        diagnostics[env_id]["release_reason"] = (
+                            "contact_cannot_advance_goal"
+                        )
+                        continue
+                    if (
+                        math.isfinite(requested)
+                        and math.isfinite(achieved)
+                        and abs(achieved - requested)
+                        > args_cli.persistent_max_moment_arm_error_m
+                    ):
+                        chunk_valid[env_id] = False
+                        diagnostics[env_id]["release_reason"] = (
+                            "requested_moment_unreachable"
+                        )
+                        continue
+
+                    q_current_np = q_start[env_id].detach().cpu().numpy()
+                    tcp_now, rotation_now = ik.tcp_pose_in_env(
+                        q_current_np, bridge
+                    )
+                    desired_tcp = tcp_now.copy()
+                    desired_tcp[:2] += (
+                        args_cli.persistent_micro_distance_m * axis
+                    )
+                    solved, position_error, rotation_error = ik.solve(
+                        seed=q_current_np,
+                        regularization_reference=q_current_np,
+                        bridge=bridge,
+                        desired_tcp_env=desired_tcp,
+                        desired_rotation_env=rotation_now,
+                    )
+                    if (
+                        position_error > args_cli.ik_position_tolerance_m
+                        or rotation_error > args_cli.ik_rotation_tolerance_rad
+                    ):
+                        chunk_valid[env_id] = False
+                        diagnostics[env_id]["release_reason"] = "micro_ik_failure"
+                        continue
+
+                    forbidden_points = target_points_live[
+                        env_id, ~safe_mask
+                    ].detach().cpu().numpy()
+                    target_center = (
+                        target_com_live[env_id].detach().cpu().numpy()
+                    )
+                    c1_clearance = _joint_segment_semantic_clearance(
+                        ik,
+                        q_start=q_current_np,
+                        q_end=solved,
+                        bridge=bridge,
+                        hand_points_local=(
+                            hand_points_local[env_id].detach().cpu().numpy()
+                        ),
+                        target_points=forbidden_points,
+                        target_translation=np.zeros(3),
+                        target_center=target_center,
+                        target_yaw_delta=0.0,
+                        samples=min(3, args_cli.path_samples),
+                    )
+                    support_clearance = _joint_segment_support_clearance(
+                        ik,
+                        q_start=q_current_np,
+                        q_end=solved,
+                        bridge=bridge,
+                        hand_points_local=(
+                            hand_points_local[env_id].detach().cpu().numpy()
+                        ),
+                        support_height=float(
+                            target_points_live[env_id, :, 2].min().item()
+                        ),
+                        samples=min(3, args_cli.path_samples),
+                    )
+                    if (
+                        c1_clearance <= planner_cfg.forbidden_clearance_m
+                        or support_clearance <= planner_cfg.support_clearance_m
+                    ):
+                        chunk_valid[env_id] = False
+                        diagnostics[env_id]["release_reason"] = (
+                            "micro_semantic_preflight_rejected"
+                        )
+                        continue
+                    q_micro[env_id] = torch.as_tensor(
+                        solved, device=base.device, dtype=q_micro.dtype
+                    )
+
+                failed_preflight = moving & ~chunk_valid
+                active_servo[failed_preflight] = False
+                if bool(chunk_valid.any()):
+                    execute_phase(
+                        q_start,
+                        q_micro,
+                        args_cli.persistent_micro_steps,
+                        chunk_valid,
+                    )
+                    persistent_micro_updates += chunk_valid.long()
+                    pulse_micro_updates += chunk_valid.long()
+                    commanded_travel += (
+                        chunk_valid.float()
+                        * args_cli.persistent_micro_distance_m
+                    )
+                    persistent_contact_travel += (
+                        chunk_valid.float()
+                        * args_cli.persistent_micro_distance_m
+                    )
+
+                planar_now, _, rotation_now = _pose_errors(base)
+                cost_now = (
+                    torch.clamp(planar_now - 0.02, min=0.0) / 0.02
+                    + torch.clamp(rotation_now - 0.10, min=0.0) / 0.10
+                )
+                state_now = audited_contact_state(
+                    args_cli.gate_contact_distance_m
+                )
+                contact_alive = state_now[
+                    "legal_physical_safe_hand_contact"
+                ]
+                regression = (
+                    cost_now
+                    > best_cost
+                    + args_cli.persistent_cost_regression_tolerance
+                )
+                for env_id in torch.nonzero(
+                    chunk_valid, as_tuple=False
+                ).flatten().tolist():
+                    trace = diagnostics[env_id]["trace"]
+                    assert isinstance(trace, list)
+                    trace.append(
+                        {
+                            "micro_index": micro_index,
+                            "planar_error_m": float(planar_now[env_id].item()),
+                            "rotation_error_rad": float(
+                                rotation_now[env_id].item()
+                            ),
+                            "joint_threshold_cost": float(
+                                cost_now[env_id].item()
+                            ),
+                            "axis_xy": axes[env_id].detach().cpu().tolist(),
+                            "requested_moment_arm_m": (
+                                None
+                                if not torch.isfinite(
+                                    requested_moments[env_id]
+                                )
+                                else float(requested_moments[env_id].item())
+                            ),
+                            "achieved_moment_arm_m": (
+                                None
+                                if not torch.isfinite(
+                                    achieved_moments[env_id]
+                                )
+                                else float(achieved_moments[env_id].item())
+                            ),
+                            "goal_axis_cosine": (
+                                None
+                                if not torch.isfinite(
+                                    goal_axis_cosines[env_id]
+                                )
+                                else float(goal_axis_cosines[env_id].item())
+                            ),
+                        }
+                    )
+                    diagnostics[env_id]["micro_updates"] = int(
+                        pulse_micro_updates[env_id].item()
+                    )
+                    diagnostics[env_id]["commanded_contact_travel_m"] = float(
+                        commanded_travel[env_id].item()
+                    )
+                    diagnostics[env_id]["minimum_joint_threshold_cost"] = min(
+                        float(
+                            diagnostics[env_id][
+                                "minimum_joint_threshold_cost"
+                            ]
+                        ),
+                        float(cost_now[env_id].item()),
+                    )
+                    if bool(success[env_id] or freeze_active[env_id]):
+                        diagnostics[env_id]["release_reason"] = "strict_pose"
+                    elif bool(constraint_violation_ever[env_id]):
+                        diagnostics[env_id]["release_reason"] = (
+                            "typed_safety_violation"
+                        )
+                    elif not bool(contact_alive[env_id]):
+                        diagnostics[env_id]["release_reason"] = "contact_lost"
+                    elif bool(regression[env_id]):
+                        diagnostics[env_id]["release_reason"] = (
+                            "pose_cost_regression"
+                        )
+                best_cost = torch.minimum(best_cost, cost_now)
+                active_servo &= (
+                    contact_alive
+                    & ~regression
+                    & ~constraint_violation_ever
+                    & ~success
+                    & ~freeze_active
+                    & (
+                        commanded_travel
+                        + 0.5 * args_cli.persistent_micro_distance_m
+                        < args_cli.persistent_max_contact_travel_m
+                    )
+                )
+
+            return (
+                robot.data.joint_pos[:, joint_ids].clone(),
+                enabled & ~constraint_violation_ever,
+                diagnostics,
             )
 
         def restore_rollout_snapshot(
@@ -1081,10 +1870,78 @@ def main() -> None:
             return joint_error, position_error, rotation_error
 
         def rollout_contact_state() -> dict[str, torch.Tensor]:
-            return mdp.domino_affordance_contact_state(
-                base,
-                contact_distance_m=args_cli.contact_distance_m,
-                evaluate_protected=False,
+            return audited_contact_state(args_cli.contact_distance_m)
+
+        def accumulate_rollout_violations(
+            violations: dict[str, torch.Tensor],
+            enabled: torch.Tensor,
+            state: dict[str, torch.Tensor],
+        ) -> None:
+            violations["c1"].logical_or_(
+                enabled & state["forbidden_robot_contact"]
+            )
+            if enforce_c2:
+                c2_clearance_violation = (
+                    state["protected_clearance"]
+                    <= args_cli.rollout_protected_clearance_m
+                )
+                violations["c2"].logical_or_(
+                    enabled
+                    & (
+                        state["protected_obstacle_collision"]
+                        | c2_clearance_violation
+                    )
+                )
+                violations["c2_collision"].logical_or_(
+                    enabled & state["protected_obstacle_collision"]
+                )
+                violations["c2_clearance"].logical_or_(
+                    enabled & c2_clearance_violation
+                )
+                violations["minimum_protected_clearance"].copy_(
+                    torch.minimum(
+                        violations["minimum_protected_clearance"],
+                        torch.where(
+                            enabled,
+                            state["protected_clearance"],
+                            torch.full_like(
+                                state["protected_clearance"], torch.inf
+                            ),
+                        ),
+                    )
+                )
+            if enforce_c3:
+                c3_clearance_violation = (
+                    state["robot_obstacle_clearance"]
+                    <= args_cli.rollout_robot_obstacle_clearance_m
+                )
+                violations["c3"].logical_or_(
+                    enabled
+                    & (
+                        state["robot_obstacle_collision"]
+                        | c3_clearance_violation
+                    )
+                )
+                violations["c3_collision"].logical_or_(
+                    enabled & state["robot_obstacle_collision"]
+                )
+                violations["c3_clearance"].logical_or_(
+                    enabled & c3_clearance_violation
+                )
+                violations["minimum_robot_obstacle_clearance"].copy_(
+                    torch.minimum(
+                        violations["minimum_robot_obstacle_clearance"],
+                        torch.where(
+                            enabled,
+                            state["robot_obstacle_clearance"],
+                            torch.full_like(
+                                state["robot_obstacle_clearance"], torch.inf
+                            ),
+                        ),
+                    )
+                )
+            violations["any"].copy_(
+                violations["c1"] | violations["c2"] | violations["c3"]
             )
 
         def execute_rollout_phase(
@@ -1092,7 +1949,7 @@ def main() -> None:
             q_end: torch.Tensor,
             steps: int,
             enabled: torch.Tensor,
-            c1_violation: torch.Tensor,
+            violations: dict[str, torch.Tensor],
             *,
             endpoint_hold_steps: int = 0,
         ) -> None:
@@ -1106,7 +1963,7 @@ def main() -> None:
                 else:
                     desired_endpoint = q_end
                 current = robot.data.joint_pos[:, joint_ids]
-                moving = enabled & ~c1_violation
+                moving = enabled & ~violations["any"]
                 desired = torch.where(moving[:, None], desired_endpoint, current)
                 action = torch.clamp(
                     args_cli.servo_gain * (desired - current) / action_scale,
@@ -1115,30 +1972,31 @@ def main() -> None:
                 )
                 env.step(action)
                 state = rollout_contact_state()
-                c1_violation.logical_or_(
-                    enabled & state["forbidden_robot_contact"]
-                )
+                accumulate_rollout_violations(violations, enabled, state)
 
         def execute_rollout_until_contact(
             q_start: torch.Tensor,
             q_end: torch.Tensor,
             enabled: torch.Tensor,
-            c1_violation: torch.Tensor,
+            violations: dict[str, torch.Tensor],
+            *,
+            steps: int,
+            maximum_hold_steps: int,
         ) -> tuple[torch.Tensor, torch.Tensor]:
             """Latch the first strict legal contact during a shadow rollout."""
 
             contact_latched = torch.zeros_like(enabled)
             q_at_contact = robot.data.joint_pos[:, joint_ids].clone()
-            total_steps = args_cli.contact_steps + args_cli.endpoint_hold_steps
+            total_steps = steps + maximum_hold_steps
             for contact_step in range(total_steps):
-                if contact_step < args_cli.contact_steps:
-                    alpha = (contact_step + 1) / args_cli.contact_steps
+                if contact_step < steps:
+                    alpha = (contact_step + 1) / steps
                     alpha = alpha * alpha * (3.0 - 2.0 * alpha)
                     desired_endpoint = q_start + alpha * (q_end - q_start)
                 else:
                     desired_endpoint = q_end
                 current = robot.data.joint_pos[:, joint_ids]
-                moving = enabled & ~contact_latched & ~c1_violation
+                moving = enabled & ~contact_latched & ~violations["any"]
                 desired = torch.where(moving[:, None], desired_endpoint, current)
                 action = torch.clamp(
                     args_cli.servo_gain * (desired - current) / action_scale,
@@ -1147,13 +2005,11 @@ def main() -> None:
                 )
                 env.step(action)
                 state = rollout_contact_state()
-                c1_violation.logical_or_(
-                    enabled & state["forbidden_robot_contact"]
-                )
+                accumulate_rollout_violations(violations, enabled, state)
                 legal_now = (
                     enabled
-                    & state["legal_safe_robot_contact"]
-                    & ~c1_violation
+                    & state["legal_physical_safe_hand_contact"]
+                    & ~violations["any"]
                 )
                 newly_latched = legal_now & ~contact_latched
                 if bool(newly_latched.any()):
@@ -1165,11 +2021,148 @@ def main() -> None:
                     (
                         ~enabled
                         | contact_latched
-                        | c1_violation
+                        | violations["any"]
                     ).all()
                 ):
                     break
             return contact_latched, q_at_contact
+
+        def reanchor_macro_at_contact(
+            *,
+            q_contact_actual: torch.Tensor,
+            q_contact_nominal: torch.Tensor,
+            q_push_nominal: torch.Tensor,
+            macro_bridges: list[
+                tuple[pin.SE3, np.ndarray, np.ndarray] | None
+            ],
+            enabled: torch.Tensor,
+        ) -> tuple[torch.Tensor, torch.Tensor, list[dict[str, float]]]:
+            """Apply the planned Cartesian deltas from the measured contact.
+
+            A light object can move before the servo reaches the nominal
+            contact pose.  Chasing the absolute nominal push endpoint then
+            adds the unexecuted approach displacement to the intended push.
+            Re-anchor the push at the first measured contact so shadow
+            rollouts and real execution share the same macro-action.  Retreat
+            retraces the measured push and approach, so it needs no new IK.
+            """
+
+            anchored_push = q_contact_actual.clone()
+            valid = torch.zeros_like(enabled)
+            diagnostics: list[dict[str, float]] = [
+                {} for _ in range(base.num_envs)
+            ]
+            for env_id in torch.nonzero(
+                enabled, as_tuple=False
+            ).flatten().tolist():
+                bridge = macro_bridges[env_id]
+                if bridge is None:
+                    continue
+                actual_q = q_contact_actual[env_id].detach().cpu().numpy()
+                nominal_contact_q = (
+                    q_contact_nominal[env_id].detach().cpu().numpy()
+                )
+                nominal_push_q = q_push_nominal[env_id].detach().cpu().numpy()
+                actual_tcp, actual_rotation = ik.tcp_pose_in_env(
+                    actual_q, bridge
+                )
+                nominal_contact_tcp, _ = ik.tcp_pose_in_env(
+                    nominal_contact_q, bridge
+                )
+                nominal_push_tcp, _ = ik.tcp_pose_in_env(
+                    nominal_push_q, bridge
+                )
+                planned_push_delta = nominal_push_tcp - nominal_contact_tcp
+                desired_push_tcp = actual_tcp + planned_push_delta
+                solved_push, push_position_error, push_rotation_error = ik.solve(
+                    seed=actual_q,
+                    regularization_reference=actual_q,
+                    bridge=bridge,
+                    desired_tcp_env=desired_push_tcp,
+                    desired_rotation_env=actual_rotation,
+                )
+                reanchor_valid = bool(
+                    push_position_error <= args_cli.ik_position_tolerance_m
+                    and push_rotation_error
+                    <= args_cli.ik_rotation_tolerance_rad
+                )
+                diagnostics[env_id] = {
+                    "contact_reanchor_offset_m": float(
+                        np.linalg.norm(actual_tcp - nominal_contact_tcp)
+                    ),
+                    "reanchored_push_position_error_m": push_position_error,
+                    "reanchored_push_rotation_error_rad": push_rotation_error,
+                    "reanchor_valid": float(reanchor_valid),
+                }
+                if not reanchor_valid:
+                    continue
+                anchored_push[env_id] = torch.as_tensor(
+                    solved_push,
+                    device=base.device,
+                    dtype=q_contact_actual.dtype,
+                )
+                valid[env_id] = True
+            return anchored_push, valid, diagnostics
+
+        def solve_vertical_retreat(
+            *,
+            q_push_actual: torch.Tensor,
+            macro_bridges: list[
+                tuple[pin.SE3, np.ndarray, np.ndarray] | None
+            ],
+            enabled: torch.Tensor,
+        ) -> tuple[torch.Tensor, torch.Tensor, list[dict[str, float]]]:
+            """Solve a measured vertical lift that breaks planar contact.
+
+            Retracing joint positions is not a valid contact retreat after the
+            object has moved: the old contact pose can lie through the moved
+            object and create a second, uncontrolled push.  Lifting from the
+            measured post-push TCP preserves the hand orientation while
+            separating it from a table-supported target.
+            """
+
+            q_lift = q_push_actual.clone()
+            valid = torch.zeros_like(enabled)
+            diagnostics: list[dict[str, float]] = [
+                {} for _ in range(base.num_envs)
+            ]
+            for env_id in torch.nonzero(
+                enabled, as_tuple=False
+            ).flatten().tolist():
+                bridge = macro_bridges[env_id]
+                if bridge is None:
+                    continue
+                actual_q = q_push_actual[env_id].detach().cpu().numpy()
+                actual_tcp, actual_rotation = ik.tcp_pose_in_env(
+                    actual_q, bridge
+                )
+                desired_tcp = actual_tcp.copy()
+                desired_tcp[2] += args_cli.retreat_lift_m
+                solved, position_error, rotation_error = ik.solve(
+                    seed=actual_q,
+                    regularization_reference=actual_q,
+                    bridge=bridge,
+                    desired_tcp_env=desired_tcp,
+                    desired_rotation_env=actual_rotation,
+                )
+                lift_valid = bool(
+                    position_error <= args_cli.ik_position_tolerance_m
+                    and rotation_error <= args_cli.ik_rotation_tolerance_rad
+                )
+                diagnostics[env_id] = {
+                    "vertical_retreat_position_error_m": position_error,
+                    "vertical_retreat_rotation_error_rad": rotation_error,
+                    "vertical_retreat_valid": float(lift_valid),
+                }
+                if not lift_valid:
+                    continue
+                q_lift[env_id] = torch.as_tensor(
+                    solved,
+                    device=base.device,
+                    dtype=q_push_actual.dtype,
+                )
+                valid[env_id] = True
+            return q_lift, valid, diagnostics
 
         def execute_physics_rollout(
             *,
@@ -1178,51 +2171,110 @@ def main() -> None:
             q_contact: torch.Tensor,
             q_push: torch.Tensor,
             q_retreat: torch.Tensor,
+            macro_bridges: list[
+                tuple[pin.SE3, np.ndarray, np.ndarray] | None
+            ],
             enabled: torch.Tensor,
         ) -> dict[str, torch.Tensor]:
             """Run one candidate macro-action and measure its true outcome."""
 
-            c1_violation = torch.zeros_like(enabled)
-            execute_rollout_phase(
+            violations = {
+                name: torch.zeros_like(enabled)
+                for name in (
+                    "c1",
+                    "c2",
+                    "c3",
+                    "any",
+                    "c2_collision",
+                    "c2_clearance",
+                    "c3_collision",
+                    "c3_clearance",
+                )
+            }
+            violations["minimum_protected_clearance"] = torch.full(
+                (base.num_envs,),
+                torch.inf,
+                device=base.device,
+                dtype=robot.data.joint_pos.dtype,
+            )
+            violations["minimum_robot_obstacle_clearance"] = torch.full(
+                (base.num_envs,),
+                torch.inf,
+                device=base.device,
+                dtype=robot.data.joint_pos.dtype,
+            )
+            approach_contact, q_approach_contact = execute_rollout_until_contact(
                 q_start,
                 q_precontact,
-                args_cli.approach_steps,
                 enabled,
-                c1_violation,
-                endpoint_hold_steps=args_cli.endpoint_hold_steps,
+                violations,
+                steps=args_cli.approach_steps,
+                maximum_hold_steps=0,
             )
-            contact_ready, q_contact_actual = execute_rollout_until_contact(
+            remaining = enabled & ~approach_contact & ~violations["any"]
+            nominal_contact, q_nominal_contact = execute_rollout_until_contact(
                 q_precontact,
                 q_contact,
-                enabled,
-                c1_violation,
+                remaining,
+                violations,
+                steps=args_cli.contact_steps,
+                maximum_hold_steps=args_cli.endpoint_hold_steps,
             )
+            contact_ready = approach_contact | nominal_contact
+            q_contact_actual = torch.where(
+                approach_contact[:, None],
+                q_approach_contact,
+                q_nominal_contact,
+            )
+            (
+                anchored_push,
+                reanchor_valid,
+                _,
+            ) = reanchor_macro_at_contact(
+                q_contact_actual=q_contact_actual,
+                q_contact_nominal=q_contact,
+                q_push_nominal=q_push,
+                macro_bridges=macro_bridges,
+                enabled=contact_ready,
+            )
+            contact_ready &= reanchor_valid
             execute_rollout_phase(
                 q_contact_actual,
-                q_push,
+                anchored_push,
                 args_cli.push_steps,
                 contact_ready,
-                c1_violation,
+                violations,
             )
-            retreat_start = torch.where(
-                contact_ready[:, None], q_push, q_contact_actual
+            q_push_actual = robot.data.joint_pos[:, joint_ids].clone()
+            q_lift, lift_valid, _ = solve_vertical_retreat(
+                q_push_actual=q_push_actual,
+                macro_bridges=macro_bridges,
+                enabled=contact_ready,
             )
-            retreat_target = torch.where(
-                contact_ready[:, None], q_retreat, q_precontact
+            contact_ready &= lift_valid
+            execute_rollout_phase(
+                q_push_actual,
+                q_lift,
+                args_cli.retreat_steps,
+                contact_ready,
+                violations,
+            )
+            contact_detected = approach_contact | nominal_contact
+            escape_enabled = contact_ready | (enabled & ~contact_detected)
+            escape_start = torch.where(
+                contact_ready[:, None], q_lift, q_precontact
             )
             execute_rollout_phase(
-                retreat_start,
-                retreat_target,
-                args_cli.retreat_steps,
-                enabled,
-                c1_violation,
+                escape_start,
+                q_start,
+                args_cli.approach_steps,
+                escape_enabled,
+                violations,
             )
             for _ in range(args_cli.inter_push_settle_steps):
                 env.step(zero_action)
                 state = rollout_contact_state()
-                c1_violation.logical_or_(
-                    enabled & state["forbidden_robot_contact"]
-                )
+                accumulate_rollout_violations(violations, enabled, state)
             planar, height, rotation = _pose_errors(base)
             target_pose = torch.cat(
                 (
@@ -1234,7 +2286,20 @@ def main() -> None:
             ).clone()
             return {
                 "contact_ready": contact_ready,
-                "c1_violation": c1_violation,
+                "constraint_violation": violations["any"],
+                "c1_violation": violations["c1"],
+                "c2_violation": violations["c2"],
+                "c3_violation": violations["c3"],
+                "c2_collision": violations["c2_collision"],
+                "c2_clearance_violation": violations["c2_clearance"],
+                "c3_collision": violations["c3_collision"],
+                "c3_clearance_violation": violations["c3_clearance"],
+                "minimum_protected_clearance": violations[
+                    "minimum_protected_clearance"
+                ],
+                "minimum_robot_obstacle_clearance": violations[
+                    "minimum_robot_obstacle_clearance"
+                ],
                 "planar_error": planar.clone(),
                 "height_error": height.clone(),
                 "rotation_error": rotation.clone(),
@@ -1242,7 +2307,7 @@ def main() -> None:
             }
 
         for replan_index in range(args_cli.max_replans):
-            active = ~success & ~forbidden_contact_ever & ~exhausted
+            active = ~success & ~constraint_violation_ever & ~exhausted
             if not bool(active.any()):
                 break
 
@@ -1254,6 +2319,7 @@ def main() -> None:
                 base.num_envs, -1, 2
             )
             hand_points = get_end_effector_pointcloud_in_env_frame(base)
+            pusher_contact_points = get_pusher_contact_pointcloud_in_env_frame(base)
             tcp_position = (
                 base.scene["ee_frame"].data.target_pos_w[:, 0]
                 - base.scene.env_origins
@@ -1265,8 +2331,18 @@ def main() -> None:
                 .reshape(-1, 4),
                 (hand_points - tcp_position[:, None, :]).reshape(-1, 3),
             ).reshape_as(hand_points)
+            local_pusher_contact = quat_apply_inverse(
+                tcp_quaternion[:, None, :]
+                .expand(-1, pusher_contact_points.shape[1], -1)
+                .reshape(-1, 4),
+                (pusher_contact_points - tcp_position[:, None, :]).reshape(-1, 3),
+            ).reshape_as(pusher_contact_points)
             target_position = (
                 base.scene["target"].data.root_pos_w[:, :3]
+                - base.scene.env_origins
+            )
+            target_com_position = (
+                base.scene["target"].data.root_com_pos_w
                 - base.scene.env_origins
             )
             goal = base.command_manager.get_command("target_object_pose")
@@ -1280,8 +2356,10 @@ def main() -> None:
                     goal_position=goal[:, :3],
                     tcp_position=tcp_position,
                     hand_points_local=local_hand,
+                    pusher_contact_points_local=local_pusher_contact,
                     tcp_rotation=matrix_from_quat(tcp_quaternion),
                     yaw_error=yaw_error,
+                    target_com_position=target_com_position,
                 )
             )
             planner_candidate_ever.logical_or_(candidates.any_valid & active)
@@ -1317,7 +2395,11 @@ def main() -> None:
             selected_rollout_score = torch.full(
                 (base.num_envs,), torch.inf, device=base.device
             )
-            option_limit = max(args_cli.physics_rollout_candidates, 1)
+            option_limit = (
+                args_cli.output_candidates
+                if replay_actions
+                else max(args_cli.physics_rollout_candidates, 1)
+            )
 
             for env_id in torch.nonzero(active, as_tuple=False).flatten().tolist():
                 q_current_np = current_q[env_id].detach().cpu().numpy()
@@ -1341,7 +2423,9 @@ def main() -> None:
                 forbidden_np = (
                     target_points[env_id, ~safe_mask].detach().cpu().numpy()
                 )
-                target_center_np = target_position[env_id].detach().cpu().numpy()
+                target_center_np = (
+                    target_com_position[env_id].detach().cpu().numpy()
+                )
                 centered_xy = points_np[:, :2] - target_center_np[:2]
                 planar_gyration_sq = max(
                     float(np.mean(np.sum(np.square(centered_xy), axis=1))),
@@ -1451,9 +2535,25 @@ def main() -> None:
                             continue
                         seen_distances.add(distance_key)
                         distance_representatives.append(rank)
+                    direction_representatives: list[int] = []
+                    seen_directions: set[tuple[float, float]] = set()
+                    for rank in analytic_rank_order:
+                        direction = candidates.push_direction[
+                            env_id, rank, :2
+                        ]
+                        direction_key = (
+                            round(float(direction[0].item()), 6),
+                            round(float(direction[1].item()), 6),
+                        )
+                        if direction_key in seen_directions:
+                            continue
+                        seen_directions.add(direction_key)
+                        direction_representatives.append(rank)
                     representatives = list(
                         dict.fromkeys(
-                            moment_representatives + distance_representatives
+                            moment_representatives
+                            + distance_representatives
+                            + direction_representatives
                         )
                     )
                     representatives.sort(key=adaptive_scores.get)
@@ -1673,9 +2773,51 @@ def main() -> None:
                 for env_id in torch.nonzero(
                     active & ~exhausted, as_tuple=False
                 ).flatten().tolist():
-                    select_executable_option(
-                        env_id, executable_options[env_id][0]
+                    if not replay_actions:
+                        select_executable_option(
+                            env_id, executable_options[env_id][0]
+                        )
+                        continue
+                    if replan_index not in replay_actions:
+                        exhausted[env_id] = True
+                        plan_diagnostics[env_id].append(
+                            {
+                                "replan": replan_index,
+                                "failure": "replay_plan_exhausted",
+                            }
+                        )
+                        continue
+                    expected = replay_actions[replan_index]
+                    expected_rank = int(expected["rank"])
+                    exact = [
+                        option
+                        for option in executable_options[env_id]
+                        if option.candidate_rank == expected_rank
+                    ]
+                    if not exact:
+                        exhausted[env_id] = True
+                        plan_diagnostics[env_id].append(
+                            {
+                                "replan": replan_index,
+                                "failure": "replay_candidate_rank_unavailable",
+                                "expected_rank": expected_rank,
+                                "available_ranks": [
+                                    option.candidate_rank
+                                    for option in executable_options[env_id]
+                                ],
+                            }
+                        )
+                        continue
+                    option = exact[0]
+                    option.diagnostic.update(
+                        {
+                            "replay_selected": True,
+                            "replay_source": str(
+                                args_cli.replay_plan_json.resolve()
+                            ),
+                        }
                     )
+                    select_executable_option(env_id, option)
             else:
                 rollout_count = args_cli.physics_rollout_candidates
                 current_planar, current_height, current_rotation = _pose_errors(
@@ -1692,7 +2834,7 @@ def main() -> None:
                     dtype=torch.bool,
                 )
                 rollout_contact = torch.zeros_like(rollout_enabled)
-                rollout_c1 = torch.zeros_like(rollout_enabled)
+                rollout_constraint_violation = torch.zeros_like(rollout_enabled)
                 rollout_target_pose = torch.full(
                     (base.num_envs, rollout_count, 7),
                     torch.nan,
@@ -1722,6 +2864,9 @@ def main() -> None:
                     rollout_q_contact = current_q.clone()
                     rollout_q_push = current_q.clone()
                     rollout_q_retreat = current_q.clone()
+                    rollout_bridges: list[
+                        tuple[pin.SE3, np.ndarray, np.ndarray] | None
+                    ] = [None for _ in range(base.num_envs)]
                     for env_id in torch.nonzero(
                         enabled, as_tuple=False
                     ).flatten().tolist():
@@ -1746,26 +2891,39 @@ def main() -> None:
                             device=base.device,
                             dtype=current_q.dtype,
                         )
+                        rollout_bridges[env_id] = option.bridge
                     outcome = execute_physics_rollout(
                         q_start=current_q,
                         q_precontact=rollout_q_pre,
                         q_contact=rollout_q_contact,
                         q_push=rollout_q_push,
                         q_retreat=rollout_q_retreat,
+                        macro_bridges=rollout_bridges,
                         enabled=enabled,
                     )
                     rollout_enabled[:, option_index] = enabled
                     rollout_contact[:, option_index] = outcome["contact_ready"]
-                    rollout_c1[:, option_index] = outcome["c1_violation"]
+                    rollout_constraint_violation[:, option_index] = outcome[
+                        "constraint_violation"
+                    ]
                     rollout_planar[:, option_index] = outcome["planar_error"]
                     rollout_height[:, option_index] = outcome["height_error"]
                     rollout_rotation[:, option_index] = outcome["rotation_error"]
                     rollout_target_pose[:, option_index] = outcome["target_pose"]
                     rollout_candidate_evaluations += enabled.long()
+                    rollout_c1_violation_evaluations += (
+                        enabled & outcome["c1_violation"]
+                    ).long()
+                    rollout_c2_violation_evaluations += (
+                        enabled & outcome["c2_violation"]
+                    ).long()
+                    rollout_c3_violation_evaluations += (
+                        enabled & outcome["c3_violation"]
+                    ).long()
                     rollout_legal_evaluations += (
                         enabled
                         & outcome["contact_ready"]
-                        & ~outcome["c1_violation"]
+                        & ~outcome["constraint_violation"]
                     ).long()
                     after_restore = restore_rollout_snapshot(
                         snapshot,
@@ -1786,6 +2944,43 @@ def main() -> None:
                                 ),
                                 "physics_rollout_c1_violation": bool(
                                     outcome["c1_violation"][env_id].item()
+                                ),
+                                "physics_rollout_c2_violation": bool(
+                                    outcome["c2_violation"][env_id].item()
+                                ),
+                                "physics_rollout_c2_collision": bool(
+                                    outcome["c2_collision"][env_id].item()
+                                ),
+                                "physics_rollout_c2_clearance_violation": bool(
+                                    outcome["c2_clearance_violation"][
+                                        env_id
+                                    ].item()
+                                ),
+                                "physics_rollout_c3_violation": bool(
+                                    outcome["c3_violation"][env_id].item()
+                                ),
+                                "physics_rollout_c3_collision": bool(
+                                    outcome["c3_collision"][env_id].item()
+                                ),
+                                "physics_rollout_c3_clearance_violation": bool(
+                                    outcome["c3_clearance_violation"][
+                                        env_id
+                                    ].item()
+                                ),
+                                "physics_rollout_minimum_protected_clearance_m": (
+                                    _finite_float_or_none(
+                                        outcome["minimum_protected_clearance"][env_id]
+                                    )
+                                ),
+                                "physics_rollout_minimum_robot_obstacle_clearance_m": (
+                                    _finite_float_or_none(
+                                        outcome["minimum_robot_obstacle_clearance"][
+                                            env_id
+                                        ]
+                                    )
+                                ),
+                                "physics_rollout_constraint_violation": bool(
+                                    outcome["constraint_violation"][env_id].item()
                                 ),
                                 "physics_rollout_planar_error_m": float(
                                     outcome["planar_error"][env_id].item()
@@ -1811,6 +3006,12 @@ def main() -> None:
                     rollout_rotation,
                     rollout_scoring_cfg,
                 )
+                current_rollout_cost = joint_threshold_cost(
+                    current_planar,
+                    current_height,
+                    current_rotation,
+                    rollout_scoring_cfg,
+                )
                 best_option, has_improving, rollout_scores = (
                     rank_physics_rollouts(
                         current_planar_error=current_planar,
@@ -1821,7 +3022,7 @@ def main() -> None:
                         rollout_rotation_error=rollout_rotation,
                         enabled=rollout_enabled,
                         legal_safe_contact=rollout_contact,
-                        c1_violation=rollout_c1,
+                        c1_violation=rollout_constraint_violation,
                         cfg=rollout_scoring_cfg,
                     )
                 )
@@ -1889,12 +3090,6 @@ def main() -> None:
                         predicted_pair_rotation,
                         rollout_scoring_cfg,
                     )
-                    current_rollout_cost = joint_threshold_cost(
-                        current_planar,
-                        current_height,
-                        current_rotation,
-                        rollout_scoring_cfg,
-                    )
                     (
                         lookahead_first,
                         lookahead_second,
@@ -1905,7 +3100,9 @@ def main() -> None:
                         one_step_cost=raw_rollout_cost,
                         pair_cost=predicted_pair_cost,
                         legal_safe_contact=(
-                            rollout_enabled & rollout_contact & ~rollout_c1
+                            rollout_enabled
+                            & rollout_contact
+                            & ~rollout_constraint_violation
                         ),
                         minimum_cost_improvement=(
                             rollout_scoring_cfg.minimum_cost_improvement
@@ -1919,13 +3116,82 @@ def main() -> None:
                     use_lookahead, lookahead_first, best_option
                 )
                 has_selection = has_improving | use_lookahead
+                legal_rollout = (
+                    rollout_enabled
+                    & rollout_contact
+                    & ~rollout_constraint_violation
+                )
+                plateau_option, has_plateau_candidate, plateau_scores = (
+                    rank_safe_plateau_rollouts(
+                        current_cost=current_rollout_cost,
+                        rollout_cost=raw_rollout_cost,
+                        rollout_rotation_error=rollout_rotation,
+                        legal_safe_contact=legal_rollout,
+                        maximum_cost_increase=(
+                            args_cli.rollout_maximum_cost_increase
+                        ),
+                        transient_rotation_cap_rad=(
+                            args_cli.rollout_transient_rotation_cap_rad
+                        ),
+                    )
+                )
+                plateau_budget_available = rollout_plateau_escape_actions < (
+                    args_cli.rollout_plateau_escape_actions
+                )
+                use_plateau = (
+                    ~has_selection
+                    & has_plateau_candidate
+                    & plateau_budget_available
+                )
+                selected_option = torch.where(
+                    use_plateau, plateau_option, selected_option
+                )
+                plateau_branch_rank = torch.full_like(selected_option, -1)
+                if args_cli.rollout_plateau_ranking != "joint":
+                    ranking_values = (
+                        rollout_rotation
+                        if args_cli.rollout_plateau_ranking == "rotation"
+                        else rollout_planar
+                    )
+                    for env_id in torch.nonzero(
+                        use_plateau, as_tuple=False
+                    ).flatten().tolist():
+                        eligible = torch.isfinite(plateau_scores[env_id])
+                        ranked = torch.nonzero(
+                            eligible, as_tuple=False
+                        ).flatten()
+                        if ranked.numel() == 0:
+                            continue
+                        ranking = ranking_values[env_id, ranked]
+                        tie_break = 1.0e-6 * plateau_scores[env_id, ranked]
+                        selected_option[env_id] = ranked[
+                            torch.argmin(ranking + tie_break)
+                        ]
+                if args_cli.rollout_diversify_plateau_across_envs:
+                    for env_id in torch.nonzero(
+                        use_plateau, as_tuple=False
+                    ).flatten().tolist():
+                        ranked = torch.nonzero(
+                            torch.isfinite(plateau_scores[env_id]),
+                            as_tuple=False,
+                        ).flatten()
+                        if ranked.numel() == 0:
+                            continue
+                        order = torch.argsort(plateau_scores[env_id, ranked])
+                        ranked = ranked[order]
+                        branch_rank = env_id % int(ranked.numel())
+                        selected_option[env_id] = ranked[branch_rank]
+                        plateau_branch_rank[env_id] = branch_rank
+                has_selection |= use_plateau
                 print(
                     "M2_ROLLOUT",
                     f"replan={replan_index}",
                     f"evaluated={int(rollout_enabled.sum().item())}",
-                    f"legal={int((rollout_enabled & rollout_contact & ~rollout_c1).sum().item())}",
+                    "legal="
+                    f"{int((rollout_enabled & rollout_contact & ~rollout_constraint_violation).sum().item())}",
                     f"one_step={int(has_improving.sum().item())}",
                     f"lookahead={int(use_lookahead.sum().item())}",
+                    f"plateau={int(use_plateau.sum().item())}",
                     flush=True,
                 )
                 for env_id in torch.nonzero(active, as_tuple=False).flatten().tolist():
@@ -1940,13 +3206,19 @@ def main() -> None:
                                 rollout_scores[env_id, option_index]
                             ).item()
                         )
+                        option.diagnostic["physics_rollout_plateau_eligible"] = bool(
+                            torch.isfinite(
+                                plateau_scores[env_id, option_index]
+                            ).item()
+                        )
                     if not bool(has_selection[env_id]):
                         exhausted[env_id] = True
                         plan_diagnostics[env_id].append(
                             {
                                 "replan": replan_index,
                                 "failure": (
-                                    "no_safe_physics_rollout_or_pair_improves_joint_pose"
+                                    "no_safe_physics_rollout_or_pair_or_bounded_"
+                                    "plateau_escape"
                                 ),
                                 "physics_rollout_candidates": len(
                                     executable_options[env_id]
@@ -1957,6 +3229,19 @@ def main() -> None:
                     option_index = int(selected_option[env_id].item())
                     option = executable_options[env_id][option_index]
                     option.diagnostic["physics_rollout_selected"] = True
+                    if bool(use_plateau[env_id]):
+                        rollout_plateau_escape_actions[env_id] += 1
+                        option.diagnostic.update(
+                            {
+                                "physics_rollout_plateau_selected": True,
+                                "physics_rollout_plateau_action_index": int(
+                                    rollout_plateau_escape_actions[env_id].item()
+                                ),
+                                "physics_rollout_plateau_branch_rank": int(
+                                    plateau_branch_rank[env_id].item()
+                                ),
+                            }
+                        )
                     if bool(use_lookahead[env_id]):
                         second_index = int(lookahead_second[env_id].item())
                         option.diagnostic.update(
@@ -2008,26 +3293,91 @@ def main() -> None:
                 flush=True,
             )
             planned_contact_attempts += plan_enabled.long()
-            execute_phase(
+            macro_phase_position: dict[str, torch.Tensor] = {
+                "start": (
+                    base.scene["target"].data.root_pos_w[:, :3]
+                    - base.scene.env_origins
+                ).clone()
+            }
+            macro_phase_yaw: dict[str, torch.Tensor] = {
+                "start": _signed_yaw_error(base).clone()
+            }
+            (
+                approach_contact,
+                q_approach_contact,
+                approach_safe_distance,
+                approach_forbidden_distance,
+            ) = execute_until_safe_contact(
                 current_q,
                 q_pre,
                 args_cli.approach_steps,
                 plan_enabled,
-                args_cli.endpoint_hold_steps,
+                0,
+            )
+            macro_phase_position["after_approach"] = (
+                base.scene["target"].data.root_pos_w[:, :3]
+                - base.scene.env_origins
+            ).clone()
+            macro_phase_yaw["after_approach"] = _signed_yaw_error(base).clone()
+            remaining_contact = (
+                plan_enabled & ~approach_contact & ~constraint_violation_ever
             )
             (
-                contact_ready,
-                q_contact_actual,
-                safe_distance_at_gate,
-                forbidden_distance_at_gate,
+                nominal_contact,
+                q_nominal_contact,
+                nominal_safe_distance,
+                nominal_forbidden_distance,
             ) = execute_until_safe_contact(
                 q_pre,
                 q_contact,
                 args_cli.contact_steps,
-                plan_enabled,
+                remaining_contact,
                 args_cli.endpoint_hold_steps,
             )
-            missed_contact = plan_enabled & ~contact_ready & ~forbidden_contact_ever
+            contact_ready = approach_contact | nominal_contact
+            q_contact_actual = torch.where(
+                approach_contact[:, None],
+                q_approach_contact,
+                q_nominal_contact,
+            )
+            safe_distance_at_gate = torch.where(
+                approach_contact,
+                approach_safe_distance,
+                nominal_safe_distance,
+            )
+            forbidden_distance_at_gate = torch.where(
+                approach_contact,
+                approach_forbidden_distance,
+                nominal_forbidden_distance,
+            )
+            macro_phase_position["after_contact_gate"] = (
+                base.scene["target"].data.root_pos_w[:, :3]
+                - base.scene.env_origins
+            ).clone()
+            macro_phase_yaw["after_contact_gate"] = _signed_yaw_error(base).clone()
+            physical_contact_ready = contact_ready.clone()
+            if args_cli.contact_execution_mode == "persistent":
+                # The persistent servo resolves every micro endpoint from the
+                # measured joint state.  A fixed nominal push endpoint is not
+                # used, so contact-relative macro re-anchoring is unnecessary.
+                q_push_anchored = q_contact_actual.clone()
+                reanchor_valid = torch.ones_like(contact_ready)
+                reanchor_diagnostics = [
+                    {} for _ in range(base.num_envs)
+                ]
+            else:
+                (
+                    q_push_anchored,
+                    reanchor_valid,
+                    reanchor_diagnostics,
+                ) = reanchor_macro_at_contact(
+                    q_contact_actual=q_contact_actual,
+                    q_contact_nominal=q_contact,
+                    q_push_nominal=q_push,
+                    macro_bridges=bridges,
+                    enabled=contact_ready,
+                )
+            contact_ready &= reanchor_valid
             selected_pushes += contact_ready.long()
             for env_id in torch.nonzero(plan_enabled, as_tuple=False).flatten().tolist():
                 bridge_at_gate = bridges[env_id]
@@ -2063,6 +3413,18 @@ def main() -> None:
                         "replan": replan_index,
                         "selected_rank": int(selected_rank[env_id].item()),
                         "contact_gate_passed": bool(contact_ready[env_id].item()),
+                        "physical_contact_gate_passed": bool(
+                            physical_contact_ready[env_id].item()
+                        ),
+                        "physical_contact_stage": (
+                            "approach"
+                            if bool(approach_contact[env_id].item())
+                            else (
+                                "nominal_contact"
+                                if bool(nominal_contact[env_id].item())
+                                else "none"
+                            )
+                        ),
                         "minimum_safe_distance_at_gate_m": float(
                             safe_distance_at_gate[env_id].item()
                         ),
@@ -2104,29 +3466,166 @@ def main() -> None:
                         ),
                     }
                 )
+                if reanchor_diagnostics[env_id]:
+                    plan_diagnostics[env_id].append(
+                        {
+                            "replan": replan_index,
+                            "event": "contact_relative_macro_reanchor",
+                            **reanchor_diagnostics[env_id],
+                        }
+                    )
             push_start_target_position = (
                 base.scene["target"].data.root_pos_w[:, :3]
                 - base.scene.env_origins
             ).clone()
             push_start_yaw_error = _signed_yaw_error(base).clone()
+            if args_cli.contact_execution_mode == "persistent":
+                micro_updates_before = persistent_micro_updates.clone()
+                (
+                    q_push_actual,
+                    contact_ready,
+                    persistent_diagnostics,
+                ) = execute_persistent_contact_servo(
+                    q_contact_actual=q_contact_actual,
+                    macro_bridges=bridges,
+                    fallback_push_axis_xy=selected_push_direction,
+                    hand_points_local=local_hand,
+                    enabled=contact_ready,
+                )
+                for env_id in torch.nonzero(
+                    physical_contact_ready, as_tuple=False
+                ).flatten().tolist():
+                    plan_diagnostics[env_id].append(
+                        {
+                            "replan": replan_index,
+                            **persistent_diagnostics[env_id],
+                        }
+                    )
+                micro_advanced = (
+                    persistent_micro_updates > micro_updates_before
+                )
+                fallback_enabled = (
+                    contact_ready
+                    & ~micro_advanced
+                    & ~success
+                    & ~constraint_violation_ever
+                    & ~freeze_active
+                )
+                if bool(fallback_enabled.any()):
+                    (
+                        q_fallback_push,
+                        fallback_valid,
+                        fallback_diagnostics,
+                    ) = reanchor_macro_at_contact(
+                        q_contact_actual=q_push_actual,
+                        q_contact_nominal=q_contact,
+                        q_push_nominal=q_push,
+                        macro_bridges=bridges,
+                        enabled=fallback_enabled,
+                    )
+                    execute_phase(
+                        q_push_actual,
+                        q_fallback_push,
+                        args_cli.push_steps,
+                        fallback_valid,
+                    )
+                    persistent_fallback_macro_pushes += fallback_valid.long()
+                    q_push_actual = robot.data.joint_pos[:, joint_ids].clone()
+                    contact_ready = (
+                        (contact_ready & micro_advanced) | fallback_valid
+                    )
+                    for env_id in torch.nonzero(
+                        fallback_enabled, as_tuple=False
+                    ).flatten().tolist():
+                        plan_diagnostics[env_id].append(
+                            {
+                                "replan": replan_index,
+                                "event": "persistent_macro_fallback",
+                                "fallback_executed": bool(
+                                    fallback_valid[env_id].item()
+                                ),
+                                **fallback_diagnostics[env_id],
+                            }
+                        )
+            else:
+                execute_phase(
+                    q_contact_actual,
+                    q_push_anchored,
+                    args_cli.push_steps,
+                    contact_ready,
+                )
+                q_push_actual = robot.data.joint_pos[:, joint_ids].clone()
+            macro_phase_position["after_push"] = (
+                base.scene["target"].data.root_pos_w[:, :3]
+                - base.scene.env_origins
+            ).clone()
+            macro_phase_yaw["after_push"] = _signed_yaw_error(base).clone()
+            q_lift, lift_valid, lift_diagnostics = solve_vertical_retreat(
+                q_push_actual=q_push_actual,
+                macro_bridges=bridges,
+                enabled=contact_ready,
+            )
+            contact_ready &= lift_valid
+            for env_id in torch.nonzero(
+                physical_contact_ready, as_tuple=False
+            ).flatten().tolist():
+                if lift_diagnostics[env_id]:
+                    plan_diagnostics[env_id].append(
+                        {
+                            "replan": replan_index,
+                            "event": "vertical_contact_retreat",
+                            **lift_diagnostics[env_id],
+                        }
+                    )
             execute_phase(
-                q_contact_actual, q_push, args_cli.push_steps, contact_ready
-            )
-            retreat_start = torch.where(
-                contact_ready[:, None], q_push, q_contact_actual
-            )
-            retreat_target = torch.where(
-                contact_ready[:, None], q_retreat, q_pre
-            )
-            execute_phase(
-                retreat_start,
-                retreat_target,
+                q_push_actual,
+                q_lift,
                 args_cli.retreat_steps,
-                plan_enabled,
+                contact_ready,
             )
+            escape_enabled = contact_ready | (
+                plan_enabled & ~physical_contact_ready
+            )
+            escape_start = torch.where(
+                contact_ready[:, None], q_lift, q_pre
+            )
+            execute_phase(
+                escape_start,
+                current_q,
+                args_cli.approach_steps,
+                escape_enabled,
+            )
+            macro_phase_position["after_retreat"] = (
+                base.scene["target"].data.root_pos_w[:, :3]
+                - base.scene.env_origins
+            ).clone()
+            macro_phase_yaw["after_retreat"] = _signed_yaw_error(base).clone()
             for _ in range(args_cli.inter_push_settle_steps):
                 env.step(zero_action)
+                capture_actual_frame()
                 update_metrics()
+            macro_phase_position["after_settle"] = (
+                base.scene["target"].data.root_pos_w[:, :3]
+                - base.scene.env_origins
+            ).clone()
+            macro_phase_yaw["after_settle"] = _signed_yaw_error(base).clone()
+            for env_id in torch.nonzero(
+                plan_enabled, as_tuple=False
+            ).flatten().tolist():
+                plan_diagnostics[env_id].append(
+                    {
+                        "replan": replan_index,
+                        "event": "macro_phase_target_trace",
+                        "position_env_m": {
+                            name: value[env_id].detach().cpu().tolist()
+                            for name, value in macro_phase_position.items()
+                        },
+                        "signed_yaw_error_rad": {
+                            name: float(value[env_id].item())
+                            for name, value in macro_phase_yaw.items()
+                        },
+                    }
+                )
             push_end_target_position = (
                 base.scene["target"].data.root_pos_w[:, :3]
                 - base.scene.env_origins
@@ -2257,12 +3756,12 @@ def main() -> None:
             current_q,
             current_q,
             args_cli.final_hold_steps,
-            ~forbidden_contact_ever,
+            ~constraint_violation_ever,
         )
 
         final_planar, final_height, final_rotation = _pose_errors(base)
         final_yaw_error = _signed_yaw_error(base)
-        constrained_success = success & ~forbidden_contact_ever
+        constrained_success = success & ~constraint_violation_ever
         rows: list[dict[str, object]] = []
         for env_id in range(base.num_envs):
             rows.append(
@@ -2281,6 +3780,15 @@ def main() -> None:
                     "planned_contact_attempts": int(
                         planned_contact_attempts[env_id].item()
                     ),
+                    "persistent_micro_updates": int(
+                        persistent_micro_updates[env_id].item()
+                    ),
+                    "persistent_fallback_macro_pushes": int(
+                        persistent_fallback_macro_pushes[env_id].item()
+                    ),
+                    "persistent_contact_travel_m": float(
+                        persistent_contact_travel[env_id].item()
+                    ),
                     "contact_gate_success_rate": float(
                         selected_pushes[env_id].item()
                         / max(planned_contact_attempts[env_id].item(), 1)
@@ -2291,8 +3799,20 @@ def main() -> None:
                     "physics_rollout_legal_evaluations": int(
                         rollout_legal_evaluations[env_id].item()
                     ),
+                    "physics_rollout_c1_violation_evaluations": int(
+                        rollout_c1_violation_evaluations[env_id].item()
+                    ),
+                    "physics_rollout_c2_violation_evaluations": int(
+                        rollout_c2_violation_evaluations[env_id].item()
+                    ),
+                    "physics_rollout_c3_violation_evaluations": int(
+                        rollout_c3_violation_evaluations[env_id].item()
+                    ),
                     "physics_rollout_selected_actions": int(
                         rollout_selected_actions[env_id].item()
+                    ),
+                    "physics_rollout_plateau_escape_actions": int(
+                        rollout_plateau_escape_actions[env_id].item()
                     ),
                     "physics_rollout_real_position_error_mean_m": (
                         float(
@@ -2312,11 +3832,29 @@ def main() -> None:
                     ),
                     "safe_contact": bool(safe_contact_ever[env_id].item()),
                     "forbidden_contact": bool(forbidden_contact_ever[env_id].item()),
+                    "protected_obstacle_collision": bool(
+                        protected_obstacle_collision_ever[env_id].item()
+                    ),
+                    "robot_obstacle_collision": bool(
+                        robot_obstacle_collision_ever[env_id].item()
+                    ),
+                    "constraint_violation": bool(
+                        constraint_violation_ever[env_id].item()
+                    ),
                     "forbidden_hand_contact": bool(
                         forbidden_hand_contact_ever[env_id].item()
                     ),
                     "arm_target_physical_contact": bool(
                         arm_target_contact_ever[env_id].item()
+                    ),
+                    "maximum_target_hand_sensor_force_n": float(
+                        maximum_target_hand_sensor_force[env_id].item()
+                    ),
+                    "maximum_target_arm_sensor_force_n": float(
+                        maximum_target_arm_sensor_force[env_id].item()
+                    ),
+                    "hand_point_source": str(
+                        getattr(base, "_dapl_hand_point_source", "uninitialized")
                     ),
                     "strict_pose": bool(strict_pose_ever[env_id].item()),
                     "constrained_success": bool(constrained_success[env_id].item()),
@@ -2345,6 +3883,16 @@ def main() -> None:
                     "minimum_safe_distance_m": float(
                         minimum_safe_distance[env_id].item()
                     ),
+                    "minimum_protected_obstacle_clearance_m": (
+                        _finite_float_or_none(
+                            minimum_protected_obstacle_clearance[env_id]
+                        )
+                    ),
+                    "minimum_robot_obstacle_clearance_m": (
+                        _finite_float_or_none(
+                            minimum_robot_obstacle_clearance[env_id]
+                        )
+                    ),
                     "final_planar_error_m": float(final_planar[env_id].item()),
                     "final_height_error_m": float(final_height[env_id].item()),
                     "final_rotation_error_rad": float(final_rotation[env_id].item()),
@@ -2359,6 +3907,13 @@ def main() -> None:
             "ik_semantic_plan_scenes": int(ik_plan_ever.sum().item()),
             "safe_contact_scenes": int(safe_contact_ever.sum().item()),
             "c1_violation_scenes": int(forbidden_contact_ever.sum().item()),
+            "c2_violation_scenes": int(
+                protected_obstacle_collision_ever.sum().item()
+            ),
+            "c3_violation_scenes": int(robot_obstacle_collision_ever.sum().item()),
+            "constraint_violation_scenes": int(
+                constraint_violation_ever.sum().item()
+            ),
             "forbidden_hand_contact_scenes": int(
                 forbidden_hand_contact_ever.sum().item()
             ),
@@ -2370,6 +3925,15 @@ def main() -> None:
             ),
             "planned_contact_attempts": int(planned_contact_attempts.sum().item()),
             "legal_contact_gate_passes": int(selected_pushes.sum().item()),
+            "persistent_micro_updates": int(
+                persistent_micro_updates.sum().item()
+            ),
+            "persistent_fallback_macro_pushes": int(
+                persistent_fallback_macro_pushes.sum().item()
+            ),
+            "persistent_contact_travel_m": float(
+                persistent_contact_travel.sum().item()
+            ),
             "legal_contact_gate_rate": float(
                 selected_pushes.sum().item()
                 / max(planned_contact_attempts.sum().item(), 1)
@@ -2380,8 +3944,20 @@ def main() -> None:
             "physics_rollout_legal_evaluations": int(
                 rollout_legal_evaluations.sum().item()
             ),
+            "physics_rollout_c1_violation_evaluations": int(
+                rollout_c1_violation_evaluations.sum().item()
+            ),
+            "physics_rollout_c2_violation_evaluations": int(
+                rollout_c2_violation_evaluations.sum().item()
+            ),
+            "physics_rollout_c3_violation_evaluations": int(
+                rollout_c3_violation_evaluations.sum().item()
+            ),
             "physics_rollout_selected_actions": int(
                 rollout_selected_actions.sum().item()
+            ),
+            "physics_rollout_plateau_escape_actions": int(
+                rollout_plateau_escape_actions.sum().item()
             ),
             "physics_rollout_real_comparisons": int(
                 rollout_transition_comparisons.sum().item()
@@ -2409,9 +3985,14 @@ def main() -> None:
         )
         payload = {
             "milestone": milestone,
-            "scope": "single DOMINO hammer, no clutter, oracle pose and affordance",
+            "scope": (
+                "single DOMINO hammer, no clutter, oracle pose and affordance"
+                if args_cli.safety_scope == "c1"
+                else "DOMINO hammer with clutter, oracle pose/affordance/geometry"
+            ),
             "task": args_cli.task,
             "seed": args_cli.seed,
+            "safety_scope": args_cli.safety_scope,
             "planner": asdict(planner_cfg),
             "execution": {
                 "max_replans": args_cli.max_replans,
@@ -2421,11 +4002,50 @@ def main() -> None:
                 "servo_gain": args_cli.servo_gain,
                 "joint_action_scale_rad": args_cli.joint_action_scale_rad,
                 "gate_contact_distance_m": args_cli.gate_contact_distance_m,
+                "protected_clearance_m": args_cli.protected_clearance_m,
+                "robot_obstacle_clearance_m": (
+                    args_cli.robot_obstacle_clearance_m
+                ),
+                "rollout_protected_clearance_m": (
+                    args_cli.rollout_protected_clearance_m
+                ),
+                "rollout_robot_obstacle_clearance_m": (
+                    args_cli.rollout_robot_obstacle_clearance_m
+                ),
                 "adaptive_dynamics_alpha": args_cli.adaptive_dynamics_alpha,
+                "contact_execution_mode": args_cli.contact_execution_mode,
+                "persistent_micro_steps": args_cli.persistent_micro_steps,
+                "persistent_micro_distance_m": (
+                    args_cli.persistent_micro_distance_m
+                ),
+                "persistent_max_contact_travel_m": (
+                    args_cli.persistent_max_contact_travel_m
+                ),
+                "persistent_cost_regression_tolerance": (
+                    args_cli.persistent_cost_regression_tolerance
+                ),
+                "persistent_max_moment_arm_error_m": (
+                    args_cli.persistent_max_moment_arm_error_m
+                ),
+                "persistent_minimum_goal_axis_cosine": (
+                    args_cli.persistent_minimum_goal_axis_cosine
+                ),
+                "persistent_yaw_moment_gain_m_per_rad": (
+                    args_cli.persistent_yaw_moment_gain_m_per_rad
+                ),
+                "persistent_yaw_rate_moment_gain_m_s_per_rad": (
+                    args_cli.persistent_yaw_rate_moment_gain_m_s_per_rad
+                ),
+                "persistent_max_axis_deviation_rad": (
+                    args_cli.persistent_max_axis_deviation_rad
+                ),
                 "inside_yaw_weight_m_per_rad": (
                     args_cli.inside_yaw_weight_m_per_rad
                 ),
                 "predicted_yaw_guard_rad": args_cli.predicted_yaw_guard_rad,
+                "rollout_search_rotation_scale_rad": (
+                    args_cli.rollout_search_rotation_scale_rad
+                ),
                 "yaw_guard_penalty_m_per_rad": (
                     args_cli.yaw_guard_penalty_m_per_rad
                 ),
@@ -2435,11 +4055,31 @@ def main() -> None:
                 "physics_rollout_candidates": (
                     args_cli.physics_rollout_candidates
                 ),
+                "replay_plan_json": (
+                    str(args_cli.replay_plan_json.resolve())
+                    if args_cli.replay_plan_json is not None
+                    else None
+                ),
                 "physics_rollout_lookahead_steps": (
                     args_cli.rollout_lookahead_steps
                 ),
                 "physics_rollout_lookahead_intermediate_weight": (
                     args_cli.rollout_lookahead_intermediate_weight
+                ),
+                "physics_rollout_plateau_escape_actions": (
+                    args_cli.rollout_plateau_escape_actions
+                ),
+                "physics_rollout_maximum_cost_increase": (
+                    args_cli.rollout_maximum_cost_increase
+                ),
+                "physics_rollout_transient_rotation_cap_rad": (
+                    args_cli.rollout_transient_rotation_cap_rad
+                ),
+                "physics_rollout_plateau_ranking": (
+                    args_cli.rollout_plateau_ranking
+                ),
+                "physics_rollout_diversify_plateau_across_envs": (
+                    args_cli.rollout_diversify_plateau_across_envs
                 ),
                 "physics_rollout_scoring": asdict(rollout_scoring_cfg),
                 "video": args_cli.video,
@@ -2450,7 +4090,13 @@ def main() -> None:
         output_path = args_cli.output.expanduser().resolve()
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(
-            json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n",
+            json.dumps(
+                _strict_json_value(payload),
+                indent=2,
+                sort_keys=True,
+                allow_nan=False,
+            )
+            + "\n",
             encoding="utf-8",
         )
         print(
@@ -2460,6 +4106,8 @@ def main() -> None:
         )
         print(f"{milestone}_OUTPUT path={output_path}", flush=True)
     finally:
+        if selective_video_writer is not None:
+            selective_video_writer.close()
         env.close()
 
 

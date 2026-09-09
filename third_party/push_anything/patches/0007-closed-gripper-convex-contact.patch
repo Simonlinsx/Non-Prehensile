@@ -1,0 +1,430 @@
+diff --git a/systems/controllers/closed_gripper_contact_model.h b/systems/controllers/closed_gripper_contact_model.h
+new file mode 100644
+--- /dev/null
++++ b/systems/controllers/closed_gripper_contact_model.h
+@@ -0,0 +1,43 @@
++#pragma once
++#include <cmath>
++#include <stdexcept>
++#include <vector>
++#include "drake/geometry/shape_specification.h"
++#include "drake/multibody/plant/multibody_plant.h"
++#include "drake/multibody/tree/fixed_offset_frame.h"
++
++namespace dairlib {
++// Convexes are exported in panda_hand axes about the C3 task reference point.
++// This frame is a context parameter, not an extra optimized degree of freedom.
++inline void AddClosedGripperContactGeometry(
++    drake::multibody::MultibodyPlant<double>* plant,
++    const std::vector<std::string>& meshes) {
++  if (meshes.size() != 2) throw std::runtime_error("Expected two finger convex meshes");
++  const auto& actor = plant->GetBodyByName("end_effector_simple");
++  const auto& orientation = plant->AddFrame(
++      std::make_unique<drake::multibody::FixedOffsetFrame<double>>("closed_gripper_orientation", actor.body_frame(),
++      drake::math::RigidTransform<double>::Identity()));
++  for (int i = 0; i < 2; ++i) {
++    auto& finger = plant->AddRigidBody("closed_gripper_finger_" + std::to_string(i),
++        actor.model_instance(), drake::multibody::SpatialInertia<double>::Zero());
++    plant->WeldFrames(orientation, finger.body_frame());
++    plant->RegisterCollisionGeometry(finger,
++        drake::math::RigidTransform<double>::Identity(),
++        drake::geometry::Convex(meshes[i]), "closed_gripper_convex_" + std::to_string(i),
++        drake::multibody::CoulombFriction<double>(1., 1.));
++  }
++}
++
++template <typename T>
++void SetClosedGripperOrientation(const drake::multibody::MultibodyPlant<T>& plant,
++    drake::systems::Context<T>* context, const Eigen::Vector4d& q_wxyz) {
++  if (!q_wxyz.allFinite() || std::abs(q_wxyz.norm() - 1.) > 1e-3)
++    throw std::runtime_error("Invalid measured hand orientation");
++  const auto& frame = dynamic_cast<const drake::multibody::FixedOffsetFrame<T>&>(
++      plant.GetFrameByName("closed_gripper_orientation"));
++  Eigen::Quaterniond q(q_wxyz[0], q_wxyz[1], q_wxyz[2], q_wxyz[3]);
++  drake::math::RigidTransform<double> X(drake::math::RotationMatrix<double>(q.normalized()),
++                                      Eigen::Vector3d::Zero());
++  frame.SetPoseInParentFrame(context, X.template cast<T>());
++}
++}  // namespace dairlib
+diff --git a/systems/controllers/BUILD.bazel b/systems/controllers/BUILD.bazel
+--- a/systems/controllers/BUILD.bazel
++++ b/systems/controllers/BUILD.bazel
+@@ -54,7 +54,7 @@
+ cc_library(
+     name = "sampling_c3_controller",
+     srcs = ["sampling_based_c3_controller.cc"],
+-    hdrs = ["sampling_based_c3_controller.h"],
++    hdrs = ["sampling_based_c3_controller.h", "closed_gripper_contact_model.h"],
+     deps = [
+         "//lcm:lcm_trajectory_saver",
+         "//lcmtypes:lcmt_robot",
+diff --git a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+--- a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
++++ b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+@@ -29,6 +29,8 @@
+   std::string lcm_channels_hardware_file;
+   std::string lcm_channels_simulation_file;
+ 
++  // Optional exact PhysX finger convexes, in hand axes about the task point.
++  std::optional<std::vector<std::string>> closed_gripper_collision_meshes;
+   std::vector<std::string> object_models;
+   std::vector<std::string> base_names;
+   // Optional per-object meshes used only by the global surface sampler.  The
+@@ -86,4 +88,5 @@
+ 
+     a->Visit(DRAKE_NVP(base_names));
+     a->Visit(DRAKE_NVP(object_models));
++    a->Visit(DRAKE_NVP(closed_gripper_collision_meshes));
+     a->Visit(DRAKE_NVP(sampling_meshes));
+diff --git a/systems/franka_kinematics.h b/systems/franka_kinematics.h
+--- a/systems/franka_kinematics.h
++++ b/systems/franka_kinematics.h
+@@ -66,7 +66,13 @@
+     return this->get_output_port(lcs_state_port_);
+   }
+ 
++  const OutputPort<double>& get_output_port_hand_orientation() const {
++    return this->get_output_port(hand_orientation_port_);
++  }
++
+  private:
++  void ComputeHandOrientation(const Context<double>& context, BasicVector<double>* output) const;
++  OutputPortIndex hand_orientation_port_;
+   void ComputeLCSState(const drake::systems::Context<double>& context,
+                        FrankaKinematicsVector<double>* output_traj) const;
+ 
+diff --git a/systems/franka_kinematics.cc b/systems/franka_kinematics.cc
+--- a/systems/franka_kinematics.cc
++++ b/systems/franka_kinematics.cc
+@@ -50,6 +50,8 @@
+             .get_index());
+   }
+ 
++  hand_orientation_port_ = this->DeclareVectorOutputPort(
++      "measured_hand_orientation", 4, &FrankaKinematics::ComputeHandOrientation).get_index();
+   num_end_effector_positions_ = 3 + include_end_effector_orientation_ * 3;
+   num_object_positions_ = object_plant.num_positions();
+   num_end_effector_velocities_ = 3 + include_end_effector_orientation_ * 3;
+@@ -62,6 +64,19 @@
+                   num_end_effector_velocities_, num_object_velocities_),
+               &FrankaKinematics::ComputeLCSState)
+           .get_index();
++}
++
++void FrankaKinematics::ComputeHandOrientation(
++    const Context<double>& context, BasicVector<double>* output) const {
++  const auto* measured = dynamic_cast<const OutputVector<double>*>(
++      this->EvalVectorInput(context, franka_state_port_));
++  multibody::SetPositionsIfNew<double>(franka_plant_, measured->GetPositions(), franka_context_);
++  // Packaged Franka hand joint is -pi/4 about link8; link7->link8 has no rotation.
++  const auto R = franka_plant_.EvalBodyPoseInWorld(*franka_context_,
++      franka_plant_.GetBodyByName("panda_link7")).rotation() *
++      drake::math::RotationMatrix<double>::MakeZRotation(-0.785398163397);
++  const auto q = R.ToQuaternion();
++  output->SetFromVector(Eigen::Vector4d(q.w(), q.x(), q.y(), q.z()));
+ }
+ 
+ void FrankaKinematics::ComputeLCSState(
+diff --git a/systems/controllers/sampling_based_c3_controller.h b/systems/controllers/sampling_based_c3_controller.h
+--- a/systems/controllers/sampling_based_c3_controller.h
++++ b/systems/controllers/sampling_based_c3_controller.h
+@@ -92,6 +92,10 @@
+     return this->get_input_port(lcs_state_input_port_);
+   }
+ 
++  const drake::systems::InputPort<double>& get_input_port_hand_orientation() const {
++    return this->get_input_port(hand_orientation_input_port_);
++  }
++
+   // Output ports
+   const drake::systems::OutputPort<double>&
+   get_output_port_c3_solution_curr_plan() const {
+@@ -364,6 +368,7 @@
+   drake::systems::InputPortIndex final_target_input_port_;
+   drake::systems::InputPortIndex target_input_port_;
+   drake::systems::InputPortIndex lcs_state_input_port_;
++  drake::systems::InputPortIndex hand_orientation_input_port_;
+   // Current sample output port indices
+   drake::systems::OutputPortIndex c3_solution_curr_plan_port_;
+   drake::systems::OutputPortIndex c3_solution_curr_plan_actor_port_;
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -1,3 +1,4 @@
+ #include "sampling_based_c3_controller.h"
++#include "systems/controllers/closed_gripper_contact_model.h"
+ 
+ #include <algorithm>
+@@ -241,6 +242,7 @@
+   }
+   n_z_ = c3_curr_plan_->GetZSize();
+ 
++  hand_orientation_input_port_ = this->DeclareVectorInputPort("measured_hand_orientation", 4).get_index();
+   // Input ports.
+   radio_port_ =
+       this->DeclareAbstractInputPort("lcmt_radio_out",
+@@ -829,6 +831,13 @@
+   const TimestampedVector<double>* lcs_x_curr =
+       (TimestampedVector<double>*)this->EvalVectorInput(context,
+                                                         lcs_state_input_port_);
++  if (controller_params_.closed_gripper_collision_meshes) {
++    const Eigen::Vector4d hand_q = get_input_port_hand_orientation().Eval(context);
++    // Refresh both numerical and AutoDiff contexts; the same measured
++    // orientation is held over each short prediction horizon.
++    SetClosedGripperOrientation(plant_, context_, hand_q);
++    SetClosedGripperOrientation(plant_ad_, context_ad_, hand_q);
++  }
+   // Store the current LCS state.
+   drake::VectorX<double> x_lcs_curr = lcs_x_curr->get_data();
+ 
+@@ -1003,7 +1012,7 @@
+   const auto& query_object =
+       query_port.template Eval<drake::geometry::QueryObject<double>>(*context_);
+ 
+-  const auto& results = query_object.ComputeSignedDistanceToPoint(
++  const auto& results = NonFingerPointDistances(plant_, query_object,
+       prev_repositioning_target_.segment(0, 3));
+   bool in_collision = false;
+   // Index 0 is the robot; index 1 is the ground, indices 2+ are the object(s)
+@@ -1016,6 +1025,17 @@
+       in_collision = true;
+       break;
+     }
++  }
++
++  if (controller_params_.closed_gripper_collision_meshes) {
++    VectorXd previous_state = x_lcs_curr;
++    previous_state.head<3>() = prev_repositioning_target_;
++    UpdateContext(n_q_, n_v_, n_u_, plant_, context_, plant_ad_, context_ad_, previous_state);
++    for (const auto& pair : contact_pairs_.at(1)) {
++      const auto distance = query_object.ComputeSignedDistancePairClosestPoints(pair.first(), pair.second()).distance;
++      if (distance < 0.) { in_collision = true; break; }
++    }
++    UpdateContext(n_q_, n_v_, n_u_, plant_, context_, plant_ad_, context_ad_, x_lcs_curr);
+   }
+ 
+   // A previously selected point can become semantically invalid after the
+diff --git a/examples/sampling_c3/franka_sampling_c3_controller.cc b/examples/sampling_c3/franka_sampling_c3_controller.cc
+--- a/examples/sampling_c3/franka_sampling_c3_controller.cc
++++ b/examples/sampling_c3/franka_sampling_c3_controller.cc
+@@ -9,6 +9,9 @@
+ #include <drake/systems/primitives/constant_vector_source.h>
+ #include <drake/systems/primitives/multiplexer.h>
+ #include <gflags/gflags.h>
++#include <fstream>
++#include <iomanip>
++#include "systems/controllers/closed_gripper_contact_model.h"
+ 
+ #include "c3/multibody/lcs_factory.h"
+ #include "c3/systems/lcmt_generators/c3_output_generator.h"
+@@ -58,6 +61,7 @@
+ using std::vector;
+ 
+ DEFINE_bool(is_simulation, true, "True for simulation, false for hardware");
++DEFINE_string(closed_gripper_geometry_audit_input, "", "Numeric rows: arm q(7), tip xyz(3), target wxyz/xyz(7); audit geometry and exit");
+ DEFINE_string(lcm_url, "udpm://239.255.76.67:7667?ttl=0",
+               "LCM URL with IP, port, and TTL settings");
+ DEFINE_string(demo_name, "jacktoy",
+@@ -105,6 +109,9 @@
+       &plant_lcs, &scene_graph, controller_params.object_models,
+       controller_params.include_end_effector_orientation,
+       sampling_c3_options.include_walls);
++  if (controller_params.closed_gripper_collision_meshes) {
++    AddClosedGripperContactGeometry(&plant_lcs, *controller_params.closed_gripper_collision_meshes);
++  }
+   plant_lcs.Finalize();
+ 
+   std::unique_ptr<MultibodyPlant<drake::AutoDiffXd>> plant_lcs_autodiff =
+@@ -345,6 +352,24 @@
+     throw std::runtime_error("Unknown --demo_name value: " + FLAGS_demo_name);
+   }
+   // Order:  EE-ground, EE-object, object-ground, object-object
++  if (controller_params.closed_gripper_collision_meshes) {
++    // Enumerate BOTH physical fingers against every target convex. The
++    // upstream nearest-contact resolver and configured contact count remain.
++    auto old_ee_pairs = ee_contact_pairs;
++    ee_contact_pairs.clear();
++    ee_ground_contact.clear();
++    for (int i = 0; i < 2; ++i) {
++      auto finger_id = plant_lcs.GetCollisionGeometriesForBody(
++          plant_lcs.GetBodyByName("closed_gripper_finger_" + std::to_string(i))).at(0);
++      ee_ground_contact.emplace_back(finger_id, ground_geoms);
++      for (const auto& pair : old_ee_pairs) {
++        auto object_id = pair.first() == ee_contact_points ? pair.second() : pair.first();
++        ee_contact_pairs.emplace_back(finger_id, object_id);
++      }
++    }
++    std::cout << "CLOSED_GRIPPER_CONTACT_MODEL fingers=2 ee_object_pairs="
++              << ee_contact_pairs.size() << std::endl;
++  }
+   contact_pairs.push_back(ee_ground_contact);
+   contact_pairs.push_back(ee_contact_pairs);
+   contact_pairs.push_back(ground_object_contact_pairs);
+@@ -353,6 +378,44 @@
+   }
+   for (const auto& wall_obj_pair : wall_object_contact_pairs) {
+     contact_pairs.push_back(wall_obj_pair);
++  }
++
++  if (!FLAGS_closed_gripper_geometry_audit_input.empty()) {
++    DRAKE_THROW_UNLESS(controller_params.closed_gripper_collision_meshes.has_value());
++    DRAKE_THROW_UNLESS(controller_params.num_objects == 1);
++    std::ifstream input(FLAGS_closed_gripper_geometry_audit_input);
++    DRAKE_THROW_UNLESS(input.good());
++    int index = 0;
++    double first;
++    while (input >> first) {
++      Eigen::VectorXd qf(7), ql(10);
++      qf[0] = first;
++      for (int i = 1; i < 7; ++i) input >> qf[i];
++      for (int i = 0; i < 10; ++i) input >> ql[i];
++      DRAKE_THROW_UNLESS(input.good() || input.eof());
++      plant_franka.SetPositions(franka_context.get(), qf);
++      auto R = plant_franka.EvalBodyPoseInWorld(*franka_context,
++          plant_franka.GetBodyByName("panda_link7")).rotation() *
++          drake::math::RotationMatrix<double>::MakeZRotation(-0.785398163397);
++      auto q = R.ToQuaternion();
++      SetClosedGripperOrientation(plant_lcs, &plant_lcs_context,
++          Eigen::Vector4d(q.w(), q.x(), q.y(), q.z()));
++      plant_lcs.SetPositions(&plant_lcs_context, ql);
++      const auto& query = plant_lcs.get_geometry_query_input_port()
++          .Eval<drake::geometry::QueryObject<double>>(plant_lcs_context);
++      double best = std::numeric_limits<double>::infinity();
++      Eigen::Vector3d normal = Eigen::Vector3d::Zero();
++      for (const auto& pair : ee_contact_pairs) {
++        const auto d = query.ComputeSignedDistancePairClosestPoints(pair.first(), pair.second());
++        if (d.distance < best) { best = d.distance; normal = d.nhat_BA_W; }
++      }
++      // Report orientation as well, independently checkable against Isaac FK.
++      std::cout << std::setprecision(17) << "CLOSED_GRIPPER_GEOMETRY_AUDIT " << index++ << " "
++          << best << " " << normal.transpose() << " " << q.w() << " " << q.x()
++          << " " << q.y() << " " << q.z() << std::endl;
++    }
++    DRAKE_THROW_UNLESS(index > 0);
++    return 0;
+   }
+ 
+   // Piece together the diagram.
+@@ -490,6 +553,9 @@
+   auto controller = builder.AddSystem<systems::SamplingC3Controller>(
+       plant_lcs, &plant_lcs_context, *plant_lcs_autodiff,
+       plant_lcs_context_ad.get(), contact_pairs, controller_params);
++
++  builder.Connect(reduced_order_model_receiver->get_output_port_hand_orientation(),
++                  controller->get_input_port_hand_orientation());
+ 
+   // Systems for publishing the current and best planned trajectories.
+   auto actor_trajectory_sender_curr_plan = builder.AddSystem(
+diff --git a/examples/sampling_c3/generate_samples.h b/examples/sampling_c3/generate_samples.h
+--- a/examples/sampling_c3/generate_samples.h
++++ b/examples/sampling_c3/generate_samples.h
+@@ -20,6 +20,12 @@
+ 
+ namespace dairlib {
+ namespace systems {
++
++// Point queries must exclude added finger shapes, preserving the legacy
++// actor/ground/object/wall ordering for existing sampling strategies.
++std::vector<drake::geometry::SignedDistanceToPoint<double>> NonFingerPointDistances(
++    const drake::multibody::MultibodyPlant<double>& plant,
++    const drake::geometry::QueryObject<double>& query, const Eigen::Vector3d& point);
+ 
+ /// Public function
+ std::vector<Eigen::VectorXd> GenerateSampleStates(
+diff --git a/examples/sampling_c3/generate_samples.cc b/examples/sampling_c3/generate_samples.cc
+--- a/examples/sampling_c3/generate_samples.cc
++++ b/examples/sampling_c3/generate_samples.cc
+@@ -3,3 +3,4 @@
+ #include <math.h>
+ 
++#include "drake/geometry/proximity/polygon_surface_mesh.h"
+ #include <iostream>
+@@ -38,6 +39,47 @@
+ }
+ 
+ }  // namespace
++
++std::vector<drake::geometry::SignedDistanceToPoint<double>> NonFingerPointDistances(
++    const drake::multibody::MultibodyPlant<double>& plant,
++    const drake::geometry::QueryObject<double>& query, const Eigen::Vector3d& point) {
++  auto results = query.ComputeSignedDistanceToPoint(point);
++  if (!plant.HasBodyNamed("closed_gripper_finger_0")) return results;
++  for (int i = 0; i < 2; ++i) {
++    const auto ids = plant.GetCollisionGeometriesForBody(
++        plant.GetBodyByName("closed_gripper_finger_" + std::to_string(i)));
++    results.erase(std::remove_if(results.begin(), results.end(), [&](const auto& r) {
++      return std::find(ids.begin(), ids.end(), r.id_G) != ids.end();
++    }), results.end());
++  }
++  return results;
++}
++
++// Replace the sphere's support radius with the oriented fingers' support
++// function along the sampled normal. The sampled face/direction and original
++// surface clearance are unchanged; this is a shape-dependent frame offset.
++double ClosedGripperBufferCorrection(const drake::multibody::MultibodyPlant<double>& plant,
++    const drake::systems::Context<double>& context, const Eigen::Vector3d& normal) {
++  if (!plant.HasBodyNamed("closed_gripper_finger_0")) return 0.;
++  const auto& query = plant.get_geometry_query_input_port()
++      .Eval<drake::geometry::QueryObject<double>>(context);
++  const auto& inspector = query.inspector();
++  const auto& actor = plant.GetBodyByName("end_effector_simple");
++  const auto center = plant.EvalBodyPoseInWorld(context, actor).translation();
++  const auto sphere_id = plant.GetCollisionGeometriesForBody(actor).at(0);
++  const auto& sphere = dynamic_cast<const drake::geometry::Sphere&>(inspector.GetShape(sphere_id));
++  double support = -std::numeric_limits<double>::infinity();
++  for (int i = 0; i < 2; ++i) {
++    const auto& finger = plant.GetBodyByName("closed_gripper_finger_" + std::to_string(i));
++    const auto id = plant.GetCollisionGeometriesForBody(finger).at(0);
++    const auto& convex = dynamic_cast<const drake::geometry::Convex&>(inspector.GetShape(id));
++    const auto& hull = convex.GetConvexHull();
++    const auto X = plant.EvalBodyPoseInWorld(context, finger) * inspector.GetPoseInFrame(id);
++    for (int v = 0; v < hull.num_vertices(); ++v)
++      support = std::max(support, -(X * hull.vertex(v) - center).dot(normal));
++  }
++  return support - sphere.radius();
++}
+ 
+ // Public call for generating samples.
+ std::vector<Eigen::VectorXd> GenerateSampleStates(
+@@ -541,7 +583,7 @@
+     auto start = std::chrono::high_resolution_clock::now();
+ 
+     // Check distance from mesh
+-    const auto& results = query_object.ComputeSignedDistanceToPoint(
++    const auto& results = NonFingerPointDistances(plant, query_object,
+         candidate_state.segment(0, 3));
+     distance = results[2].distance;  // 2 = body_volume (0 = EE, 1 = ground)
+ 
+@@ -681,7 +723,8 @@
+                                    b * transformed_face.v[2];
+ 
+     Eigen::Vector3d projected_sample_point =
+-        sample_point + buffer_distance * transformed_face.normal;
++        sample_point + (buffer_distance + ClosedGripperBufferCorrection(
++            plant, *context, transformed_face.normal)) * transformed_face.normal;
+ 
+     if (sampling_params.gen_planar_samples) {
+       if (sampling_c3_options.include_walls &&
+@@ -732,7 +775,7 @@
+     // walls (if included).
+     bool in_collision = false;
+     const auto& results =
+-        query_object.ComputeSignedDistanceToPoint(projected_sample_point);
++        NonFingerPointDistances(plant, query_object, projected_sample_point);
+ 
+     // Detect samples too close to wall
+     int offset = 0;
+@@ -757,6 +800,12 @@
+       }
+     }
+ 
++    if (plant.HasBodyNamed("closed_gripper_finger_0")) {
++      for (const auto& pair : contact_geoms.at(1)) {
++        const auto distance = query_object.ComputeSignedDistancePairClosestPoints(pair.first(), pair.second()).distance;
++        if (distance < 0.) { in_collision = true; break; }
++      }
++    }
+     if (!in_collision) {
+       return candidate_state;
+     }

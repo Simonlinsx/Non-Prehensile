@@ -2,14 +2,15 @@
 
 ## Status
 
-M2 is an **implemented but not accepted** research prototype.  It improves the
-M1 candidate ranker without weakening the C1 contract, but it has not yet
-demonstrated robust simultaneous XY and orientation success.  It must not be
-reported as a successful full-task planner.
+M2 now has an **accepted single-scene native Isaac Lab execution**, but not an
+accepted randomized result.  The accepted run satisfies XY, height, full
+SO(3), dwell, and C1 simultaneously; an eight-scene +/-90 degree batch remains
+0/8.  These two facts must be reported together rather than turning one
+deterministic success into a robustness claim.
 
-The current scope remains one oracle-labelled DOMINO hammer, one goal, and no
-clutter.  RGB-D perception, C2, and C3 are intentionally excluded until the
-single-object contact dynamics are solved.
+The same executor can audit C2 and C3 during restored rollouts through
+`--safety-scope`, but clutter currently has only one-push smoke coverage.
+RGB-D perception remains outside M2.
 
 ## What changed from M1
 
@@ -23,21 +24,29 @@ single-object contact dynamics are solved.
 - Synchronize the latched action controller after every scene restore.
 - Optionally use a two-step local-effect shooting horizon, while executing
   only its first action and replanning from the observed state.
+- Latch the first physical legal-safe contact and reanchor the Cartesian push
+  delta at that measured configuration.
+- Retreat vertically from the measured post-push pose.  Reversing the old
+  joint path after target motion was found to cause a second uncontrolled
+  contact and is no longer used.
+- When recording with physics rollouts, stream only formal execution frames;
+  shadow candidates never appear in the video.
 
 This remains sampling plus physics-based MPC.  It is not SCSP, contact-implicit
 trajectory optimization, or a learned world model.
 
 ## Safety and restoration evidence
 
-The targeted Python suite contains 21 M1/M2 planner tests, and the repository
-suite passes 131 tests plus 7 subtests.  In the seed-17 scene-0 M2 run:
+The targeted planner/bridge suite contains 26 passing tests.  In accepted run
+`scene000_vertical_liftoff_selective_video_v30`:
 
-- 64 candidate rollouts were evaluated;
-- 55 produced legal safe contact;
-- all 7 formally executed pushes passed the contact gate;
-- C1 violations, forbidden-hand contacts, and arm-target contacts were all 0;
-- a one-candidate repeatability probe measured 0.73 mm position and 0.0075 rad
-  rotation disagreement between the shadow rollout and formal replay.
+- 160 candidate rollouts were evaluated and 112 were legal;
+- all 10 formally executed pushes passed the physical contact gate;
+- C1 violations, forbidden-hand contacts, and proximal-arm contacts were 0;
+- mean shadow-to-formal disagreement was 0.617 mm translation and 0.00799 rad
+  rotation;
+- vertical-lift retreat removed the large target drift previously caused by
+  reverse-path retreat.
 
 The restore check itself is exact at the exposed articulation/rigid-body state.
 Residual replay disagreement is caused by contact solver state/warm-start and
@@ -46,31 +55,30 @@ planner margin rather than ignored.
 
 ## Strict result and bottleneck
 
-The best current horizon-2 diagnostic is:
+The accepted same-run result and video are:
 
-`outputs/contact_planner_m2/m2_rollout8_mpc2_actionreset_seed17_scene0_v16.json`
+- `outputs/contact_planner_m3/isaaclab_closed_loop/scene000_vertical_liftoff_selective_video_v30.json`
+- `outputs/contact_planner_m3/videos/native_c1_liftoff_v30/scene000_c1_audited_run-actual-only.mp4`
 
-It is **not a success**:
+Their compact hashes and acceptance statistics are checked in as
+[`contact_planner_native_c1_scene000_v30.json`](evidence/contact_planner_native_c1_scene000_v30.json).
 
 | Metric | Result | Required |
 | --- | ---: | ---: |
-| Final XY | 0.0243 m | `< 0.020 m` |
-| Final full SO(3) | 0.1490 rad | `< 0.100 rad` |
-| Strict pose reached | no | yes |
+| Final XY | 0.01983 m | `< 0.020 m` |
+| Final height | 0.00100 m | `< 0.010 m` |
+| Final full SO(3) | 0.01367 rad | `< 0.100 rad` |
+| Strict pose + dwell | yes | yes |
 | C1 violations | 0 | 0 |
-| Legal formal pushes | 7/7 | all |
+| Legal formal pushes | 10/10 | all |
 
-The best stable one-step multi-distance run ended at XY 0.0325 m and SO(3)
-0.0926 rad, also outside the joint acceptance set.  Separate minimum errors
-are not task success.
-
-The important failure mode is now localized: a straight push at the safe
-handle couples translation and rotation.  Near the goal, candidates that
-improve XY rotate the hammer out of tolerance; candidates that correct the
-rotation move it away in XY or cannot establish the intended safe contact.
-Wider sampling, more scalar penalties, and larger contact penetration did not
-remove this controllability limitation.  A two-step composition of local
-effects delayed but did not eliminate the dead end.
+Randomized robustness is still open.  The first eight-scene batch evaluated
+749 candidates and executed 41/41 legal C1 pushes with zero C1 violations,
+yet achieved 0/8 strict pose successes.  Final XY ranged from 2.65 cm to
+9.96 cm.  The +63 degree scene that succeeds alone took a different finite
+candidate branch in the batched GPU PhysX run and exhausted after six pushes.
+The present bottleneck is therefore search coverage and sensitivity of finite
+rollout ranking, not the contact gate or a loose terminal predicate.
 
 ## Reproduce
 
@@ -79,14 +87,17 @@ OMNI_KIT_ACCEPT_EULA=YES GPU_ID=0 NUM_ENVS=1 \
   bash scripts/run_contact_planner_m2.sh
 ```
 
-Physics rollouts and video recording intentionally do not share one simulator
-instance.  Once a planner passes quantitative acceptance, its selected action
-sequence should be replayed separately for presentation video.
+Physics rollouts and video recording now share one simulator instance.  The
+selective recorder emits only formal execution frames, so the MP4 and result
+JSON above audit the same run.  Replaying stored candidate ranks is retained
+only as a diagnostic because contact-rich GPU simulation is not bitwise
+reproducible.
 
 ## Next milestone
 
-Keep the accepted M1 semantic/IK/C1 layer, but replace the straight
-contact-to-push segment with a short contact-phase trajectory optimization:
+Keep the accepted semantic/IK/C1 layer and first close the bounded +/-90 degree
+randomized search gate.  Then replace the straight contact-to-push segment
+with a short contact-phase trajectory optimization where necessary:
 
 1. sample a legal safe contact and a small set of continuous-contact arc or
    two-segment paths;

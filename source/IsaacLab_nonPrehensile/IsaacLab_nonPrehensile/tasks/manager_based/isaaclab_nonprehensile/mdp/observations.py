@@ -6,8 +6,10 @@
 from __future__ import annotations
 
 import os
+import importlib.util
 from pathlib import Path
 
+import numpy as np
 import torch
 from typing import TYPE_CHECKING
 
@@ -758,13 +760,76 @@ def get_obstacle_pointclouds_in_env_frame(
     return output - env.scene.env_origins[:, None, None, :]
 
 
-def _analytic_finger_points(device: torch.device, dtype: torch.dtype) -> torch.Tensor:
-    """Create 128 deterministic volume samples in a Franka finger frame."""
+def _farthest_point_subset(points: np.ndarray, count: int) -> np.ndarray:
+    """Select a deterministic surface-covering subset without random state."""
 
-    x = torch.linspace(-0.01, 0.01, 4, device=device, dtype=dtype)
-    y = torch.linspace(-0.008, 0.008, 4, device=device, dtype=dtype)
-    z = torch.linspace(-0.08, 0.0, 8, device=device, dtype=dtype)
-    return torch.stack(torch.meshgrid(x, y, z, indexing="ij"), dim=-1).reshape(128, 3)
+    if points.ndim != 2 or points.shape[1] != 3 or len(points) < count:
+        raise ValueError(f"need at least {count} finite 3-D points, got {points.shape}")
+    if not np.isfinite(points).all():
+        raise ValueError("collision mesh contains non-finite vertices")
+    first = int(np.lexsort((points[:, 2], points[:, 1], points[:, 0]))[0])
+    selected = [first]
+    squared_distance = np.sum((points - points[first]) ** 2, axis=1)
+    for _ in range(1, count):
+        index = int(np.argmax(squared_distance))
+        selected.append(index)
+        squared_distance = np.minimum(
+            squared_distance,
+            np.sum((points - points[index]) ** 2, axis=1),
+        )
+    return points[np.asarray(selected)]
+
+
+def _packaged_franka_collision_hand_points() -> torch.Tensor:
+    """Build the 256-point hand model from the collision meshes used by PhysX.
+
+    The result is expressed in ``panda_hand`` coordinates with both fingers
+    closed, matching this task's fixed gripper configuration.  Triangle
+    centroids plus unique vertices are downsampled deterministically so the
+    planner and safety gate cover the palm as well as both fingers.
+    """
+
+    isaacsim_spec = importlib.util.find_spec("isaacsim")
+    if isaacsim_spec is None or not isaacsim_spec.submodule_search_locations:
+        raise RuntimeError("cannot locate Isaac Sim's packaged Franka meshes")
+    isaacsim_root = Path(next(iter(isaacsim_spec.submodule_search_locations)))
+    mesh_root = (
+        isaacsim_root
+        / "exts"
+        / "isaacsim.asset.importer.urdf"
+        / "data"
+        / "urdf"
+        / "robots"
+        / "franka_description"
+        / "meshes"
+        / "collision"
+    )
+
+    try:
+        import trimesh
+    except ImportError as error:
+        raise RuntimeError(
+            "trimesh is required to derive the Franka collision point cloud"
+        ) from error
+
+    def mesh_candidates(path: Path) -> np.ndarray:
+        if not path.is_file():
+            raise FileNotFoundError(f"Franka collision mesh not found: {path}")
+        mesh = trimesh.load(path, force="mesh", process=False)
+        vertices = np.unique(np.asarray(mesh.vertices, dtype=np.float64), axis=0)
+        centroids = np.asarray(mesh.triangles, dtype=np.float64).mean(axis=1)
+        return np.unique(np.concatenate((vertices, centroids), axis=0), axis=0)
+
+    hand = _farthest_point_subset(mesh_candidates(mesh_root / "hand.stl"), 128)
+    finger = _farthest_point_subset(
+        mesh_candidates(mesh_root / "finger.stl"), 64
+    )
+    finger_origin = np.asarray((0.0, 0.0, 0.0584), dtype=np.float64)
+    left_finger = finger + finger_origin
+    # The right-finger collision element has origin Rz(pi) in the URDF.
+    right_finger = finger * np.asarray((-1.0, -1.0, 1.0)) + finger_origin
+    merged = np.concatenate((hand, left_finger, right_finger), axis=0)
+    return torch.from_numpy(np.asarray(merged, dtype=np.float32))
 
 
 def _configured_hand_points_path() -> Path | None:
@@ -787,19 +852,67 @@ def _released_hand_points(
 
     if not hasattr(env, "_dapl_released_hand_points"):
         path = _configured_hand_points_path()
-        if path is None:
-            env._dapl_released_hand_points = None
-            env._dapl_hand_point_source = "analytic_fingers"
+        if os.environ.get("PUSH_ANYTHING_ROBOT_MODEL_MANIFEST"):
+            # FR3 must use its own collision meshes. Keep samples in each
+            # body's frame so measured finger displacement is represented.
+            from dapl.contact_planner.fr3_collision_geometry import collision_candidates
+            model = os.environ["DAPL_LOCAL_FRANKA_URDF"]
+            blocks, ids = [], []
+            for name, count in (("panda_hand", 128), ("panda_leftfinger", 64), ("panda_rightfinger", 64)):
+                points = _farthest_point_subset(collision_candidates(model, name), count)
+                blocks.append(points)
+                ids.extend([env.scene["robot"].body_names.index(name)] * len(points))
+            env._dapl_released_hand_points = torch.tensor(np.concatenate(blocks), device=device, dtype=dtype)
+            env._dapl_hand_point_body_ids = torch.tensor(ids, device=device, dtype=torch.long)
+            env._dapl_hand_point_source = str(model)
+            env._dapl_pusher_contact_point_indices = torch.arange(128, 256, device=device)
+        elif path is None:
+            env._dapl_released_hand_points = _packaged_franka_collision_hand_points().to(
+                device=device, dtype=dtype
+            )
+            env._dapl_hand_point_source = "packaged_franka_collision_meshes"
+            # The first 128 samples cover panda_hand; the remaining samples
+            # are the two finger collision meshes and form the legal pusher
+            # contact surface.
+            env._dapl_pusher_contact_point_indices = torch.arange(
+                128, 256, device=device
+            )
         else:
             env._dapl_released_hand_points = load_dapl_hand_points(path).to(
                 device=device, dtype=dtype
             )
             env._dapl_hand_point_source = str(path)
+            # Released DAPL caches do not carry per-link labels.  Restrict
+            # deliberate contact to their distal +Z surface; fall back to the
+            # 64 most distal samples if the cache is unusually sparse there.
+            distal = torch.nonzero(
+                env._dapl_released_hand_points[:, 2] >= 0.080,
+                as_tuple=False,
+            ).flatten()
+            if distal.numel() < 16:
+                distal = torch.topk(
+                    env._dapl_released_hand_points[:, 2],
+                    k=min(64, env._dapl_released_hand_points.shape[0]),
+                ).indices
+            env._dapl_pusher_contact_point_indices = distal
     points = env._dapl_released_hand_points
     if points is not None and (points.device != device or points.dtype != dtype):
         points = points.to(device=device, dtype=dtype)
         env._dapl_released_hand_points = points
     return points
+
+
+def get_pusher_contact_pointcloud_in_env_frame(
+    env: ManagerBasedRLEnv,
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+) -> torch.Tensor:
+    """Return only the gripper surface allowed to establish push contact."""
+
+    collision_points = get_end_effector_pointcloud_in_env_frame(env, ee_frame_cfg)
+    indices = env._dapl_pusher_contact_point_indices.to(
+        device=collision_points.device
+    )
+    return collision_points.index_select(1, indices)
 
 
 @profile_obs
@@ -813,34 +926,27 @@ def get_end_effector_pointcloud_in_env_frame(
     released = _released_hand_points(
         env, ee_frame.data.target_pos_w.device, ee_frame.data.target_pos_w.dtype
     )
-    if released is not None:
-        # hand_merged.npy is expressed in panda_hand coordinates.  The first
-        # configured target frame is the TCP, offset +0.1034 m along hand Z.
-        # Express the cache relative to that TCP before applying its world pose.
-        positions = ee_frame.data.target_pos_w[:, 0, :]
-        quaternions = ee_frame.data.target_quat_w[:, 0, :]
-        hand_to_tcp = released.new_tensor((0.0, 0.0, 0.1034))
-        local_tcp = released - hand_to_tcp
-        num_envs = positions.shape[0]
-        local_tcp = local_tcp.unsqueeze(0).expand(num_envs, -1, -1)
-        expanded_quat = quaternions.unsqueeze(1).expand(-1, released.shape[0], -1)
-        points_world = quat_apply(
-            expanded_quat.reshape(-1, 4), local_tcp.reshape(-1, 3)
-        ).reshape(num_envs, released.shape[0], 3)
-        return points_world + positions.unsqueeze(1) - env.scene.env_origins.unsqueeze(1)
-
-    positions = ee_frame.data.target_pos_w[:, 1:3, :]
-    quaternions = ee_frame.data.target_quat_w[:, 1:3, :]
+    if hasattr(env, "_dapl_hand_point_body_ids"):
+        robot = env.scene["robot"]
+        body_ids = env._dapl_hand_point_body_ids
+        quats = robot.data.body_quat_w[:, body_ids]
+        points = released.unsqueeze(0).expand(env.num_envs, -1, -1)
+        rotated = quat_apply(quats.reshape(-1, 4), points.reshape(-1, 3)).reshape(points.shape)
+        return rotated + robot.data.body_pos_w[:, body_ids] - env.scene.env_origins[:, None, :]
+    # Both the released cache and the packaged fallback are expressed in
+    # panda_hand coordinates.  The first configured frame is the TCP, offset
+    # +0.1034 m along hand Z.
+    positions = ee_frame.data.target_pos_w[:, 0, :]
+    quaternions = ee_frame.data.target_quat_w[:, 0, :]
+    hand_to_tcp = released.new_tensor((0.0, 0.0, 0.1034))
+    local_tcp = released - hand_to_tcp
     num_envs = positions.shape[0]
-    local = _analytic_finger_points(positions.device, positions.dtype)
-    local = local.view(1, 1, 128, 3).expand(num_envs, 2, -1, -1)
-    expanded_quat = quaternions.unsqueeze(2).expand(-1, -1, 128, -1)
+    local_tcp = local_tcp.unsqueeze(0).expand(num_envs, -1, -1)
+    expanded_quat = quaternions.unsqueeze(1).expand(-1, released.shape[0], -1)
     points_world = quat_apply(
-        expanded_quat.reshape(-1, 4), local.reshape(-1, 3)
-    ).reshape(num_envs, 2, 128, 3)
-    points_world = points_world + positions.unsqueeze(2)
-    points_env = points_world - env.scene.env_origins[:, None, None, :]
-    return points_env.reshape(num_envs, 256, 3)
+        expanded_quat.reshape(-1, 4), local_tcp.reshape(-1, 3)
+    ).reshape(num_envs, released.shape[0], 3)
+    return points_world + positions.unsqueeze(1) - env.scene.env_origins.unsqueeze(1)
 
 
 def _end_effector_mass_and_velocity(env: ManagerBasedRLEnv) -> tuple[torch.Tensor, torch.Tensor]:

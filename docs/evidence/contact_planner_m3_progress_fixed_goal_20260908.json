@@ -1,0 +1,341 @@
+{
+  "schema": "nonprehensile.progress_and_fixed_goal.v1",
+  "goal_status": "active",
+  "acceptance_started": false,
+  "updated_utc": "2026-09-08T20:04:00.763064+00:00",
+  "completed_runs": [
+    {
+      "name": "native_osc_guard_q100_video180",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/native_osc_guard_q100_video180/scene007/result.json",
+      "result_sha256": "063f2f1655a333d493634bcbf7b29addfa0916d27903c2be6ab5b8498634ca1d",
+      "metrics": {
+        "executed_sim_time_s": 180.0,
+        "final_planar_error_m": 0.020314622670412064,
+        "final_rotation_error_rad": 0.04566488415002823,
+        "final_height_error_m": 0.0009868387132883072,
+        "forbidden_robot_contact_ever": false,
+        "stopped_reason": "maximum_sim_time",
+        "maximum_strict_dwell_steps": 0,
+        "semantic_c1_guard_activation_count": 1599
+      },
+      "clearance_tracking_audit": {
+        "schema": "nonprehensile.sampled_finger_clearance.v1",
+        "sample_count": 2084,
+        "table_local_z_m": 0.0,
+        "minimum_clearance_m": -7.651491161390217e-05,
+        "median_clearance_m": 0.0222416954446894,
+        "samples_below_table": 34,
+        "samples_within_0_1mm": 127,
+        "height_clamped_samples": 432,
+        "height_clamped_with_downward_feedforward": 381,
+        "worst_sample": {
+          "sim_time_s": 30.23,
+          "minimum_clearance_m": -7.651491161390217e-05,
+          "by_body_m": {
+            "panda_leftfinger": 0.006191774671099673,
+            "panda_rightfinger": -7.651491161390217e-05
+          },
+          "raw_task_target_c3_m": [
+            0.31900448633496975,
+            0.19164250897901222,
+            -0.013648747954217008
+          ],
+          "governed_task_target_c3_m": [
+            0.31900448633496975,
+            0.19164250897901222,
+            -0.013648747954217008
+          ],
+          "planner_tip_position_m": [
+            0.31731536984443665,
+            0.1914762705564499,
+            -0.014774858951568604
+          ],
+          "task_reference_floor_c3_m": -0.014532690653559655,
+          "applied_feedforward_force_n": [
+            -0.20396864681303073,
+            0.018381767241586636,
+            -0.5133573054691801
+          ],
+          "osc_reference_tip_velocity_m_s": [
+            0.1314555696312134,
+            -0.11407682626621098,
+            0.013732337343186967
+          ],
+          "task_tracking_error_m": 0.002036878913947289
+        },
+        "hand_orientation_from_first_trace_pose": {
+          "sample_count": 2084,
+          "worst_sample": {
+            "sim_time_s": 95.7,
+            "error_rad": 0.7116345094480855
+          },
+          "median_error_rad": 0.16300259354403593
+        },
+        "semantic_guard_sample_audit": {
+          "available": true,
+          "sample_count": 2084,
+          "active_samples": 225,
+          "active_samples_with_nonzero_force_or_velocity": 0
+        },
+        "limitations": [
+          "Only recorded trace samples; not a continuous clearance guarantee.",
+          "Cooked convex surface distance excludes contact/rest offsets and does not prove a contact force.",
+          "Only the two fingers are reconstructed; palm and arm are not included.",
+          "Hand orientation is relative to the first recorded pose; it is not a contact-force measurement."
+        ],
+        "result": "outputs/contact_planner_m3/workspace_height_20260908/native_osc_guard_q100_video180/scene007/result.json",
+        "result_sha256": "063f2f1655a333d493634bcbf7b29addfa0916d27903c2be6ab5b8498634ca1d",
+        "contact_export": "data/contact_models/closed_franka_hammer_physx_v4.json",
+        "contact_export_sha256": "b7294428120efc1b7c35c07825e837f0adf047840283357c25f7fd4e1890462f"
+      },
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 3522,
+            "median": 0.1197089038150636,
+            "p90": 0.1436153277156325,
+            "maximum": 0.3066528811141063
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 3522,
+            "median": 0.11399254446597895,
+            "p90": 0.13265930335233406,
+            "maximum": 0.1427336995631324
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 3521,
+            "median": 0.006460086334362614,
+            "p90": 0.02593224383781284,
+            "maximum": 0.0536493432624623
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 3521,
+          "median": 1.275543798189005e-13,
+          "p90": 9.261005402549927e-07,
+          "maximum": 2.4887278414098546e-05
+        },
+        "maximum_lambda_eta_product": {
+          "count": 3521,
+          "median": 16.930865933309178,
+          "p90": 83.165922632209,
+          "maximum": 210.5016179275808
+        },
+        "zero_input_frozen_solution_count": 0,
+        "paired_raw_pd_actual": {
+          "matched_executed_c3_plans": 1076,
+          "horizon_s": 0.6749999999999999,
+          "raw_endpoint_xy_error_m": {
+            "count": 1076,
+            "median": 0.11175814501984767,
+            "p90": 0.13209857902318667,
+            "maximum": 0.1485045282340078
+          },
+          "pd_endpoint_xy_error_m": {
+            "count": 1076,
+            "median": 0.00985404086894765,
+            "p90": 0.029185896416628117,
+            "maximum": 0.048579401532583485
+          },
+          "raw_pd_endpoint_xy_disagreement_m": {
+            "count": 1076,
+            "median": 0.10653716490646051,
+            "p90": 0.1273892140988504,
+            "maximum": 0.1464570279723527
+          },
+          "raw_pd_initial_state_disagreement_m": {
+            "count": 1076,
+            "median": 7.555056222807672e-12,
+            "p90": 8.447287204803939e-09,
+            "maximum": 1.6310644851667937e-08
+          },
+          "actual_state_method": "linear interpolation between measured states; no extrapolation"
+        },
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ],
+        "audit": "outputs/contact_planner_m3/workspace_height_20260908/native_osc_guard_q100_video180/scene007/effect_audit.jsonl"
+      }
+    },
+    {
+      "name": "progress5_native_gains_q100_35",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/progress5_native_gains_q100_35/scene007/result.json",
+      "result_sha256": "90c90b17d8f3f96c65964511d6776dce2b01a19a2055a7850d7f1e877bc97470",
+      "metrics": {
+        "executed_sim_time_s": 35.0,
+        "final_planar_error_m": 0.0677325502038002,
+        "final_rotation_error_rad": 0.4712149500846863,
+        "final_height_error_m": 0.0009873202070593834,
+        "forbidden_robot_contact_ever": false,
+        "stopped_reason": "maximum_sim_time",
+        "maximum_strict_dwell_steps": 0,
+        "semantic_c1_guard_activation_count": 0
+      },
+      "clearance_tracking_audit": {
+        "schema": "nonprehensile.sampled_finger_clearance.v1",
+        "sample_count": 382,
+        "table_local_z_m": 0.0,
+        "minimum_clearance_m": -6.646861026166073e-08,
+        "median_clearance_m": 0.08899400689768859,
+        "samples_below_table": 1,
+        "samples_within_0_1mm": 2,
+        "height_clamped_samples": 2,
+        "height_clamped_with_downward_feedforward": 1,
+        "worst_sample": {
+          "sim_time_s": 14.700000000000001,
+          "minimum_clearance_m": -6.646861026166073e-08,
+          "by_body_m": {
+            "panda_leftfinger": 8.294479971768243e-05,
+            "panda_rightfinger": -6.646861026166073e-08
+          },
+          "raw_task_target_c3_m": [
+            0.3131559734529226,
+            0.23368271200136745,
+            -0.020896110301262004
+          ],
+          "governed_task_target_c3_m": [
+            0.31522442806914464,
+            0.23591570288825725,
+            -0.01890563787909552
+          ],
+          "planner_tip_position_m": [
+            0.3134555220603943,
+            0.2339419722557068,
+            -0.020890504121780396
+          ],
+          "task_reference_floor_c3_m": -0.018898457032598417,
+          "applied_feedforward_force_n": [
+            -0.09146547948862944,
+            -0.08920155812984903,
+            -0.4495911513143987
+          ],
+          "osc_reference_tip_velocity_m_s": [
+            0.1400000001168095,
+            0.1399999995222155,
+            0.0
+          ],
+          "task_tracking_error_m": 0.0033112437359715924
+        },
+        "hand_orientation_from_first_trace_pose": {
+          "sample_count": 382,
+          "worst_sample": {
+            "sim_time_s": 30.0,
+            "error_rad": 0.03187192850145126
+          },
+          "median_error_rad": 0.012617210825710693
+        },
+        "semantic_guard_sample_audit": {
+          "available": true,
+          "sample_count": 382,
+          "active_samples": 0,
+          "active_samples_with_nonzero_force_or_velocity": 0
+        },
+        "limitations": [
+          "Only recorded trace samples; not a continuous clearance guarantee.",
+          "Cooked convex surface distance excludes contact/rest offsets and does not prove a contact force.",
+          "Only the two fingers are reconstructed; palm and arm are not included.",
+          "Hand orientation is relative to the first recorded pose; it is not a contact-force measurement."
+        ],
+        "result": "outputs/contact_planner_m3/workspace_height_20260908/progress5_native_gains_q100_35/scene007/result.json",
+        "result_sha256": "90c90b17d8f3f96c65964511d6776dce2b01a19a2055a7850d7f1e877bc97470",
+        "contact_export": "data/contact_models/closed_franka_hammer_physx_v4.json",
+        "contact_export_sha256": "b7294428120efc1b7c35c07825e837f0adf047840283357c25f7fd4e1890462f"
+      },
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 622,
+            "median": 0.13822673041383488,
+            "p90": 0.22139052940873138,
+            "maximum": 0.26920259138897
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 622,
+            "median": 0.1308149176218562,
+            "p90": 0.1670323849518635,
+            "maximum": 0.24251813387842824
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 622,
+            "median": 3.9315822861417984e-08,
+            "p90": 0.011354401408528569,
+            "maximum": 0.04734965666013779
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 622,
+          "median": 2.025344071599454e-13,
+          "p90": 6.569418189883435e-07,
+          "maximum": 2.2857726435177028e-05
+        },
+        "maximum_lambda_eta_product": {
+          "count": 622,
+          "median": 65.55604957172272,
+          "p90": 142.83905525568406,
+          "maximum": 220.72627968955203
+        },
+        "zero_input_frozen_solution_count": 0,
+        "paired_raw_pd_actual": {
+          "matched_executed_c3_plans": 41,
+          "horizon_s": 0.6749999999999999,
+          "raw_endpoint_xy_error_m": {
+            "count": 41,
+            "median": 0.13452579688573657,
+            "p90": 0.16802631243430832,
+            "maximum": 0.23519859166382376
+          },
+          "pd_endpoint_xy_error_m": {
+            "count": 41,
+            "median": 9.103230101713681e-08,
+            "p90": 0.02787741413012043,
+            "maximum": 0.032151143532947526
+          },
+          "raw_pd_endpoint_xy_disagreement_m": {
+            "count": 41,
+            "median": 0.12989875553682612,
+            "p90": 0.1677214775109995,
+            "maximum": 0.23519856879295148
+          },
+          "raw_pd_initial_state_disagreement_m": {
+            "count": 41,
+            "median": 3.5198954485119707e-09,
+            "p90": 1.333166742101291e-08,
+            "maximum": 1.5514595612446508e-08
+          },
+          "actual_state_method": "linear interpolation between measured states; no extrapolation"
+        },
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ],
+        "audit": "outputs/contact_planner_m3/workspace_height_20260908/progress5_native_gains_q100_35/scene007/effect_audit.jsonl"
+      }
+    }
+  ],
+  "goal_mode_defect": {
+    "previous_mode": 0,
+    "required_mode": 2,
+    "native_enum_source": "/data1/linsixu/dairlib-push-anything-canonical/examples/sampling_c3/parameter_headers/goal_params.h",
+    "goal_switch_source": "/data1/linsixu/dairlib-push-anything-canonical/examples/sampling_c3/goal_generator.cc",
+    "prior_examined_trials_zero_dwell_and_only_initial_goal_change": true,
+    "causality": "Latent blocker of dwell after transient native success; not established as cause of previous task failures."
+  },
+  "c3_core_provenance": {
+    "commit": "5c08cb2e14b1ab10e024cb46e8504970cffcd5ea",
+    "tracked_source_diff": "diff --git a/core/c3_miqp_no_gurobi.cc b/core/c3_miqp_no_gurobi.cc\nindex 7f14750..e015b6d 100644\n--- a/core/c3_miqp_no_gurobi.cc\n+++ b/core/c3_miqp_no_gurobi.cc\n@@ -8,7 +8,7 @@ using std::vector;\n \n C3MIQP::C3MIQP(const LCS& LCS, const CostMatrices& costs,\n                const vector<VectorXd>& xdesired, const C3Options& options)\n-    : C3(LCS, costs, xdesired, options), M_(options.M) {\n+    : C3(LCS, costs, xdesired, options), M_(options.M.value_or(1000)) {\n   throw std::runtime_error(\n       \"The Gurobi bindings were not compiled. You'll need to use a different \"\n       \"projection method. To compile with Gurobi, follow the instruction \"\n",
+    "active_projection": "C3+",
+    "compatibility_patch": "third_party/push_anything/patches/0002-c3-no-gurobi-optional-m.patch"
+  },
+  "tests": "14 fixed-goal/acceptance/shared-staging tests passed; runner/evaluator py_compile passed."
+}

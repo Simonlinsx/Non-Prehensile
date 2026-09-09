@@ -1,0 +1,41 @@
+diff --git a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+--- a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
++++ b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+@@ -23,6 +23,7 @@
+   std::string sim_params_file;  // simulation params
+   std::string vis_params_file;  // visualization params
+   std::string osc_params_file;  // OSC params
++  std::optional<bool> enforce_nonnegative_contact_forces;
+   std::string osqp_settings_file;
+   std::string osc_qp_settings_file;
+   std::string franka_driver_channels_file;
+@@ -83,6 +84,7 @@
+     a->Visit(DRAKE_NVP(sim_params_file));
+     a->Visit(DRAKE_NVP(vis_params_file));
+     a->Visit(DRAKE_NVP(osc_params_file));
++    a->Visit(DRAKE_NVP(enforce_nonnegative_contact_forces));
+     a->Visit(DRAKE_NVP(osqp_settings_file));
+     a->Visit(DRAKE_NVP(osc_qp_settings_file));
+     a->Visit(DRAKE_NVP(franka_driver_channels_file));
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -1184,6 +1184,18 @@
+           A, sampling_c3_options_.ee_velocity_limits[0],
+           sampling_c3_options_.ee_velocity_limits[1],
+           c3::ConstraintVariable::STATE);
++    }
++
++    // Anitescu lambda coordinates are nonnegative friction-cone rays.
++    // Use the original C3 FORCE constraint API to retain this necessary
++    // physical bound in its finite-iteration QP relaxation as well.
++    if (controller_params_.enforce_nonnegative_contact_forces.value_or(false)) {
++      DRAKE_DEMAND(sampling_c3_options_.contact_model == "anitescu");
++      const int count = test_system.num_lambdas();
++      test_c3_object->AddLinearConstraint(
++          MatrixXd::Identity(count, count), VectorXd::Zero(count),
++          VectorXd::Constant(count, std::numeric_limits<double>::infinity()),
++          c3::ConstraintVariable::FORCE);
+     }
+ 
+     // Add input constraints

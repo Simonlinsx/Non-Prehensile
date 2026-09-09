@@ -1,0 +1,85 @@
+diff --git a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+--- a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
++++ b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+@@ -21,6 +21,7 @@
+   std::string progress_params_file;      // mode switching params
+   std::string sampling_params_file;      // sampling params
+   std::string goal_params_file;          // goal checking/setting params
++  std::optional<bool> use_osc_matched_coarse_model;
+ 
+   std::string sim_params_file;  // simulation params
+   std::string vis_params_file;  // visualization params
+@@ -164,6 +165,9 @@
+     goal_params =
+         drake::yaml::LoadYamlFile<SamplingC3GoalParams>(goal_params_file);
+ 
++    a->Visit(DRAKE_NVP(use_osc_matched_coarse_model));
++    if (use_osc_matched_coarse_model.value_or(false) && !use_relinearized_pd_cost.value_or(false))
++      throw std::runtime_error("OSC matched coarse model requires relinearized PD cost");
+     num_objects = base_names.size();
+   }
+ };
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -2186,6 +2186,60 @@
+         LCSFactory(plant_, *context_, plant_ad_, *context_ad_,
+                    resolved_contact_pairs, lcs_factory_options)
+             .GenerateLCS();
++    if (controller_params_.use_osc_matched_coarse_model.value_or(false)) {
++      const auto& body = plant_.GetBodyByName("end_effector_simple");
++      const auto& body_ad = plant_ad_.GetBodyByName("end_effector_simple");
++      const double saved_mass = body.get_mass(*context_);
++      const auto saved_mass_ad = body_ad.get_mass(*context_ad_);
++      const auto restore_mass = [&]() {
++        body.SetMass(context_, saved_mass);
++        body_ad.SetMass(context_ad_, saved_mass_ad);
++      };
++      try {
++        constexpr double mass = 1.0;
++        body.SetMass(context_, mass);
++        body_ad.SetMass(context_ad_, drake::AutoDiffXd(mass));
++        LCS calibrated = LCSFactory(plant_, *context_, plant_ad_, *context_ad_,
++                                    resolved_contact_pairs, lcs_factory_options).GenerateLCS();
++        // The receiver subtracts desired external force. Reparameterize the
++        // SAME LCS with u_actuation = -u_external - m*g, so actor gravity is
++        // compensated while target gravity and contact dynamics stay present.
++        const Vector3d compensation = -mass * plant_.gravity_field().gravity_vector();
++        auto B = calibrated.B();
++        auto H = calibrated.H();
++        auto d = calibrated.d();
++        auto c = calibrated.c();
++        for (int k = 0; k < calibrated.N(); ++k) {
++          d[k] += B[k] * compensation;
++          c[k] += H[k] * compensation;
++          B[k] *= -1;
++          H[k] *= -1;
++        }
++        LCS transformed(calibrated.A(), B, calibrated.D(), d, calibrated.E(),
++                        calibrated.F(), H, c, calibrated.dt());
++        // Check both gravity cancellation and the external-force acceleration
++        // convention against the generated multibody dynamics, not URDF text.
++        DRAKE_THROW_UNLESS((B.front().block<3, 3>(n_q_, 0) / calibrated.dt() +
++                            Eigen::Matrix3d::Identity() / mass).norm() < 1e-8);
++        DRAKE_THROW_UNLESS(d.front().segment<3>(n_q_).norm() < 1e-8);
++        // Also exercise the contact LCP under the affine input transform.
++        auto config = c3::LCSSimulateConfig();
++        config.regularized = true;
++        config.min_exp = -8;
++        const Vector3d external_force(0.1, -0.2, 0.05);
++        const VectorXd direct = calibrated.Simulate(candidate_states[i], -external_force + compensation, config);
++        const VectorXd mapped = transformed.Simulate(candidate_states[i], external_force, config);
++        DRAKE_THROW_UNLESS(direct.allFinite() && mapped.allFinite() && (direct - mapped).norm() < 1e-7);
++        lcs_object_sample = std::move(transformed);
++        if (i == 0)
++          std::cout << "C3_OSC_MATCHED_COARSE_MODEL mass_kg=1 force_sign=-1 gravity_compensated=1 transform_error="
++                    << (direct - mapped).norm() << std::endl;
++      } catch (...) {
++        restore_mass();
++        throw;
++      }
++      restore_mass();
++    }
+     lcs_candidates.push_back(lcs_object_sample);
+ 
+     // Create different LCS objects for cost calculation.

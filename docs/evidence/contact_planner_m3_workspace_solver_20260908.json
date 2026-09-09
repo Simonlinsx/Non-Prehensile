@@ -1,0 +1,971 @@
+{
+  "schema": "nonprehensile.workspace_solver_followup.v1",
+  "goal_status": "active",
+  "acceptance_batch_started": false,
+  "strict_successes_in_completed_debug_runs": 0,
+  "results": [
+    {
+      "run": "admm6_diagnostic12",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/admm6_diagnostic12/scene007/result.json",
+      "result_sha256": "91deaf13231352526cf10942670a29d35f2ce1aac48a55b983a34a8cd0c9bedf",
+      "error": null,
+      "executed_sim_time_s": 12.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04577553644776344,
+      "final_rotation_error_rad": 0.41591745615005493,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/admm6_diagnostic12/evaluation_config.json",
+      "config_sha256": "56c744de81dea4e92f66ced09b94d6b71db5ca099f05784e7cf905d179be1010",
+      "qp_failure_log_count": 3,
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 162,
+            "median": 0.11922674013025183,
+            "p90": 0.1540837655413949,
+            "maximum": 0.24082332914246682
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 162,
+            "median": 0.11154047348009025,
+            "p90": 0.15855334697634912,
+            "maximum": 0.15855334697634912
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 162,
+            "median": 0.0157334881872727,
+            "p90": 0.027325385915472684,
+            "maximum": 0.027325385915472684
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 0
+        },
+        "maximum_lambda_eta_product": {
+          "count": 0
+        },
+        "zero_input_frozen_solution_count": 0,
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      }
+    },
+    {
+      "run": "all_contacts_qp12",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/all_contacts_qp12/scene007/result.json",
+      "result_sha256": "ec23a4abc1ca36f8dd0098f2d87f079eeb8b3523f5ff9b90e09a268446c349e2",
+      "error": "ConnectionError: C3 relay closed inside a task-command packet",
+      "executed_sim_time_s": null,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": null,
+      "final_planar_error_m": null,
+      "final_rotation_error_rad": null,
+      "stopped_reason": null,
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/all_contacts_qp12/evaluation_config.json",
+      "config_sha256": "546c55fd6892c740f2fc51579e3170c09c9adbaa6509ed84e461781dd757a79e",
+      "qp_failure_log_count": 0
+    },
+    {
+      "run": "all_contacts_qp12_v2",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/all_contacts_qp12_v2/scene007/result.json",
+      "result_sha256": "f6497bd1639c74ded445dc044ccc333d0f31e90fc2f8990949c5e03ede6ef086",
+      "error": null,
+      "executed_sim_time_s": 12.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04774780198931694,
+      "final_rotation_error_rad": 0.14349167048931122,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/all_contacts_qp12_v2/evaluation_config.json",
+      "config_sha256": "b759f76bcaa6cd3cb4ac86c1a1d81c438012749491e014f562076d3bd02d7523",
+      "qp_failure_log_count": 261,
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 162,
+            "median": 0.0,
+            "p90": 0.11912626901375975,
+            "maximum": 0.19792975930528542
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 162,
+            "median": 0.054571082280718254,
+            "p90": 0.12199628903576622,
+            "maximum": 0.12622844676221143
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 162,
+            "median": 0.008937503424498325,
+            "p90": 0.025773175362236337,
+            "maximum": 0.02987214485880988
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 55,
+          "median": 0.5991082191467285,
+          "p90": 2.557835388183594,
+          "maximum": 4.280335426330566
+        },
+        "maximum_lambda_eta_product": {
+          "count": 55,
+          "median": 12.65219131880076,
+          "p90": 68.05064137698574,
+          "maximum": 72.71482091408052
+        },
+        "zero_input_frozen_solution_count": 107,
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      }
+    },
+    {
+      "run": "bounded_optimized35",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/bounded_optimized35/scene007/result.json",
+      "result_sha256": "a8ca9f1b9ba450fb3c9591f218f7f1af4668f4b97536b4f422eba8c141945bd0",
+      "error": null,
+      "executed_sim_time_s": 25.36,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04961288347840309,
+      "final_rotation_error_rad": 0.377515584230423,
+      "stopped_reason": "watchdog_timeout",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/bounded_optimized35/evaluation_config.json",
+      "config_sha256": "8f417f033eb60a4c156b2ce18c59d2145e50b49b86f2852ad38bc3cdf19e575e",
+      "qp_failure_log_count": 795
+    },
+    {
+      "run": "bounded_planar35",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/bounded_planar35/scene007/result.json",
+      "result_sha256": "b84fae228df9d7e1438694fafbfaf6f675856125b221b1c965652ca14fc60c92",
+      "error": null,
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04959806799888611,
+      "final_rotation_error_rad": 0.38124480843544006,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/bounded_planar35/evaluation_config.json",
+      "config_sha256": "94ece0e36844aa3e481c143308f4e3acbb355851a7754761bd36269270c0e7cf",
+      "qp_failure_log_count": 1862
+    },
+    {
+      "run": "final_qp35",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/final_qp35/scene007/result.json",
+      "result_sha256": "0bfa97dd2c7fb35e265292143d2c7616094a838e214842846832bed12bcffc71",
+      "error": null,
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04888157173991203,
+      "final_rotation_error_rad": 0.3209640085697174,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/final_qp35/evaluation_config.json",
+      "config_sha256": "6a16e7ac81d1e02c94162495603202a397b1a172129abb56ef5e5f0aceb3e637",
+      "qp_failure_log_count": 5
+    },
+    {
+      "run": "geometry_floor35",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/geometry_floor35/scene007/result.json",
+      "result_sha256": "7f19adb8c73d0478a97fcf5bd0a1c1452e83f23bb3657d78c6132306ef74382e",
+      "error": null,
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04852072894573212,
+      "final_rotation_error_rad": 0.3415859639644623,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/geometry_floor35/evaluation_config.json",
+      "config_sha256": "62e4061142a3d549741c1554de27fd5d6d7a88b5dfa4d7c6ef020759fb7c7822",
+      "qp_failure_log_count": 0
+    },
+    {
+      "run": "planner_diagnostic12",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/planner_diagnostic12/scene007/result.json",
+      "result_sha256": "bb783c1d1d670922fcef418bf95524a108a5396e9299d6e73ec25e5aa83458c5",
+      "error": null,
+      "executed_sim_time_s": 12.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04852072894573212,
+      "final_rotation_error_rad": 0.3415859639644623,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/planner_diagnostic12/evaluation_config.json",
+      "config_sha256": "f17576c64b2d95cd3f80ed50f5bd837db9d05c870d5b37fb3e368c40a711665a",
+      "qp_failure_log_count": 0,
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 162,
+            "median": 0.15983373201887752,
+            "p90": 0.17934886786045268,
+            "maximum": 0.19852378702885365
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 162,
+            "median": 0.1485922401573533,
+            "p90": 0.1629553023031862,
+            "maximum": 0.16544161528619478
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 162,
+            "median": 3.799997693276088e-07,
+            "p90": 0.0003780301963694559,
+            "maximum": 0.0003780301963694559
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 0
+        },
+        "maximum_lambda_eta_product": {
+          "count": 0
+        },
+        "zero_input_frozen_solution_count": 0,
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      }
+    },
+    {
+      "run": "positive_force35",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/positive_force35/scene007/result.json",
+      "result_sha256": "2cb7499653f6b6e8609e1b027b012897a1e0d1719ee2c6ccd9c3c16d3f0d0505",
+      "error": null,
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04786381870508194,
+      "final_rotation_error_rad": 0.3259199857711792,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/positive_force35/evaluation_config.json",
+      "config_sha256": "6d117bd0c8781b3bb86aa4fe18b6c31a8dbf8689704de9cb8e557fe8fb7d63c7",
+      "qp_failure_log_count": 4
+    },
+    {
+      "run": "qp2000_all12",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/qp2000_all12/scene007/result.json",
+      "result_sha256": "1da03811e9ebccde77774eea2897ccb8fec629287620adc8fccf9588d451c9aa",
+      "error": null,
+      "executed_sim_time_s": 4.3,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": true,
+      "final_planar_error_m": 0.05395665019750595,
+      "final_rotation_error_rad": 0.22427967190742493,
+      "stopped_reason": "oracle_c1_violation",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/qp2000_all12/evaluation_config.json",
+      "config_sha256": "885a0b7ff014f3cbe135126630ed0f1cce4688e958f05e5534d46de31f31f53a",
+      "qp_failure_log_count": 0,
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 8,
+            "median": 0.08404190010008858,
+            "p90": 0.10507093175490964,
+            "maximum": 0.10872537375767237
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 8,
+            "median": 0.11763238220205065,
+            "p90": 0.11763238220205065,
+            "maximum": 0.11763238220205065
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 8,
+            "median": 0.025760050767855244,
+            "p90": 0.025760050767855244,
+            "maximum": 0.025760050767855244
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 8,
+          "median": 2.2093522548675537,
+          "p90": 2.789567160606384,
+          "maximum": 2.891960859298706
+        },
+        "maximum_lambda_eta_product": {
+          "count": 8,
+          "median": 60.13392116053433,
+          "p90": 66.47229393109588,
+          "maximum": 71.31923986451193
+        },
+        "zero_input_frozen_solution_count": 0,
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      }
+    },
+    {
+      "run": "qp2000_ee12",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/qp2000_ee12/scene007/result.json",
+      "result_sha256": "4b148cc07853b775e2da52fea495281b381c8071c18af0991e6337f9d26a141d",
+      "error": null,
+      "executed_sim_time_s": 12.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04762355238199234,
+      "final_rotation_error_rad": 0.33883237838745117,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/qp2000_ee12/evaluation_config.json",
+      "config_sha256": "c718de15a6e85defa8f1d78b48506e5f1b037efd9d20633c887deb8d57c0276b",
+      "qp_failure_log_count": 0,
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 162,
+            "median": 0.15968464496016127,
+            "p90": 0.16766252249200617,
+            "maximum": 0.2009094655419932
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 162,
+            "median": 0.1482573752342456,
+            "p90": 0.16313351592097045,
+            "maximum": 0.168300633797464
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 162,
+            "median": 3.7945683117785e-08,
+            "p90": 0.000526395520021286,
+            "maximum": 0.000526395520021286
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 162,
+          "median": 0.15826936811208725,
+          "p90": 0.23823187798261644,
+          "maximum": 0.3536593019962311
+        },
+        "maximum_lambda_eta_product": {
+          "count": 162,
+          "median": 32.97390891254554,
+          "p90": 42.838123361788085,
+          "maximum": 69.31842659129097
+        },
+        "zero_input_frozen_solution_count": 0,
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      }
+    },
+    {
+      "run": "qp_solver_diagnostic12",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/qp_solver_diagnostic12/scene007/result.json",
+      "result_sha256": "e6ea84c58c8be0edb85ffc64880b591583b611b8a994c17dee5060d53601cfe2",
+      "error": "ConnectionError: C3 relay closed inside a task-command packet",
+      "executed_sim_time_s": null,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": null,
+      "final_planar_error_m": null,
+      "final_rotation_error_rad": null,
+      "stopped_reason": null,
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/qp_solver_diagnostic12/evaluation_config.json",
+      "config_sha256": "f40957081a4a9611e4a857c906d361693e009020195de941af483ba664e66a02",
+      "qp_failure_log_count": 0
+    },
+    {
+      "run": "qp_solver_diagnostic12_v2",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/qp_solver_diagnostic12_v2/scene007/result.json",
+      "result_sha256": "13f43a16766fde7239f3d1003e016db4965043949a488fd9b195ebaf95964022",
+      "error": null,
+      "executed_sim_time_s": 12.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04762355238199234,
+      "final_rotation_error_rad": 0.33883237838745117,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/qp_solver_diagnostic12_v2/evaluation_config.json",
+      "config_sha256": "4e22e233f6cfad8684987ec999158fde78b92f8d48c87ced330ad211821ff479",
+      "qp_failure_log_count": 0,
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 162,
+            "median": 0.15968464496016127,
+            "p90": 0.16766252249200617,
+            "maximum": 0.2009094655419932
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 162,
+            "median": 0.1482573752342456,
+            "p90": 0.16313351592097045,
+            "maximum": 0.168300633797464
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 162,
+            "median": 3.7945683117785e-08,
+            "p90": 0.000526395520021286,
+            "maximum": 0.000526395520021286
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 162,
+          "median": 0.15826936811208725,
+          "p90": 0.23823187798261644,
+          "maximum": 0.3536593019962311
+        },
+        "maximum_lambda_eta_product": {
+          "count": 162,
+          "median": 32.97390891254554,
+          "p90": 42.838123361788085,
+          "maximum": 69.31842659129097
+        },
+        "zero_input_frozen_solution_count": 0,
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      }
+    },
+    {
+      "run": "spatial_geometry_floor35",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/spatial_geometry_floor35/scene007/result.json",
+      "result_sha256": "81f83c4c745eec6ad8fd5b5947a08f1f936eb4ebed959f28b49f526ed2e6c52e",
+      "error": null,
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04698524996638298,
+      "final_rotation_error_rad": 0.3730596601963043,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/spatial_geometry_floor35/evaluation_config.json",
+      "config_sha256": "4150226f8844d2f6d921fb774248b4d8b9424adf6e8dd485f5b3960478cbe6f5",
+      "qp_failure_log_count": 0
+    },
+    {
+      "run": "trajectory_velocity_optimized35",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/trajectory_velocity_optimized35/scene007/result.json",
+      "result_sha256": "658da44104b3dee9f634169f977aa45c47c97fe7d97a1d21c48e9acd4838b7c3",
+      "error": null,
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04870493710041046,
+      "final_rotation_error_rad": 0.33354058861732483,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/trajectory_velocity_optimized35/evaluation_config.json",
+      "config_sha256": "fd85d78a6155a2b33d69dee5b776b7ec0595a7c2036df889153bf3925909fd52",
+      "qp_failure_log_count": 3
+    },
+    {
+      "run": "trajectory_velocity_planar35",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/trajectory_velocity_planar35/scene007/result.json",
+      "result_sha256": "ba7faf4d04366467b6aba4a526a0af81bcf790001daa888b147bbd32099d3569",
+      "error": null,
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04840979352593422,
+      "final_rotation_error_rad": 0.32267582416534424,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/trajectory_velocity_planar35/evaluation_config.json",
+      "config_sha256": "6d4aee91faa27ff27281a2207e3ab8dd2df1abfa3b41d602503ad7b2d42dc4ac",
+      "qp_failure_log_count": 8
+    },
+    {
+      "run": "yaw_mapping_smoke",
+      "scene": "debug_yaw45",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/yaw_mapping_smoke/debug_yaw45/result.json",
+      "result_sha256": "e188cbba81a4ee0d84b4bcf685a4983976f43239da5e64f0bfb4f6a0026bef30",
+      "error": null,
+      "executed_sim_time_s": 1.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.060029931366443634,
+      "final_rotation_error_rad": 0.1752375066280365,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/yaw_mapping_smoke/evaluation_config.json",
+      "config_sha256": "b12bad2ec85215fcd02adad91c8e89b0df118cbb39f605a1e00cd13742df9b5e",
+      "qp_failure_log_count": 1
+    },
+    {
+      "run": "admm6_qp2000_35",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/admm6_qp2000_35/scene007/result.json",
+      "result_sha256": "75005ae607823def681559ef15afcbbc5af5611b5634aa6679729154a70fd5db",
+      "error": null,
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.03218535706400871,
+      "final_rotation_error_rad": 0.6565587520599365,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/admm6_qp2000_35/evaluation_config.json",
+      "config_sha256": "fc3e2135a3644859383efd84978c32d19529810349c50696f760d15ab5b1dafe",
+      "qp_failure_log_count": 0,
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 622,
+            "median": 0.12564505961592426,
+            "p90": 0.1724338503863206,
+            "maximum": 0.26029404208081863
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 622,
+            "median": 0.14775813823562398,
+            "p90": 0.15559233085814925,
+            "maximum": 0.2376820029222875
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 622,
+            "median": 3.674128461837461e-07,
+            "p90": 0.01564723647476162,
+            "maximum": 0.03529485753787548
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 622,
+          "median": 0.13304390758275986,
+          "p90": 0.23357827216386792,
+          "maximum": 0.5487525463104248
+        },
+        "maximum_lambda_eta_product": {
+          "count": 622,
+          "median": 21.787441255522936,
+          "p90": 51.269853779955106,
+          "maximum": 87.8553640828668
+        },
+        "zero_input_frozen_solution_count": 0,
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      }
+    },
+    {
+      "run": "admm10_qp2000_35",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/admm10_qp2000_35/scene007/result.json",
+      "result_sha256": "8151d9c1c1a513df3e87c8b80c2a6d95cea73c23d75b384f4512a4e8eeb1c401",
+      "error": null,
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.039813071489334106,
+      "final_rotation_error_rad": 0.26302504539489746,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/admm10_qp2000_35/evaluation_config.json",
+      "config_sha256": "3687f2c8f0b5fb8eeedf49de2ac30d92b2445fa9fb82e71964d4bfe8e89f798d",
+      "qp_failure_log_count": 0,
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 622,
+            "median": 0.12278846945374272,
+            "p90": 0.13348588638368955,
+            "maximum": 0.16887970414608122
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 622,
+            "median": 0.1250751318164754,
+            "p90": 0.12606387963475635,
+            "maximum": 0.13043338216300246
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 622,
+            "median": 0.0020408737167775873,
+            "p90": 0.006214682913626957,
+            "maximum": 0.018973929266068758
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 622,
+          "median": 0.07039438188076019,
+          "p90": 0.0988453559577465,
+          "maximum": 0.20303338766098022
+        },
+        "maximum_lambda_eta_product": {
+          "count": 622,
+          "median": 17.83826943033364,
+          "p90": 26.209662722264625,
+          "maximum": 48.785234129056334
+        },
+        "zero_input_frozen_solution_count": 0,
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      }
+    },
+    {
+      "run": "admm10_qp2000_180",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/admm10_qp2000_180/scene007/result.json",
+      "result_sha256": "8e0a7aca2c5dc3116eb7b5cb62970f6c8d8309267f62a4145abf2345a3214f5e",
+      "error": null,
+      "executed_sim_time_s": 40.84,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": true,
+      "final_planar_error_m": 0.1159583330154419,
+      "final_rotation_error_rad": 0.18870431184768677,
+      "stopped_reason": "oracle_c1_violation",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/admm10_qp2000_180/evaluation_config.json",
+      "config_sha256": "5e3c3dbbb327f0f1a1b9f327923570ec7277ab891acacbbf379e69aac9f1e4a9",
+      "qp_failure_log_count": 0,
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 739,
+            "median": 0.12342778459439624,
+            "p90": 0.1363510220549213,
+            "maximum": 0.21610196423305644
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 739,
+            "median": 0.1250751318164754,
+            "p90": 0.12912038525647204,
+            "maximum": 0.2182947297593371
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 739,
+            "median": 0.0012574156282717328,
+            "p90": 0.0056338599216295806,
+            "maximum": 0.054441163387256665
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 739,
+          "median": 0.07157357782125473,
+          "p90": 0.10331916809082035,
+          "maximum": 0.20303338766098022
+        },
+        "maximum_lambda_eta_product": {
+          "count": 739,
+          "median": 18.02359661056289,
+          "p90": 27.113492256546355,
+          "maximum": 104.70303484172291
+        },
+        "zero_input_frozen_solution_count": 0,
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      }
+    },
+    {
+      "run": "nonnegative_admm3_35",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_admm3_35/scene007/result.json",
+      "result_sha256": "b7e6f7a57ebb38928e19e838cd6bd2fc3ab8355cd5b5011aade77707c7715123",
+      "error": null,
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.04980100691318512,
+      "final_rotation_error_rad": 0.3125022053718567,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_admm3_35/evaluation_config.json",
+      "config_sha256": "f0251f545330bfae3e29d9e277b5db65bfcfa65129954839074f4aff058bac55",
+      "qp_failure_log_count": 0,
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 622,
+            "median": 0.15953527480078555,
+            "p90": 0.16742810178255707,
+            "maximum": 0.18056697480718942
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 622,
+            "median": 0.16083622493552605,
+            "p90": 0.16661764578260171,
+            "maximum": 0.16776899122225264
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 622,
+            "median": 4.4654605057722845e-07,
+            "p90": 0.001287166075192606,
+            "maximum": 0.04531115504175364
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 622,
+          "median": 1.0544408228507773e-14,
+          "p90": 4.002352739007619e-07,
+          "maximum": 1.9977725969511084e-05
+        },
+        "maximum_lambda_eta_product": {
+          "count": 622,
+          "median": 5.511364791010635,
+          "p90": 70.31796530583333,
+          "maximum": 123.46528382955148
+        },
+        "zero_input_frozen_solution_count": 0,
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      }
+    },
+    {
+      "run": "nonnegative_quat100_35",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat100_35/scene007/result.json",
+      "result_sha256": "27cf911af74273ba684d5bc42021465b7d67a254139bf70b0394126c62026245",
+      "error": null,
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.018599562346935272,
+      "final_rotation_error_rad": 0.18468596041202545,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat100_35/evaluation_config.json",
+      "config_sha256": "e3c2675b888ecc8bd04d9869f1ed671c4fcdabc5c75e9e3c2559b668815a8895",
+      "qp_failure_log_count": 0,
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 622,
+            "median": 0.1308480152956294,
+            "p90": 0.1389615387338783,
+            "maximum": 0.16593377383836422
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 622,
+            "median": 0.13419808454941232,
+            "p90": 0.13673721410798362,
+            "maximum": 0.14521844413914908
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 622,
+            "median": 0.005965843629896508,
+            "p90": 0.04320341206476837,
+            "maximum": 0.0536493432624623
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 622,
+          "median": 1.4034671184546751e-13,
+          "p90": 1.0054114341073723e-06,
+          "maximum": 2.1721118173445575e-05
+        },
+        "maximum_lambda_eta_product": {
+          "count": 622,
+          "median": 6.027437059993247,
+          "p90": 69.98361783466035,
+          "maximum": 135.49569450518175
+        },
+        "zero_input_frozen_solution_count": 0,
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      }
+    },
+    {
+      "run": "nonnegative_quat10_35",
+      "scene": "scene007",
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat10_35/scene007/result.json",
+      "result_sha256": "23511f55d7415129376459e1144eac1be42e2e8d8c741ca42e4133cc0846055d",
+      "error": null,
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.015120379626750946,
+      "final_rotation_error_rad": 0.3223084807395935,
+      "stopped_reason": "maximum_sim_time",
+      "config": "outputs/contact_planner_m3/workspace_height_20260908/nonnegative_quat10_35/evaluation_config.json",
+      "config_sha256": "6036f3c72f065679faf443f8df64039ad38eda34c31b03b1d715374a2a4b0836",
+      "qp_failure_log_count": 0,
+      "solver_consistency": {
+        "schema": "nonprehensile.c3_solver_consistency.v1",
+        "minimum_message_time_s": 4.0,
+        "comparison_knot": 9,
+        "modes": "all controller modes; not restricted to executed C3 segments",
+        "planar_prediction_m": {
+          "C3_TRAJECTORY_OBJECT_CURR_PLAN": {
+            "count": 622,
+            "median": 0.12536167854508443,
+            "p90": 0.13021031983440684,
+            "maximum": 0.14592580627773494
+          },
+          "C3_TRAJECTORY_OBJECT_BEST_PLAN": {
+            "count": 622,
+            "median": 0.12850168388794087,
+            "p90": 0.13507765639580266,
+            "maximum": 0.1390840809195626
+          },
+          "DYNAMICALLY_FEASIBLE_BEST_PLAN": {
+            "count": 622,
+            "median": 0.013380122960769814,
+            "p90": 0.02785179272390662,
+            "maximum": 0.04531115504175364
+          }
+        },
+        "maximum_negative_lambda_magnitude": {
+          "count": 622,
+          "median": 7.709567508592911e-14,
+          "p90": 9.013757221509876e-07,
+          "maximum": 7.92470200394746e-06
+        },
+        "maximum_lambda_eta_product": {
+          "count": 622,
+          "median": 6.089142994203115,
+          "p90": 64.79711910431183,
+          "maximum": 105.37818744773995
+        },
+        "zero_input_frozen_solution_count": 0,
+        "limitations": [
+          "Lambda uses native contact coordinates; eta remains LCS-scaled.",
+          "Products describe final QP only when end_on_qp_step is true.",
+          "Raw and PD channels are summarized separately at a common knot."
+        ]
+      }
+    }
+  ],
+  "running_trials": [
+    {
+      "name": "fixed_goal_rot100_q100_video180",
+      "session_id": 70371,
+      "gpu": 4,
+      "base_port": 9180,
+      "max_sim_time_s": 180,
+      "video": true,
+      "native_patch_version": "through0012",
+      "native_goal_mode": 2,
+      "semantic_c1_guard_mode": "native-equivalent",
+      "last_verified_progress": "C3_ONLINE_TASK_PROGRESS sim_time_s=24.00 planar_m=0.0341 rotation_rad=0.4532 tracking_m=0.0043 tracking_max_m=0.0100 safe=1 contact_now=0 c3_mode=0 yaw_recovery=0 phase=c3_task_tracking tip_z_m=-0.0178 safe_distance_m=0.0958",
+      "final_result_present": false
+    }
+  ],
+  "interpretation": "Debug trials are not acceptance-set observations. A C1 distance stop rejects qp2000_all12. Solver and height ablations remain experimental.",
+  "followup_evidence": "docs/evidence/contact_planner_m3_semantic_frame_fix_20260908.json",
+  "latest_completed_followup": [
+    {
+      "name": "nonnegative_quat10_clearance5_35",
+      "executed_sim_time_s": 35.0,
+      "stopped_reason": "maximum_sim_time",
+      "final_planar_error_m": 0.040827251970767975,
+      "final_rotation_error_rad": 0.36039549112319946,
+      "forbidden_robot_contact_ever": false
+    },
+    {
+      "name": "nonnegative_quat100_video180",
+      "executed_sim_time_s": 57.53,
+      "stopped_reason": "oracle_c1_violation",
+      "final_planar_error_m": 0.0394938662648201,
+      "final_rotation_error_rad": 0.061399586498737335,
+      "forbidden_robot_contact_ever": true
+    },
+    {
+      "name": "nonnegative_quat10_video180",
+      "executed_sim_time_s": 180.0,
+      "stopped_reason": "maximum_sim_time",
+      "final_planar_error_m": 0.012579364702105522,
+      "final_rotation_error_rad": 0.31444114446640015,
+      "forbidden_robot_contact_ever": false
+    },
+    {
+      "name": "semantic_quat_fixed_q100_video180",
+      "executed_sim_time_s": 80.5,
+      "stopped_reason": "oracle_c1_violation",
+      "final_planar_error_m": 0.03232282027602196,
+      "final_rotation_error_rad": 0.034851305186748505,
+      "forbidden_robot_contact_ever": true
+    }
+  ],
+  "osc_pd_gain_followup": "docs/evidence/contact_planner_m3_osc_pd_gains_20260908.json",
+  "latest_completed_gain_followup": [
+    {
+      "name": "native_tracking_gains_guard_q100_35",
+      "executed_sim_time_s": 35.0,
+      "final_planar_error_m": 0.13278310000896454,
+      "final_rotation_error_rad": 0.01671679876744747,
+      "forbidden_robot_contact_ever": false,
+      "stopped_reason": "maximum_sim_time"
+    },
+    {
+      "name": "mass_scaled_pd_native_gains_q100_35",
+      "executed_sim_time_s": 35.0,
+      "final_planar_error_m": 0.051682665944099426,
+      "final_rotation_error_rad": 0.4021395742893219,
+      "forbidden_robot_contact_ever": false,
+      "stopped_reason": "maximum_sim_time"
+    },
+    {
+      "name": "semantic_quat_fixed_q10_video180",
+      "executed_sim_time_s": 180.0,
+      "final_planar_error_m": 0.012579364702105522,
+      "final_rotation_error_rad": 0.31444114446640015,
+      "forbidden_robot_contact_ever": false,
+      "stopped_reason": "maximum_sim_time"
+    }
+  ],
+  "progress_fixed_goal_followup": "docs/evidence/contact_planner_m3_progress_fixed_goal_20260908.json"
+}

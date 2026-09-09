@@ -1,0 +1,321 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf xmlns:drake="uri:drake" version="1.7">
+  <model name="DOMINO_020_hammer_safe">
+    <link name="DOMINO_020_hammer_safe">
+      <inertial>
+        <pose>0.013095396901658053 0.0049779976600252849 0.00091203193604271512 0 0 0</pose>
+        <mass>0.05000000074505806</mass>
+        <inertia>
+          <ixx>2.191176803547735e-05</ixx>
+          <iyy>0.0001083795605218205</iyy>
+          <izz>0.00012597093632654642</izz>
+          <ixy>-2.5508954531095594e-06</ixy>
+          <ixz>-1.2921862271670461e-06</ixz>
+          <iyz>2.0820169180399395e-07</iyz>
+        </inertia>
+      </inertial>
+      <visual name="convex_0">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>DOMINO_020_hammer_safe_convex_0.obj</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.19607843137254902 0.39215686274509803 0.5882352941176471 1</diffuse>
+        </material>
+      </visual>
+      <visual name="convex_1">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>DOMINO_020_hammer_safe_convex_1.obj</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.19607843137254902 0.39215686274509803 0.5882352941176471 1</diffuse>
+        </material>
+      </visual>
+      <visual name="convex_2">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>DOMINO_020_hammer_safe_convex_2.obj</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.19607843137254902 0.39215686274509803 0.5882352941176471 1</diffuse>
+        </material>
+      </visual>
+      <visual name="convex_3">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>DOMINO_020_hammer_safe_convex_3.obj</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.19607843137254902 0.39215686274509803 0.5882352941176471 1</diffuse>
+        </material>
+      </visual>
+      <visual name="convex_4">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>DOMINO_020_hammer_safe_convex_4.obj</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.19607843137254902 0.39215686274509803 0.5882352941176471 1</diffuse>
+        </material>
+      </visual>
+      <visual name="convex_5">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>DOMINO_020_hammer_safe_convex_5.obj</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.19607843137254902 0.39215686274509803 0.5882352941176471 1</diffuse>
+        </material>
+      </visual>
+      <visual name="convex_6">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>DOMINO_020_hammer_safe_convex_6.obj</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.19607843137254902 0.39215686274509803 0.5882352941176471 1</diffuse>
+        </material>
+      </visual>
+      <visual name="convex_7">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>DOMINO_020_hammer_safe_convex_7.obj</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.19607843137254902 0.39215686274509803 0.5882352941176471 1</diffuse>
+        </material>
+      </visual>
+      <visual name="convex_8">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>DOMINO_020_hammer_safe_convex_8.obj</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.19607843137254902 0.39215686274509803 0.5882352941176471 1</diffuse>
+        </material>
+      </visual>
+      <visual name="convex_9">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>DOMINO_020_hammer_safe_convex_9.obj</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <diffuse>0.19607843137254902 0.39215686274509803 0.5882352941176471 1</diffuse>
+        </material>
+      </visual>
+      <collision name="shared_physx_00">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_00.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_01">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_01.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_02">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_02.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_03">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_03.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_04">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_04.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_05">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_05.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_06">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_06.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_07">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_07.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_08">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_08.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_09">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_09.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_10">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_10.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_11">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_11.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_12">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_12.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_13">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_13.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_14">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_14.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+      <collision name="shared_physx_15">
+        <geometry>
+          <mesh>
+            <uri>../shared_physx_contact/target_15.obj</uri>
+            <drake:declare_convex />
+          </mesh>
+        </geometry>
+        <drake:proximity_properties>
+          <drake:mu_static>0.3</drake:mu_static>
+          <drake:mu_dynamic>0.3</drake:mu_dynamic>
+        </drake:proximity_properties>
+      </collision>
+    </link>
+  </model>
+</sdf>

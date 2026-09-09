@@ -1,0 +1,417 @@
+{
+  "schema": "nonprehensile.precise_pd_capture_regression.v1",
+  "native_archive": "outputs/contact_planner_m3/workspace_height_20260908/frozen_precise_capture_0020_0022",
+  "native_binary_sha256": "86461625f4560da86a1bead3fae5d1fa970e317283f1bedb6d87260d23dfbe2a",
+  "native_default_sha256": "96d53b71b9d36540a9f3a3452a564cc017c0252a3a65049d3b240c89996803f1",
+  "short_physics_comparison": {
+    "state_counts": [
+      240,
+      240
+    ],
+    "all_measured_states_exact": true,
+    "first_difference": null,
+    "metrics": {
+      "final_planar_error_m": [
+        0.035692598670721054,
+        0.035692598670721054
+      ],
+      "final_rotation_error_rad": [
+        0.1856408566236496,
+        0.1856408566236496
+      ],
+      "maximum_abs_joint_effort_nm": [
+        13.086467742919922,
+        13.086467742919922
+      ],
+      "maximum_task_tracking_error_m": [
+        0.009426493268057848,
+        0.009426493268057848
+      ],
+      "semantic_c1_guard_activation_count": [
+        97,
+        97
+      ],
+      "maximum_strict_dwell_steps": [
+        0,
+        0
+      ],
+      "forbidden_robot_contact_ever": [
+        false,
+        false
+      ]
+    },
+    "source_sha256": {
+      "outputs/contact_planner_m3/workspace_height_20260908/osc_full_variant12/scene007/result.json": "91af585236e701c762fa6a8f401d70602c3cba5b1be9a94b8b7d1376202a0160",
+      "outputs/contact_planner_m3/workspace_height_20260908/osc_full_variant12/scene007/effect_audit.jsonl": "81dd46fb9f3cc24fc07c93670f5b1248c3ee038ab264d3d4a0f392e9bbfaeded",
+      "outputs/contact_planner_m3/workspace_height_20260908/precise_capture_short12/scene007/result.json": "9ba4ea845ebe973e90879581478ba9abf4cd3bacdab4b045b1e2647e7a0c7fb3",
+      "outputs/contact_planner_m3/workspace_height_20260908/precise_capture_short12/scene007/effect_audit.jsonl": "ee20aee35b9a6cd22ba9045d4b103331e7e275fe82aadf47b4d0609febf85050"
+    }
+  },
+  "short_reference_capture": {
+    "capture_records": 1,
+    "capture_utime_us": 2350000,
+    "raw_state_shape": [
+      11,
+      19
+    ],
+    "raw_force_shape": [
+      10,
+      3
+    ],
+    "positions_match_published_reference_exactly": true,
+    "forces_match_published_reference_exactly": true,
+    "all_values_finite": true,
+    "reference_c3_mode": true,
+    "exact_arm_pose_available": false,
+    "limitation": "Short regression capture time2.35s has no retained exact joint-pose record; no offline physics input is synthesized. Long target106.35s has exact arm pose in baseline."
+  },
+  "extractor_tests": "3passed",
+  "long_capture_status": "running",
+  "long_capture_output": "outputs/contact_planner_m3/workspace_height_20260908/precise_capture_t106p35_107",
+  "acceptance_successes_added": 0,
+  "long_capture_completed": {
+    "prefix_comparison": {
+      "all_measured_states_match_original_prefix": true,
+      "state_count": 2140,
+      "last_utime_us": 107050000,
+      "capture_count": 1,
+      "source_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/precise_capture_t106p35_107/scene007/effect_audit.jsonl": "f6ddc1634a06f7371a4ea9ec6eb113d74c85321e0e7b731067d1ed6907ed164d",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_scene007_180/scene007/effect_audit.jsonl": "6f7c60fe4f68a28ec953bfe8e7ef389d99bbde36930e0e166f827e6863cafe30",
+        "outputs/contact_planner_m3/workspace_height_20260908/precise_capture_t106p35_107/scene007/result.json": "3a1fd8f90bbf1f96d7e5a8c611830944c300ad7fdf63ba80eba25baf7f1b9ee2"
+      }
+    },
+    "physical_comparison": {
+      "schema": "nonprehensile.offline_pd_first_period_comparison.v1",
+      "capture_utime_us": 106350000,
+      "model_fine_dt_s": 0.0025,
+      "model_state_count": 20,
+      "actual_start_utime_us": 106350000,
+      "actual_end_utime_us": 106400000,
+      "initial_pose_errors": {
+        "xy_m": 2.2392311695095016e-08,
+        "height_m": 1.4111474662403811e-09,
+        "so3_rad": 9.424321830774485e-08
+      },
+      "final_prediction_errors": {
+        "xy_m": 0.0036144070035886507,
+        "height_m": 6.022015983267806e-05,
+        "so3_rad": 0.0279674825194841
+      },
+      "predicted_target_delta_m": [
+        0.0023926478679275887,
+        0.006926479912206546,
+        6.262624586780147e-05
+      ],
+      "actual_target_delta_m": [
+        0.005898118019104004,
+        0.006045714020729065,
+        2.4046748876571655e-06
+      ],
+      "missing_servo_timestamps": [],
+      "servo_reference_comparisons": [
+        {
+          "measurement_utime_us": 106360000,
+          "raw_position_error_m": 0.0,
+          "governed_position_error_m": 0.0,
+          "velocity_error_m_s": 7.498459811952706e-15,
+          "applied_force_error_n": 0.0,
+          "unshielded_safe": true,
+          "positive_legal_contact": true
+        },
+        {
+          "measurement_utime_us": 106370000,
+          "raw_position_error_m": 1.2417518519112547e-16,
+          "governed_position_error_m": 1.2417518519112547e-16,
+          "velocity_error_m_s": 7.498459811952706e-15,
+          "applied_force_error_n": 0.0,
+          "unshielded_safe": true,
+          "positive_legal_contact": true
+        },
+        {
+          "measurement_utime_us": 106380000,
+          "raw_position_error_m": 1.5704757352569647e-16,
+          "governed_position_error_m": 1.5704757352569647e-16,
+          "velocity_error_m_s": 7.498459811952706e-15,
+          "applied_force_error_n": 0.0,
+          "unshielded_safe": true,
+          "positive_legal_contact": true
+        },
+        {
+          "measurement_utime_us": 106390000,
+          "raw_position_error_m": 2.776424787817943e-16,
+          "governed_position_error_m": 2.776424787817943e-16,
+          "velocity_error_m_s": 7.498459811952706e-15,
+          "applied_force_error_n": 0.0,
+          "unshielded_safe": true,
+          "positive_legal_contact": true
+        },
+        {
+          "measurement_utime_us": 106400000,
+          "raw_position_error_m": 3.140376573195942e-16,
+          "governed_position_error_m": 3.140376573195942e-16,
+          "velocity_error_m_s": 7.498459811952706e-15,
+          "applied_force_error_n": 0.0,
+          "unshielded_safe": true,
+          "positive_legal_contact": true
+        }
+      ],
+      "eligible_unshielded_contact": true,
+      "limitations": [
+        "Exact native fine-step endpoint, not interpolation of75ms knots.",
+        "Offline model uses sampled20Hz/100Hz references; it does not include measured governor changes or full robot dynamics.",
+        "This50ms prediction comparison is not a task-success or generalization result."
+      ],
+      "source_sha256": {
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/precise_capture_t106p35_107/scene007/result.json": "3a1fd8f90bbf1f96d7e5a8c611830944c300ad7fdf63ba80eba25baf7f1b9ee2",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/precise_capture_t106p35_107/scene007/effect_audit.jsonl": "f6ddc1634a06f7371a4ea9ec6eb113d74c85321e0e7b731067d1ed6907ed164d",
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_precise_t106p35/input_provenance.json": "52284f0ebba0d5372743d7e5947316b99442bee3dd10186f5234913a141068c9",
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_precise_t106p35/scalar30.log": "122337e0c07d7033a8d7f922f16073c3fa41c9b9072a6b22e5160ec804e7431c",
+        "/data1/linsixu/IsaacLab-nonPrehensile/scripts/analyze_offline_pd_first_period.py": "3319c13a180405bc9fcc560f57810079ddf4eb947ca16c8a72f9665e389c6c24"
+      }
+    },
+    "resolution_comparison": {
+      "active4": {
+        "first75ms_state": [
+          0.6366652175178021,
+          0.16059644155925387,
+          -0.018050206706236777,
+          0.9886961980705563,
+          -0.004489584591080005,
+          0.004308750645936464,
+          0.1498035587657982,
+          0.6468597600097538,
+          0.20553738475633967,
+          -0.01653185491137348,
+          0.1392244980661586,
+          0.13897065466554684,
+          -0.01583727945375421,
+          -0.005660687703969722,
+          0.027962712362573517,
+          -1.0018332882627163,
+          -0.015148325451151209,
+          0.09230579151343407,
+          0.002695129568789728
+        ],
+        "interpolated50ms_task_cost_drop": 2.367061082507476,
+        "published_max_position_difference_m": 0.0,
+        "published_max_quaternion_component_difference": 0.0
+      },
+      "foh30": {
+        "first75ms_state": [
+          0.6364642478033871,
+          0.16060901502231623,
+          -0.017794538597994396,
+          0.986598337437122,
+          -0.004981577425243798,
+          0.0014644707037381956,
+          0.16308513046326803,
+          0.6511725381759564,
+          0.2061765078267142,
+          -0.01703089864527276,
+          0.13962041437299963,
+          0.14273096717853354,
+          -0.01602768346828794,
+          5.715025231104464e-14,
+          5.699706418187433e-09,
+          -1.7577729127560485e-14,
+          0.026585253908790518,
+          0.026585253840678343,
+          -0.001114745571026636
+        ],
+        "interpolated50ms_task_cost_drop": -0.9186135951575665
+      },
+      "scalar30": {
+        "first75ms_state": [
+          0.6362908245673905,
+          0.16034852462182472,
+          -0.01775404186849042,
+          0.9866253176932921,
+          -0.004981334958530535,
+          0.0014652952319336619,
+          0.1629218269555213,
+          0.6511168718799476,
+          0.2061549682706023,
+          -0.017031315568219362,
+          0.13634236096325497,
+          0.13776432432807584,
+          -0.015231707000443993,
+          -2.0689221991075534e-14,
+          -2.679529706259401e-09,
+          1.5924651775687028e-15,
+          0.02602935654652249,
+          0.026029356578543675,
+          -0.0011199856733676503
+        ],
+        "interpolated50ms_task_cost_drop": -0.8754339980328609
+      },
+      "exact_sampled50ms_task_cost_drop": -0.6812036336886536,
+      "physical_comparison": {
+        "schema": "nonprehensile.offline_pd_first_period_comparison.v1",
+        "capture_utime_us": 106350000,
+        "model_fine_dt_s": 0.0025,
+        "model_state_count": 20,
+        "actual_start_utime_us": 106350000,
+        "actual_end_utime_us": 106400000,
+        "initial_pose_errors": {
+          "xy_m": 2.2392311695095016e-08,
+          "height_m": 1.4111474662403811e-09,
+          "so3_rad": 9.424321830774485e-08
+        },
+        "final_prediction_errors": {
+          "xy_m": 0.0036144070035886507,
+          "height_m": 6.022015983267806e-05,
+          "so3_rad": 0.0279674825194841
+        },
+        "predicted_target_delta_m": [
+          0.0023926478679275887,
+          0.006926479912206546,
+          6.262624586780147e-05
+        ],
+        "actual_target_delta_m": [
+          0.005898118019104004,
+          0.006045714020729065,
+          2.4046748876571655e-06
+        ],
+        "missing_servo_timestamps": [],
+        "servo_reference_comparisons": [
+          {
+            "measurement_utime_us": 106360000,
+            "raw_position_error_m": 0.0,
+            "governed_position_error_m": 0.0,
+            "velocity_error_m_s": 7.498459811952706e-15,
+            "applied_force_error_n": 0.0,
+            "unshielded_safe": true,
+            "positive_legal_contact": true
+          },
+          {
+            "measurement_utime_us": 106370000,
+            "raw_position_error_m": 1.2417518519112547e-16,
+            "governed_position_error_m": 1.2417518519112547e-16,
+            "velocity_error_m_s": 7.498459811952706e-15,
+            "applied_force_error_n": 0.0,
+            "unshielded_safe": true,
+            "positive_legal_contact": true
+          },
+          {
+            "measurement_utime_us": 106380000,
+            "raw_position_error_m": 1.5704757352569647e-16,
+            "governed_position_error_m": 1.5704757352569647e-16,
+            "velocity_error_m_s": 7.498459811952706e-15,
+            "applied_force_error_n": 0.0,
+            "unshielded_safe": true,
+            "positive_legal_contact": true
+          },
+          {
+            "measurement_utime_us": 106390000,
+            "raw_position_error_m": 2.776424787817943e-16,
+            "governed_position_error_m": 2.776424787817943e-16,
+            "velocity_error_m_s": 7.498459811952706e-15,
+            "applied_force_error_n": 0.0,
+            "unshielded_safe": true,
+            "positive_legal_contact": true
+          },
+          {
+            "measurement_utime_us": 106400000,
+            "raw_position_error_m": 3.140376573195942e-16,
+            "governed_position_error_m": 3.140376573195942e-16,
+            "velocity_error_m_s": 7.498459811952706e-15,
+            "applied_force_error_n": 0.0,
+            "unshielded_safe": true,
+            "positive_legal_contact": true
+          }
+        ],
+        "eligible_unshielded_contact": true,
+        "limitations": [
+          "Exact native fine-step endpoint, not interpolation of75ms knots.",
+          "Offline model uses sampled20Hz/100Hz references; it does not include measured governor changes or full robot dynamics.",
+          "This50ms prediction comparison is not a task-success or generalization result."
+        ],
+        "source_sha256": {
+          "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/precise_capture_t106p35_107/scene007/result.json": "3a1fd8f90bbf1f96d7e5a8c611830944c300ad7fdf63ba80eba25baf7f1b9ee2",
+          "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/precise_capture_t106p35_107/scene007/effect_audit.jsonl": "f6ddc1634a06f7371a4ea9ec6eb113d74c85321e0e7b731067d1ed6907ed164d",
+          "outputs/contact_planner_m3/workspace_height_20260908/offline_precise_t106p35/input_provenance.json": "52284f0ebba0d5372743d7e5947316b99442bee3dd10186f5234913a141068c9",
+          "outputs/contact_planner_m3/workspace_height_20260908/offline_precise_t106p35/scalar30.log": "122337e0c07d7033a8d7f922f16073c3fa41c9b9072a6b22e5160ec804e7431c",
+          "/data1/linsixu/IsaacLab-nonPrehensile/scripts/analyze_offline_pd_first_period.py": "3319c13a180405bc9fcc560f57810079ddf4eb947ca16c8a72f9665e389c6c24"
+        }
+      },
+      "scope": "Same captured plan only; task cost is diagnostic normalized XY/SO3, not native objective. Active4 replay is checked against original published predictions."
+    },
+    "resolution_tolerance_errors": {
+      "sampled15": {
+        "fine_count": 10,
+        "last_time_s": 0.05,
+        "errors_xy_height_so3": [
+          0.0013775303112243675,
+          0.00012297950180188352,
+          0.0011212914808199003
+        ]
+      },
+      "sampled15_tol1e-6": {
+        "fine_count": 10,
+        "last_time_s": 0.05,
+        "errors_xy_height_so3": [
+          0.0013775303112243675,
+          0.00012297950180188352,
+          0.0011212914808199003
+        ]
+      },
+      "sampled15_tol1e-8": {
+        "fine_count": 10,
+        "last_time_s": 0.05,
+        "errors_xy_height_so3": [
+          0.0013775303112243675,
+          0.00012297950180188352,
+          0.0011212914808199003
+        ]
+      },
+      "sampled30_tol1e-6": {
+        "fine_count": 20,
+        "last_time_s": 0.05,
+        "errors_xy_height_so3": [
+          0.0036144070035886507,
+          6.022015983267806e-05,
+          0.0279674825194841
+        ]
+      },
+      "sampled30_tol1e-8": {
+        "fine_count": 20,
+        "last_time_s": 0.05,
+        "errors_xy_height_so3": [
+          0.0036144070035886507,
+          6.022015983267806e-05,
+          0.0279674825194841
+        ]
+      },
+      "sampled60": {
+        "fine_count": 40,
+        "last_time_s": 0.05,
+        "errors_xy_height_so3": [
+          0.007717625604424905,
+          4.2466210595296094e-05,
+          0.07435699036024164
+        ]
+      },
+      "sampled60_tol1e-6": {
+        "fine_count": 40,
+        "last_time_s": 0.05,
+        "errors_xy_height_so3": [
+          0.007717625604424905,
+          4.2466210595292625e-05,
+          0.07435699036024164
+        ]
+      },
+      "sampled60_tol1e-8": {
+        "fine_count": 40,
+        "last_time_s": 0.05,
+        "errors_xy_height_so3": [
+          0.007717625604424905,
+          4.2466210595296094e-05,
+          0.07435699036024164
+        ]
+      }
+    },
+    "new_independent_task_successes": 0,
+    "input_provenance": "outputs/contact_planner_m3/workspace_height_20260908/offline_precise_t106p35/input_provenance.json"
+  }
+}

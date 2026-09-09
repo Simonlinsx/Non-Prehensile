@@ -1,0 +1,431 @@
+{
+  "schema": "nonprehensile.offline_sampled_pd_evidence.v1",
+  "native_binary_sha256": "d9020ba2aea275a908ed7c8de2172f8812e278d3d18eb90733c67b369a912c49",
+  "reports": {
+    "t8p3": {
+      "schema": "nonprehensile.offline_pd_resolution_comparison.v1",
+      "acceptance_eligible": false,
+      "capture_utime_us": 8299999,
+      "duration_s": 0.3,
+      "original_resolution_exactly_reproduced": true,
+      "predictions": {
+        "4": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.01875,
+          "sampled_reference_clocks": false,
+          "endpoint_xy_error_m": 0.006707830155643719,
+          "endpoint_height_error_m": 1.379707778904199e-06,
+          "endpoint_so3_error_rad": 0.04525399977657174,
+          "predicted_xy_displacement_m": 0.013773244794965403,
+          "output_sha256": "6bda9b42895b0d252b20a371424fb65e977a7a18ff5deb9e674d1325d44f6c25",
+          "maximum_state_difference_from_online_baseline": 0.0
+        },
+        "15": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.005,
+          "sampled_reference_clocks": true,
+          "endpoint_xy_error_m": 0.007842419111257382,
+          "endpoint_height_error_m": 1.37970777889726e-06,
+          "endpoint_so3_error_rad": 0.05262444066709113,
+          "predicted_xy_displacement_m": 0.011872693810004085,
+          "output_sha256": "81904f213625941df465e6b411c2897ae3a91a326d73a45432661fbd104adf9d",
+          "reference_clock_audit": {
+            "matched_samples": 14,
+            "matched_times_s": [
+              0,
+              0.01,
+              0.02,
+              0.03,
+              0.04,
+              0.05,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.13,
+              0.14,
+              0.15,
+              0.2
+            ],
+            "unavailable_trace_times_s": [
+              0.06,
+              0.11,
+              0.12,
+              0.16,
+              0.17,
+              0.18,
+              0.19,
+              0.21,
+              0.22,
+              0.23,
+              0.24,
+              0.25,
+              0.26,
+              0.27,
+              0.28,
+              0.29
+            ],
+            "raw_reference_maximum_absolute_error": {
+              "position_m": 2.498001805406602e-16,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "applied_reference_maximum_absolute_error": {
+              "position_m": 0.000733927908398796,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "all_available_raw_references_match": true,
+            "complete_trace_coverage": false,
+            "limitation": "Sparse historical trace: missing timestamps are not verified. Position governor and physical dynamics are not modeled."
+          }
+        },
+        "30": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.0025,
+          "sampled_reference_clocks": true,
+          "endpoint_xy_error_m": 0.008998253126093795,
+          "endpoint_height_error_m": 1.3797077789007295e-06,
+          "endpoint_so3_error_rad": 0.061485923521191636,
+          "predicted_xy_displacement_m": 0.010491542368678953,
+          "output_sha256": "5d08db44affeb19311cce81fd70be65f8a7def9ea7e9d30ab98dde05d690d792",
+          "reference_clock_audit": {
+            "matched_samples": 14,
+            "matched_times_s": [
+              0,
+              0.01,
+              0.02,
+              0.03,
+              0.04,
+              0.05,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.13,
+              0.14,
+              0.15,
+              0.2
+            ],
+            "unavailable_trace_times_s": [
+              0.06,
+              0.11,
+              0.12,
+              0.16,
+              0.17,
+              0.18,
+              0.19,
+              0.21,
+              0.22,
+              0.23,
+              0.24,
+              0.25,
+              0.26,
+              0.27,
+              0.28,
+              0.29
+            ],
+            "raw_reference_maximum_absolute_error": {
+              "position_m": 2.498001805406602e-16,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "applied_reference_maximum_absolute_error": {
+              "position_m": 0.000733927908398796,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "all_available_raw_references_match": true,
+            "complete_trace_coverage": false,
+            "limitation": "Sparse historical trace: missing timestamps are not verified. Position governor and physical dynamics are not modeled."
+          }
+        },
+        "60": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.00125,
+          "sampled_reference_clocks": true,
+          "endpoint_xy_error_m": 0.009561244642388821,
+          "endpoint_height_error_m": 1.3866433503095799e-06,
+          "endpoint_so3_error_rad": 0.062480438910184066,
+          "predicted_xy_displacement_m": 0.009743297243701895,
+          "output_sha256": "8812d6ee8e426e07c0a53fd3e73f8c12224b41ff9107291d20f7b8c083dd280d",
+          "reference_clock_audit": {
+            "matched_samples": 14,
+            "matched_times_s": [
+              0,
+              0.01,
+              0.02,
+              0.03,
+              0.04,
+              0.05,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.13,
+              0.14,
+              0.15,
+              0.2
+            ],
+            "unavailable_trace_times_s": [
+              0.06,
+              0.11,
+              0.12,
+              0.16,
+              0.17,
+              0.18,
+              0.19,
+              0.21,
+              0.22,
+              0.23,
+              0.24,
+              0.25,
+              0.26,
+              0.27,
+              0.28,
+              0.29
+            ],
+            "raw_reference_maximum_absolute_error": {
+              "position_m": 2.498001805406602e-16,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "applied_reference_maximum_absolute_error": {
+              "position_m": 0.000733927908398796,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "all_available_raw_references_match": true,
+            "complete_trace_coverage": false,
+            "limitation": "Sparse historical trace: missing timestamps are not verified. Position governor and physical dynamics are not modeled."
+          }
+        }
+      },
+      "physical_replay_audit": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/reference_replay_audit.json",
+      "artifact_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_sampled_t8p3/input_provenance.json": "9939eac22a940f1ee7afb9f9977ec9325865107ad09e95f7c1f495106dc3f11e",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/reference_replay_audit.json": "ff9263457fa49674c41f4b6ca274f47305d6752e9d5373187d50cefad4fa93c5",
+        "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/controller_online.log": "f0c31f8ecdca1b2fcfbc7917d909fbdd08a9cba1b193fc72e445636d7b2a04d8"
+      },
+      "limitations": [
+        "A counterfactual model comparison, not another physical trial.",
+        "Nearby overlapping windows do not constitute independent held-out scenes.",
+        "All variants retain the same supplied knots, force convention, mass, gains and contact model; sampled_reference_clocks explicitly identifies altered reference timing."
+      ]
+    },
+    "t8p35": {
+      "schema": "nonprehensile.offline_pd_resolution_comparison.v1",
+      "acceptance_eligible": false,
+      "capture_utime_us": 8350000,
+      "duration_s": 0.3,
+      "original_resolution_exactly_reproduced": true,
+      "predictions": {
+        "4": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.01875,
+          "sampled_reference_clocks": false,
+          "endpoint_xy_error_m": 0.009530565139342742,
+          "endpoint_height_error_m": 1.4179852352476374e-06,
+          "endpoint_so3_error_rad": 0.003536212447381303,
+          "predicted_xy_displacement_m": 0.018210416670679422,
+          "output_sha256": "753a2bd5befbcfb0f0e6a4c71d03ab85fe1b0156093a187f8c6fb6118d291afd",
+          "maximum_state_difference_from_online_baseline": 0.0
+        },
+        "15": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.005,
+          "sampled_reference_clocks": true,
+          "endpoint_xy_error_m": 0.008197414238068853,
+          "endpoint_height_error_m": 1.4179852352476374e-06,
+          "endpoint_so3_error_rad": 0.017116185444453,
+          "predicted_xy_displacement_m": 0.023663259622203784,
+          "output_sha256": "5f2d1acde6d072f64a433b0a4286853aa44710e5d707226b917a1dce55278bb7",
+          "reference_clock_audit": {
+            "matched_samples": 15,
+            "matched_times_s": [
+              0,
+              0.02,
+              0.03,
+              0.04,
+              0.05,
+              0.06,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.12,
+              0.13,
+              0.14,
+              0.15,
+              0.25
+            ],
+            "unavailable_trace_times_s": [
+              0.01,
+              0.11,
+              0.16,
+              0.17,
+              0.18,
+              0.19,
+              0.2,
+              0.21,
+              0.22,
+              0.23,
+              0.24,
+              0.26,
+              0.27,
+              0.28,
+              0.29
+            ],
+            "raw_reference_maximum_absolute_error": {
+              "position_m": 2.220446049250313e-16,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 7.216449660063518e-15
+            },
+            "applied_reference_maximum_absolute_error": {
+              "position_m": 0.0003071980942495889,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 7.216449660063518e-15
+            },
+            "all_available_raw_references_match": true,
+            "complete_trace_coverage": false,
+            "limitation": "Sparse historical trace: missing timestamps are not verified. Position governor and physical dynamics are not modeled."
+          }
+        },
+        "30": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.0025,
+          "sampled_reference_clocks": true,
+          "endpoint_xy_error_m": 0.008488010180307707,
+          "endpoint_height_error_m": 1.417985235244168e-06,
+          "endpoint_so3_error_rad": 0.017392847592619113,
+          "predicted_xy_displacement_m": 0.022978437964832916,
+          "output_sha256": "d056edbb8ba1615e109d8cea7f442fa089a05173351885660f4f6f525889aad8",
+          "reference_clock_audit": {
+            "matched_samples": 15,
+            "matched_times_s": [
+              0,
+              0.02,
+              0.03,
+              0.04,
+              0.05,
+              0.06,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.12,
+              0.13,
+              0.14,
+              0.15,
+              0.25
+            ],
+            "unavailable_trace_times_s": [
+              0.01,
+              0.11,
+              0.16,
+              0.17,
+              0.18,
+              0.19,
+              0.2,
+              0.21,
+              0.22,
+              0.23,
+              0.24,
+              0.26,
+              0.27,
+              0.28,
+              0.29
+            ],
+            "raw_reference_maximum_absolute_error": {
+              "position_m": 2.220446049250313e-16,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 7.216449660063518e-15
+            },
+            "applied_reference_maximum_absolute_error": {
+              "position_m": 0.0003071980942495889,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 7.216449660063518e-15
+            },
+            "all_available_raw_references_match": true,
+            "complete_trace_coverage": false,
+            "limitation": "Sparse historical trace: missing timestamps are not verified. Position governor and physical dynamics are not modeled."
+          }
+        },
+        "60": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.00125,
+          "sampled_reference_clocks": true,
+          "endpoint_xy_error_m": 0.008317571611178598,
+          "endpoint_height_error_m": 1.4179852352476374e-06,
+          "endpoint_so3_error_rad": 0.017285555502984995,
+          "predicted_xy_displacement_m": 0.024010834418351844,
+          "output_sha256": "4fbb8e21254ccc88f89a91a30f8ffbd685b09265ba4726d81278ede01a9c9024",
+          "reference_clock_audit": {
+            "matched_samples": 15,
+            "matched_times_s": [
+              0,
+              0.02,
+              0.03,
+              0.04,
+              0.05,
+              0.06,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.12,
+              0.13,
+              0.14,
+              0.15,
+              0.25
+            ],
+            "unavailable_trace_times_s": [
+              0.01,
+              0.11,
+              0.16,
+              0.17,
+              0.18,
+              0.19,
+              0.2,
+              0.21,
+              0.22,
+              0.23,
+              0.24,
+              0.26,
+              0.27,
+              0.28,
+              0.29
+            ],
+            "raw_reference_maximum_absolute_error": {
+              "position_m": 2.220446049250313e-16,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 7.216449660063518e-15
+            },
+            "applied_reference_maximum_absolute_error": {
+              "position_m": 0.0003071980942495889,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 7.216449660063518e-15
+            },
+            "all_available_raw_references_match": true,
+            "complete_trace_coverage": false,
+            "limitation": "Sparse historical trace: missing timestamps are not verified. Position governor and physical dynamics are not modeled."
+          }
+        }
+      },
+      "physical_replay_audit": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_calibrated_pd_t8p3_diag10/scene007/reference_replay_audit.json",
+      "artifact_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_sampled_t8p35/input_provenance.json": "66fb051d867b7cc7afe6c88cfc1b2502e4c809c2c9e991e663ff7cad7b9decc4",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_calibrated_pd_t8p3_diag10/scene007/reference_replay_audit.json": "b804454a15897c18d9ada206dcd59272a2f467a2bba8aaee7979bf6e21eacbce",
+        "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/controller_online.log": "f0c31f8ecdca1b2fcfbc7917d909fbdd08a9cba1b193fc72e445636d7b2a04d8"
+      },
+      "limitations": [
+        "A counterfactual model comparison, not another physical trial.",
+        "Nearby overlapping windows do not constitute independent held-out scenes.",
+        "All variants retain the same supplied knots, force convention, mass, gains and contact model; sampled_reference_clocks explicitly identifies altered reference timing."
+      ]
+    }
+  },
+  "active_physical_binary_unchanged": true,
+  "conclusion": "Reference clocks reproduce all available commands (14 and15 historical samples). Compared with same-step continuous FOH, XY improves in both windows; orientation does not consistently improve. Original-resolution baseline remains better in first window and rotation in second. Do not promote sampled clocks to active cost on this evidence. Applied position governor remains unmodeled.",
+  "tests": "11 offline extraction/reference clock tests passed; native build and all patch reverse checks passed."
+}

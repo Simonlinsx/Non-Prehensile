@@ -1,0 +1,46 @@
+diff --git a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+--- a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
++++ b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+@@ -55,6 +55,8 @@
+   std::optional<double> neutral_yaw_contact_max_moment_arm;
+   std::optional<double> neutral_yaw_contact_activation_threshold;
+ 
++  // Keep the actor inside the execution workspace even when virtual walls exist.
++  std::optional<bool> enforce_actor_workspace_bounds;
+   double workspace_margin;
+   bool include_end_effector_orientation;
+   int control_loop_delay_ms;
+@@ -72,6 +74,7 @@
+ 
+   template <typename Archive>
+   void Serialize(Archive* a) {
++    a->Visit(DRAKE_NVP(enforce_actor_workspace_bounds));
+     a->Visit(DRAKE_NVP(sampling_c3_options_file));
+     a->Visit(DRAKE_NVP(reposition_params_file));
+     a->Visit(DRAKE_NVP(progress_params_file));
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -1128,6 +1128,22 @@
+       test_c3_object = std::make_shared<C3Plus>(test_system, c3_costmat,
+                                                 x_desired, c3_options);
+     }  // Unknown projection types are rejected in the initialization.
++
++    // Virtual object-wall contacts do not constrain the actor. Use the same
++    // inward margin as safe sample generation, leaving tracking room before
++    // the unchanged hard measured-state workspace boundary.
++    if (controller_params_.enforce_actor_workspace_bounds.value_or(false)) {
++      for (const auto& limit : sampling_c3_options_.workspace_limits) {
++        RowVectorXd A = VectorXd::Zero(n_x_);
++        A.head<3>() = limit.head<3>();
++        const double margin = sampling_c3_options_.workspace_margins *
++                              limit.head<2>().norm();
++        DRAKE_DEMAND(limit[3] + margin < limit[4] - margin);
++        test_c3_object->AddLinearConstraint(
++            A, limit[3] + margin, limit[4] - margin,
++            c3::ConstraintVariable::STATE);
++      }
++    }
+ 
+     if (!sampling_c3_options_.include_walls) {
+       // Set actor bounds.

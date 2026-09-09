@@ -1,0 +1,19 @@
+{
+  "source_trial": "semantic_quat_fixed_q100_video180",
+  "measured_object_utime_us": 80550000,
+  "tip_measurement_utime_us": 80600000,
+  "tool_reference_m": [
+    0.48939040303230286,
+    0.12599939107894897,
+    -0.01711422950029373
+  ],
+  "guarded_target_m": [
+    0.48147978916136774,
+    0.09465479867657983,
+    -0.01648698488758172
+  ],
+  "held": true,
+  "minimum_surface_distance_m": 0.02496769789186399,
+  "native_stop_distance_m": 0.055,
+  "limitation": "Offline point check using the final available planner object measurement; not a counterfactual rollout or evidence of prevented violation."
+}

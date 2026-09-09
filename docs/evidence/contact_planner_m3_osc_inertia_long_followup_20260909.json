@@ -1,0 +1,185 @@
+{
+  "osc_full_scene007_180": {
+    "metrics": {
+      "executed_sim_time_s": 129.91,
+      "stopped_reason": "watchdog_timeout",
+      "final_planar_error_m": 0.2806263566017151,
+      "final_rotation_error_rad": 0.24634949862957,
+      "maximum_strict_dwell_steps": 0,
+      "semantic_c1_guard_activation_count": 3089,
+      "forbidden_robot_contact_ever": false,
+      "maximum_abs_joint_effort_nm": 22.721193313598633,
+      "maximum_task_tracking_error_m": 0.01148469911121779
+    },
+    "dynamics_records": 1671,
+    "full_task_inverse_inertia_condition_quantiles": [
+      3598.6774953864774,
+      3867.1465463717786,
+      5184.331506945748,
+      7145.62898763555
+    ],
+    "scene_contract": {
+      "scene_pose_contract_pass": true,
+      "errors": {
+        "initial": {
+          "planar_m": 9.31054314169295e-09,
+          "height_m": 2.787606256937636e-10,
+          "rotation_rad": 4.2146848510894035e-08
+        },
+        "isaac_goal": {
+          "planar_m": 5.10815952635377e-07,
+          "height_m": 2.787606256937636e-10,
+          "rotation_rad": 4.2146848510894035e-08
+        },
+        "native_goal": {
+          "planar_m": 5.028005342921327e-07,
+          "height_m": 3.897229761129495e-14,
+          "rotation_rad": 0.0
+        }
+      },
+      "initial_yaw_deg": 0.0,
+      "goal_yaw_deg": 10.0,
+      "native_goal_hash_verified": true,
+      "physical_positive_legal_hand_contact": true,
+      "all_retained_trace_c1_flags_false": true,
+      "execution_sources_unchanged": true,
+      "source_result_sha256": "f2e0fe4ad2f84402bd91783ba10fd6edba6009d6fe5965c4ac4cfa698e3c00c7",
+      "native_binary_sha256": "88b68b7032520b27c3de72737406f73c754bcf82ec6be56666d0738b1c0ad7ed"
+    }
+  },
+  "osc_full_aligned_clearance180": {
+    "metrics": {
+      "executed_sim_time_s": 180.0,
+      "stopped_reason": "maximum_sim_time",
+      "final_planar_error_m": 0.02434447593986988,
+      "final_rotation_error_rad": 0.42777618765830994,
+      "maximum_strict_dwell_steps": 0,
+      "semantic_c1_guard_activation_count": 21,
+      "forbidden_robot_contact_ever": false,
+      "maximum_abs_joint_effort_nm": 26.046194076538086,
+      "maximum_task_tracking_error_m": 0.013406759125229149
+    },
+    "dynamics_records": 1831,
+    "full_task_inverse_inertia_condition_quantiles": [
+      3591.2810372916138,
+      3968.56005658736,
+      4600.231622960779,
+      5065.683190226286
+    ],
+    "scene_contract": {
+      "scene_pose_contract_pass": true,
+      "errors": {
+        "initial": {
+          "planar_m": 9.31054314169295e-09,
+          "height_m": 2.787606256937636e-10,
+          "rotation_rad": 4.2146848510894035e-08
+        },
+        "isaac_goal": {
+          "planar_m": 5.10815952635377e-07,
+          "height_m": 2.787606256937636e-10,
+          "rotation_rad": 4.2146848510894035e-08
+        },
+        "native_goal": {
+          "planar_m": 5.028005342921327e-07,
+          "height_m": 3.897229761129495e-14,
+          "rotation_rad": 0.0
+        }
+      },
+      "initial_yaw_deg": 0.0,
+      "goal_yaw_deg": 10.0,
+      "native_goal_hash_verified": true,
+      "physical_positive_legal_hand_contact": true,
+      "all_retained_trace_c1_flags_false": true,
+      "execution_sources_unchanged": true,
+      "source_result_sha256": "e287b2d12a188aeccfb4fa2a5252984688607eb94b5b571627fa45f42fa9fe57",
+      "native_binary_sha256": "f528c599b6f4950356ea8a37fe699fd2dbc2c229cfd68e56fb32ea19e9e3a480"
+    }
+  },
+  "osc_full_randomyaw_debug2_180": {
+    "metrics": {
+      "executed_sim_time_s": 180.0,
+      "stopped_reason": "maximum_sim_time",
+      "final_planar_error_m": 0.055005691945552826,
+      "final_rotation_error_rad": 0.43891996145248413,
+      "maximum_strict_dwell_steps": 0,
+      "semantic_c1_guard_activation_count": 0,
+      "forbidden_robot_contact_ever": false,
+      "maximum_abs_joint_effort_nm": 19.68016815185547,
+      "maximum_task_tracking_error_m": 0.010837054368186128
+    },
+    "dynamics_records": 1807,
+    "full_task_inverse_inertia_condition_quantiles": [
+      3591.0847294075866,
+      3718.2347403520807,
+      4016.1845126769936,
+      4374.993371664807
+    ],
+    "scene_contract": {
+      "scene_pose_contract_pass": true,
+      "errors": {
+        "initial": {
+          "planar_m": 1.450243600836571e-08,
+          "height_m": 2.787606256937636e-10,
+          "rotation_rad": 0.0
+        },
+        "isaac_goal": {
+          "planar_m": 3.712139169220405e-07,
+          "height_m": 2.787606256937636e-10,
+          "rotation_rad": 0.0
+        },
+        "native_goal": {
+          "planar_m": 3.689532129143309e-07,
+          "height_m": 3.897229761129495e-14,
+          "rotation_rad": 0.0
+        }
+      },
+      "initial_yaw_deg": -112.5,
+      "goal_yaw_deg": -112.5,
+      "native_goal_hash_verified": true,
+      "physical_positive_legal_hand_contact": true,
+      "all_retained_trace_c1_flags_false": true,
+      "execution_sources_unchanged": true,
+      "source_result_sha256": "3128b42bbe670f3a8d6a8e753f9e6ac81aab14f88c2129e34b0ad64918918bd6",
+      "native_binary_sha256": "88b68b7032520b27c3de72737406f73c754bcf82ec6be56666d0738b1c0ad7ed"
+    }
+  },
+  "osc_full_randomyaw_debug2_180_scene001": {
+    "metrics": {
+      "executed_sim_time_s": 180.0,
+      "stopped_reason": "maximum_sim_time",
+      "final_planar_error_m": 0.27573060989379883,
+      "final_rotation_error_rad": 0.756248950958252,
+      "maximum_strict_dwell_steps": 0,
+      "semantic_c1_guard_activation_count": 618,
+      "forbidden_robot_contact_ever": false
+    },
+    "scene_contract": {
+      "scene_pose_contract_pass": true,
+      "errors": {
+        "initial": {
+          "planar_m": 7.996802244584999e-09,
+          "height_m": 2.787606256937636e-10,
+          "rotation_rad": 5.960464477539063e-08
+        },
+        "isaac_goal": {
+          "planar_m": 5.410111649534996e-07,
+          "height_m": 2.787606256937636e-10,
+          "rotation_rad": 2.9802322387695312e-08
+        },
+        "native_goal": {
+          "planar_m": 5.463908090948209e-07,
+          "height_m": 3.897229761129495e-14,
+          "rotation_rad": 0.0
+        }
+      },
+      "initial_yaw_deg": 22.5,
+      "goal_yaw_deg": 12.5,
+      "native_goal_hash_verified": true,
+      "physical_positive_legal_hand_contact": true,
+      "all_retained_trace_c1_flags_false": true,
+      "execution_sources_unchanged": true,
+      "source_result_sha256": "61cd91f6b28a8bd955ee424ccf1feb4f9d4e9901d274c6b720b3fb9c4fbc7aba",
+      "native_binary_sha256": "88b68b7032520b27c3de72737406f73c754bcf82ec6be56666d0738b1c0ad7ed"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "executed_sim_time_s": 14.182,
+  "source_result_sha256": "79410c03136af5a683892d88cc223d30b46779f53128e7a69a88ab6157c08db4",
+  "trace_rows_identical_to_prior_success": 1899,
+  "all14182steps_closure_and_C1_checked": true,
+  "pose_dwell_pass": true,
+  "model_alignment_pass": true,
+  "decoded_video_frames": 356,
+  "video": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/demos/fr3_isaaclab_success_scene007_goal.mp4",
+  "video_sha256": "2533771b72b9bcb729565fce4e1e3b94b18e3c30892102c412c6513695a7786a",
+  "actual_isaaclab_render": true,
+  "transparent_goal_matches_fixed_goal": true,
+  "formal50_member": false
+}

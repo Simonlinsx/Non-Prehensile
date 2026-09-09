@@ -1,0 +1,120 @@
+diff --git a/systems/controllers/finite_cost_hysteresis.h b/systems/controllers/finite_cost_hysteresis.h
+new file mode 100644
+--- /dev/null
++++ b/systems/controllers/finite_cost_hysteresis.h
+@@ -0,0 +1,24 @@
++#pragma once
++#include <cmath>
++
++namespace dairlib {
++// Preserve the original arithmetic for finite costs. Invalid predictions
++// cannot beat a finite candidate, or become eligible by adding hysteresis.
++inline bool CostImprovesWithHysteresis(double current, double candidate,
++                                       double absolute, double fraction,
++                                       bool relative) {
++  if (!std::isfinite(candidate)) return false;
++  if (!std::isfinite(current)) return true;
++  return relative ? current > candidate + fraction * current
++                  : current > candidate + absolute;
++}
++
++inline double RepositionCostWithHysteresis(double candidate, double previous,
++                                           double absolute, double fraction,
++                                           bool relative) {
++  if (!relative) return candidate + absolute;
++  // There is no finite cost scale for an invalid previous target. Applying
++  // its infinite/NaN relative penalty would invalidate a valid new target.
++  return std::isfinite(previous) ? candidate + fraction * previous : candidate;
++}
++}  // namespace dairlib
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -3,6 +3,7 @@
+ 
+ #include <algorithm>
+ #include <cmath>
++#include "systems/controllers/finite_cost_hysteresis.h"
+ #include <ctime>
+ #include <iostream>
+ #include <limits>
+@@ -1742,6 +1743,13 @@
+   double curr_cost = all_sample_costs_[SampleIndex::kCurrentLocation];
+   double repos_target_cost =
+       all_sample_costs_[SampleIndex::kCurrentReposTarget];
++  if ((!std::isfinite(curr_cost) || !std::isfinite(repos_target_cost)) &&
++      std::isfinite(best_other_cost)) {
++    std::cout << "C3_NONFINITE_COST_HYSTERESIS utime_us="
++              << static_cast<int64_t>(context.get_time() * 1e6)
++              << " current=" << curr_cost << " previous=" << repos_target_cost
++              << " best_other=" << best_other_cost << " was_c3=" << is_doing_c3_ << std::endl;
++  }
+   if (is_doing_c3_ == true) {  // Currently doing C3.
+     pursued_target_source_ = PursuedTargetSource::kNoTarget;
+ 
+@@ -1767,12 +1775,9 @@
+ 
+     // Switch to repositioning if one of the other samples is better, with
+     // hysteresis.
+-    else if (((!progress_params_.use_relative_hysteresis &&
+-               curr_cost > best_other_cost + hyst_c3_to_repos) ||
+-              (progress_params_.use_relative_hysteresis &&
+-               curr_cost >
+-                   best_other_cost + hyst_c3_to_repos_frac * curr_cost)) &&
+-             !force_c3_mode) {
++    else if (CostImprovesWithHysteresis(curr_cost, best_other_cost,
++                  hyst_c3_to_repos, hyst_c3_to_repos_frac,
++                  progress_params_.use_relative_hysteresis) && !force_c3_mode) {
+       is_doing_c3_ = false;
+       mode_switch_reason_ = ModeSwitchReason::kToReposCost;
+       std::cout << "Repositioning because found good sample" << std::endl;
+@@ -1830,11 +1835,9 @@
+       // current location C3 cost with repos_to_c3 hysteresis afterwards.
+       else {
+         pursued_target_source_ = PursuedTargetSource::kNewSample;
+-        if (!progress_params_.use_relative_hysteresis) {
+-          best_other_cost += hyst_repos_to_repos;
+-        } else {
+-          best_other_cost += hyst_repos_to_repos_frac * repos_target_cost;
+-        }
++        best_other_cost = RepositionCostWithHysteresis(best_other_cost,
++            repos_target_cost, hyst_repos_to_repos, hyst_repos_to_repos_frac,
++            progress_params_.use_relative_hysteresis);
+       }
+     }
+ 
+@@ -1877,11 +1880,9 @@
+                 << std::endl;
+     }
+     // Switch to C3 if the current sample is better, with hysteresis.
+-    else if (((!progress_params_.use_relative_hysteresis &&
+-               best_other_cost > curr_cost + hyst_repos_to_c3) ||
+-              (progress_params_.use_relative_hysteresis &&
+-               best_other_cost >
+-                   curr_cost + hyst_repos_to_c3_frac * best_other_cost)) &&
++    else if (CostImprovesWithHysteresis(best_other_cost, curr_cost,
++                  hyst_repos_to_c3, hyst_repos_to_c3_frac,
++                  progress_params_.use_relative_hysteresis) &&
+              (x_lcs_curr[2] < sampling_params_.z_height +
+                                   sampling_params_.c3_min_clearance +
+                                   wall_offset ||
+diff --git a/systems/controllers/BUILD.bazel b/systems/controllers/BUILD.bazel
+--- a/systems/controllers/BUILD.bazel
++++ b/systems/controllers/BUILD.bazel
+@@ -61,6 +61,7 @@
+         "//multibody:utils",
+         "//solvers:solver_options_io",
+         ":face",
++        ":finite_cost_hysteresis",
+         "//systems/framework:vector",
+         "//examples/sampling_c3:generate_samples",
+         "//examples/sampling_c3:reposition",
+@@ -283,3 +284,8 @@
+         "@drake//:drake_shared_library",
+     ],
+ )
++
++cc_library(
++    name = "finite_cost_hysteresis",
++    hdrs = ["finite_cost_hysteresis.h"],
++)

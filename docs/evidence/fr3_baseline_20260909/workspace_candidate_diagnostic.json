@@ -1,0 +1,86 @@
+{
+  "observed_utc": "2026-09-09T09:00:38.454119+00:00",
+  "scope": "Raw current-location C3 candidate states immediately before scene001 workspace abort; not proof every candidate was executed by OSC.",
+  "evidence": {
+    "native_log_sha256": "5666f8b443d175637af8754e359e63ab8f2c33504f3c9d456a9d9855c35bae6f",
+    "effect_audit_sha256": "24c2928849bead186333da582df614ce16f530dea5e8b7a40d4f34dd74d52c13",
+    "inspected_source": "/data1/linsixu/dairlib-push-anything-canonical/systems/controllers/sampling_based_c3_controller.cc",
+    "inspected_source_sha256": "dd31371eec519cd4a17bce9da5d05ef3fd0c1c0f3841fe48377f9b0e9db6885e"
+  },
+  "finding": "Inspected actor constraints apply inward XYZ planes; measured-state guard additionally requires horizontal radius below0.75m. Raw candidate knots can remain inside the inward XY box while exceeding the radial bound.",
+  "last_candidate_records": [
+    {
+      "utime_us": 87649999,
+      "maximum_candidate_radius_m": 0.7176280773229551,
+      "knots_over_0_75m": 0,
+      "all_knots_inside_inward_xy_box": true
+    },
+    {
+      "utime_us": 87700000,
+      "maximum_candidate_radius_m": 0.7210301923058636,
+      "knots_over_0_75m": 0,
+      "all_knots_inside_inward_xy_box": true
+    },
+    {
+      "utime_us": 87750000,
+      "maximum_candidate_radius_m": 0.7310292353470089,
+      "knots_over_0_75m": 0,
+      "all_knots_inside_inward_xy_box": true
+    },
+    {
+      "utime_us": 87800000,
+      "maximum_candidate_radius_m": 0.7400828407890655,
+      "knots_over_0_75m": 0,
+      "all_knots_inside_inward_xy_box": true
+    },
+    {
+      "utime_us": 87850000,
+      "maximum_candidate_radius_m": 0.7479163474560693,
+      "knots_over_0_75m": 0,
+      "all_knots_inside_inward_xy_box": true
+    },
+    {
+      "utime_us": 87899999,
+      "maximum_candidate_radius_m": 0.7487869953504624,
+      "knots_over_0_75m": 0,
+      "all_knots_inside_inward_xy_box": true
+    },
+    {
+      "utime_us": 87950000,
+      "maximum_candidate_radius_m": 0.7566476984827493,
+      "knots_over_0_75m": 8,
+      "all_knots_inside_inward_xy_box": true
+    },
+    {
+      "utime_us": 88000000,
+      "maximum_candidate_radius_m": 0.7678467248801666,
+      "knots_over_0_75m": 9,
+      "all_knots_inside_inward_xy_box": true
+    },
+    {
+      "utime_us": 88050000,
+      "maximum_candidate_radius_m": 0.7641242355806164,
+      "knots_over_0_75m": 8,
+      "all_knots_inside_inward_xy_box": true
+    },
+    {
+      "utime_us": 88100000,
+      "maximum_candidate_radius_m": 0.7615127025657444,
+      "knots_over_0_75m": 8,
+      "all_knots_inside_inward_xy_box": true
+    },
+    {
+      "utime_us": 88149999,
+      "maximum_candidate_radius_m": 0.7598216903380807,
+      "knots_over_0_75m": 9,
+      "all_knots_inside_inward_xy_box": true
+    },
+    {
+      "utime_us": 88200000,
+      "maximum_candidate_radius_m": 0.7586555492539383,
+      "knots_over_0_75m": 9,
+      "all_knots_inside_inward_xy_box": true
+    }
+  ],
+  "next_check": "Trace the selected native EE reference and preserve radius feasibility with tracking margin in future revision; do not widen or remove measured-state guard. Current frozen inputs unchanged."
+}

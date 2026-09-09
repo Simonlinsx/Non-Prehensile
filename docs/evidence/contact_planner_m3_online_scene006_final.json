@@ -1,0 +1,57 @@
+{
+  "schema": "nonprehensile.c3_online_isaaclab_evidence.v1",
+  "date_utc": "2026-09-02",
+  "scene_id": "upstream-objective-scene006-support-fixed",
+  "scope": "single-hammer, no planner-modeled clutter, oracle target state, C1",
+  "controller": {
+    "upstream_dairlib_commit": "9d988c835d6e99330397701487fce5ce4ceafa3c",
+    "c3_commit": "5c08cb2e14b1ab10e024cb46e8504970cffcd5ea",
+    "projection": "C3+",
+    "planner_frequency_hz": 20.0,
+    "local_servo_frequency_hz": 100.0,
+    "task_lookahead_ms": 100.0,
+    "fresh_task_timeout_ms": 1000,
+    "fresh_timestamp_tolerance_us": 100,
+    "executor": "measured_state_online_c3_task_trajectory_local_joint_servo",
+    "recorded_trajectory_replay": false
+  },
+  "acceptance": {
+    "online_closed_loop_success": true,
+    "stopped_reason": "strict_pose_dwell_success",
+    "final_xy_error_m": 0.017005249857902527,
+    "final_z_error_m": 0.0009851939976215363,
+    "final_so3_error_rad": 0.08060396462678909,
+    "required_dwell_s": 0.5,
+    "achieved_dwell_steps": 50,
+    "safe_robot_contact_ever": true,
+    "forbidden_robot_contact_ever": false,
+    "minimum_robot_forbidden_distance_m": 0.10675912350416183,
+    "first_safe_contact_step": 1757,
+    "executed_sim_time_s": 18.93
+  },
+  "runtime": {
+    "planner_cycles": 379,
+    "fresh_commands": 378,
+    "stale_commands": 1,
+    "watchdog_holds": 1,
+    "maximum_consecutive_watchdog_holds": 1,
+    "note": "The sole stale/hold cycle is controller startup."
+  },
+  "artifacts": {
+    "result": "outputs/contact_planner_m3/online_isaac_scene006_v1/final_synchronized20hz_video/result_task_video.json",
+    "result_sha256": "ea11cb3b371e9d3d0a5a3a22ca73d4384afbe84117a5042f01deeb3540e2fab2",
+    "video": "outputs/contact_planner_m3/online_isaac_scene006_v1/final_synchronized20hz_video/scene006_c3_online_final.mp4",
+    "video_sha256": "778a934dd6d35abf3ca1c90448279f1850cce9e81d0ddef260a16c1c243c0b98",
+    "video_frames": 378,
+    "video_fps": 20.0,
+    "video_resolution": [1280, 720],
+    "isaac_manifest_sha256": "059145ed72c0212ad6c59d600ba26607518afd3df751fb843c345c0623e9dba7",
+    "stage_manifest_sha256": "9ad56a35d41b3d31408e745549e134695bb93326c9dce3a1a3a67dd3361f34c6"
+  },
+  "limitations": [
+    "This is a single-scene S2 smoke pass, not the randomized S2 gate.",
+    "The native 50-scene S1 geometry gate is currently 28/50 and remains below threshold.",
+    "The C3+ model does not yet include typed clutter, so this does not claim C2 or C3.",
+    "Oracle simulator target state is used; RGB-D perception is not yet connected."
+  ]
+}

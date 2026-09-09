@@ -6,11 +6,24 @@ EXPECTED_COMMIT="9d988c835d6e99330397701487fce5ce4ceafa3c"
 EXPECTED_C3_COMMIT="5c08cb2e14b1ab10e024cb46e8504970cffcd5ea"
 UPSTREAM_ROOT="${PUSH_ANYTHING_ROOT:-/data1/linsixu/dairlib-push-anything}"
 C3_ROOT="${PUSH_ANYTHING_C3_ROOT:-/data1/linsixu/c3-push-anything}"
-OUTPUT_USER_ROOT="${PUSH_ANYTHING_BAZEL_ROOT:-/data1/linsixu/.cache/bazel-push-anything}"
+# Reuse this checkout's existing output root unless explicitly overridden.
+# Selecting a different cache also rewrites bazel-bin, even when analysis
+# fails, and can hide the controller that the online runner was using.
+EXISTING_BAZEL_ROOT=""
+if [[ -L "$UPSTREAM_ROOT/bazel-out" ]]; then
+  existing_bazel_out="$(readlink -f "$UPSTREAM_ROOT/bazel-out" || true)"
+  if [[ "$existing_bazel_out" =~ ^(.+)/[[:xdigit:]]{32}/execroot/[^/]+/bazel-out$ ]]; then
+    EXISTING_BAZEL_ROOT="${BASH_REMATCH[1]}"
+  fi
+fi
+OUTPUT_USER_ROOT="${PUSH_ANYTHING_BAZEL_ROOT:-${EXISTING_BAZEL_ROOT:-/data1/linsixu/.cache/bazel-push-anything}}"
 BAZELISK_HOME="${PUSH_ANYTHING_BAZELISK_HOME:-/data1/linsixu/.cache/bazelisk}"
+BAZEL_DISTDIR="${PUSH_ANYTHING_BAZEL_DISTDIR:-}"
 OPENBLAS_ROOT="${PUSH_ANYTHING_OPENBLAS_ROOT:-/data1/linsixu/miniconda3/envs/anydex-torch}"
 C3_PATCH="$REPO_ROOT/third_party/push_anything/patches/0002-c3-no-gurobi-optional-m.patch"
 MODE="${1:---check}"
+PATCH_PROFILE="${PUSH_ANYTHING_PATCH_PROFILE:-extended}"
+BUILD_PROFILE="${PUSH_ANYTHING_BUILD_PROFILE:-full}"
 
 usage() {
   cat <<'EOF'
@@ -19,8 +32,11 @@ Usage: build_push_anything_native.sh [--check|--build]
 Environment:
   PUSH_ANYTHING_ROOT       Upstream checkout (default: /data1/linsixu/dairlib-push-anything)
   PUSH_ANYTHING_C3_ROOT    Pinned local C3 checkout
-  PUSH_ANYTHING_BAZEL_ROOT Bazel cache/output root on a large disk
+  PUSH_ANYTHING_BAZEL_ROOT Bazel cache/output root (default: reuse checkout's bazel-out)
+  PUSH_ANYTHING_BAZEL_DISTDIR Optional verified source-archive directory
   PUSH_ANYTHING_OPENBLAS_ROOT Prefix containing lib/libopenblas.so
+  PUSH_ANYTHING_PATCH_PROFILE canonical (C1 + online bridge) or extended
+  PUSH_ANYTHING_BUILD_PROFILE online (controller/relay only) or full
 
 This builds the C3+ path natively and explicitly disables Gurobi/MIQP.
 EOF
@@ -31,7 +47,7 @@ if [[ "$MODE" != "--check" && "$MODE" != "--build" ]]; then
   exit 2
 fi
 
-if [[ ! -d "$UPSTREAM_ROOT/.git" ]]; then
+if [[ ! -e "$UPSTREAM_ROOT/.git" ]]; then
   echo "ERROR: Push Anything checkout not found: $UPSTREAM_ROOT" >&2
   exit 3
 fi
@@ -48,12 +64,32 @@ if ! rg -q 'std::optional<std::vector<std::string>> sampling_meshes' \
   "$UPSTREAM_ROOT/systems/controllers/sampling_based_c3_controller.cc" || \
    ! rg -q 'SemanticC1TrajectoryGuard' \
   "$UPSTREAM_ROOT/examples/sampling_c3/franka_osc_controller.cc" || \
-   [[ ! -f "$UPSTREAM_ROOT/examples/sampling_c3/monitor_push_anything_baseline.py" ]]; then
+   [[ ! -f "$UPSTREAM_ROOT/examples/sampling_c3/monitor_push_anything_baseline.py" ]] || \
+   [[ ! -f "$UPSTREAM_ROOT/examples/sampling_c3/online_bridge_relay.py" ]] || \
+   [[ ! -f "$UPSTREAM_ROOT/systems/controllers/closed_gripper_contact_model.h" ]] || \
+   ! rg -q 'use_simulation_time_for_plans' "$UPSTREAM_ROOT/systems/controllers/sampling_based_c3_controller.cc" || \
+   ! rg -q 'enforce_actor_workspace_bounds' "$UPSTREAM_ROOT/systems/controllers/sampling_based_c3_controller.cc"; then
   echo "ERROR: semantic C1 integration patch is not applied; run scripts/apply_push_anything_patches.sh first." >&2
   exit 5
 fi
 
-if [[ ! -d "$C3_ROOT/.git" ]]; then
+if [[ "$PATCH_PROFILE" != "canonical" && "$PATCH_PROFILE" != "extended" ]]; then
+  echo "ERROR: PUSH_ANYTHING_PATCH_PROFILE must be canonical or extended" >&2
+  exit 5
+fi
+if [[ "$PATCH_PROFILE" == "extended" ]] && {
+   ! rg -q 'std::optional<std::vector<int>> sampleable_objects' \
+      "$UPSTREAM_ROOT/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h" || \
+   ! rg -q 'pose_effect_max_horizon_rotation_error' \
+      "$UPSTREAM_ROOT/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h" || \
+   ! rg -q 'TARGET_EFFECT selected=' \
+      "$UPSTREAM_ROOT/systems/controllers/sampling_based_c3_controller.cc";
+}; then
+  echo "ERROR: extended Push Anything patches are not applied" >&2
+  exit 5
+fi
+
+if [[ ! -e "$C3_ROOT/.git" ]]; then
   echo "ERROR: C3 checkout not found: $C3_ROOT" >&2
   exit 6
 fi
@@ -98,6 +134,7 @@ echo "Upstream commit: $actual_commit"
 echo "C3 commit: $actual_c3_commit"
 echo "Bazel output root: $OUTPUT_USER_ROOT"
 echo "Bazelisk cache: $BAZELISK_HOME"
+echo "Bazel distdir: ${BAZEL_DISTDIR:-disabled}"
 echo "OpenBLAS library: ${openblas_lib_dir:-missing}"
 echo "Free space on /data1: ${available_gb} GiB"
 echo "Projection backend: C3+ (Gurobi/MIQP disabled)"
@@ -128,19 +165,45 @@ mkdir -p "$OUTPUT_USER_ROOT"
 mkdir -p "$BAZELISK_HOME"
 cd "$UPSTREAM_ROOT"
 
+bazel_distdir_args=()
+if [[ -n "$BAZEL_DISTDIR" ]]; then
+  [[ -d "$BAZEL_DISTDIR" ]] || {
+    echo "ERROR: PUSH_ANYTHING_BAZEL_DISTDIR does not exist: $BAZEL_DISTDIR" >&2
+    exit 6
+  }
+  bazel_distdir_args+=("--distdir=$BAZEL_DISTDIR")
+fi
+
+if [[ "$BUILD_PROFILE" == "online" ]]; then
+  build_targets=(
+    //examples/sampling_c3:franka_sampling_c3_controller
+    //examples/sampling_c3:monitor_push_anything_baseline
+    //examples/sampling_c3:online_bridge_relay
+  )
+elif [[ "$BUILD_PROFILE" == "full" ]]; then
+  build_targets=(
+    //examples/sampling_c3:franka_sim
+    //examples/sampling_c3:franka_osc_controller
+    //examples/sampling_c3:franka_sampling_c3_controller
+    //examples/sampling_c3:monitor_push_anything_baseline
+    //examples/sampling_c3:online_bridge_relay
+  )
+else
+  echo "ERROR: PUSH_ANYTHING_BUILD_PROFILE must be online or full" >&2
+  exit 9
+fi
+
 BAZELISK_HOME="$BAZELISK_HOME" "$bazel_cmd" \
   --output_user_root="$OUTPUT_USER_ROOT" \
   --batch \
   build \
+  "${bazel_distdir_args[@]}" \
   --override_module="c3=$C3_ROOT" \
   --define=WITH_GUROBI=OFF \
   --config=omp \
   --action_env="LD_LIBRARY_PATH=$openblas_lib_dir" \
   --linkopt="-L$openblas_lib_dir" \
   --linkopt="-Wl,-rpath,$openblas_lib_dir" \
-  //examples/sampling_c3:franka_sim \
-  //examples/sampling_c3:franka_osc_controller \
-  //examples/sampling_c3:franka_sampling_c3_controller \
-  //examples/sampling_c3:monitor_push_anything_baseline
+  "${build_targets[@]}"
 
 echo "Native Push Anything C3+ targets built successfully."

@@ -1,0 +1,76 @@
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -8,6 +8,9 @@
+ #include <limits>
+ #include <thread>
+ #include <utility>
++#include <cstdlib>
++#include <iomanip>
++#include <sstream>
+ 
+ #include <Eigen/Dense>
+ #include <omp.h>
+@@ -1258,6 +1261,62 @@
+   auto c3_end = std::chrono::high_resolution_clock::now();
+   std::chrono::duration<double, std::milli> duration_ms = c3_end - c3_start;
+   // End of parallelization
++
++  // Read-only counterfactual diagnostic: same solved current-location plan,
++  // same fine LCS and gains, both reference interpolators. Neither trajectory
++  // replaces the plan, cost, mode, or control selected above.
++  if (const char* audit = std::getenv("PUSH_ANYTHING_DIAGNOSTIC_PD_COMPARE");
++      audit != nullptr && std::string(audit) == "1") {
++    const auto& solved = c3_objects.at(SampleIndex::kCurrentLocation);
++    const LCS coarse = solved->GetLCS();
++    const LCS& fine = lcs_candidates_for_cost.at(SampleIndex::kCurrentLocation);
++    const auto full = solved->GetFullSolution();
++    vector<VectorXd> x, u, lambda;
++    for (const auto& z : full) {
++      x.push_back(z.segment(0, n_x_));
++      lambda.push_back(z.segment(n_x_, n_lambda_));
++      u.push_back(z.segment(n_x_ + n_lambda_, n_u_));
++    }
++    x.push_back(coarse.A().back() * x.back() + coarse.B().back() * u.back() +
++                coarse.D().back() * lambda.back() + coarse.d().back());
++    auto config = c3::LCSSimulateConfig();
++    config.regularized = true;
++    config.min_exp = -8;
++    const auto zoh = TrajectoryEvaluator::SimulatePDControlWithLCS(
++        x, u, Kp_for_cost_, Kd_for_cost_, coarse, fine,
++        !force_tracking_disabled, config);
++    const int rate = TrajectoryEvaluator::CheckCoarseAndFineLCSCompatibility(coarse, fine);
++    const auto foh = SimulateFOHPDRollout(
++        x, u, Kp_for_cost_, Kd_for_cost_, 3 + 7 * controller_params_.num_objects,
++        coarse.dt(), rate, !force_tracking_disabled,
++        [&](const VectorXd& state, const VectorXd& input) {
++          return fine.Simulate(state, input, config);
++        });
++    std::ostringstream record;
++    record << std::setprecision(17)
++           << "C3_PD_REFERENCE_COMPARISON {\"utime_us\":"
++           << static_cast<int64_t>(context.get_time() * 1e6)
++           << ",\"dt_s\":" << coarse.dt()
++           << ",\"force_tracking_enabled\":" << (!force_tracking_disabled ? "true" : "false");
++    const auto write_states = [&](const char* key, const vector<VectorXd>& states) {
++      record << ",\"" << key << "\":[";
++      for (int k = 0; k < static_cast<int>(states.size()); ++k) {
++        if (k) record << ',';
++        record << '[';
++        for (int j = 0; j < states[k].size(); ++j) {
++          if (j) record << ',';
++          record << states[k][j];
++        }
++        record << ']';
++      }
++      record << ']';
++    };
++    write_states("raw_states", x);
++    write_states("zoh_states", zoh.first);
++    write_states("foh_states", foh.first);
++    record << '}';
++    std::cout << record.str() << std::endl;
++  }
+ 
+   // A sample is only useful if the C3 plan that starts from that sample can
+   // also satisfy the semantic clearance.  Previously this was checked only

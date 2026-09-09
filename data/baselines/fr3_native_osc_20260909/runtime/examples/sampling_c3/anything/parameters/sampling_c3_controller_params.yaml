@@ -1,0 +1,39 @@
+sampling_c3_options_file: examples/sampling_c3/anything/parameters/sampling_c3plus_options.yaml
+reposition_params_file: examples/sampling_c3/anything/parameters/reposition_params.yaml
+progress_params_file: examples/sampling_c3/anything/parameters/progress_params_c3plus.yaml
+sampling_params_file: examples/sampling_c3/anything/parameters/sampling_params.yaml
+goal_params_file: examples/sampling_c3/anything/parameters/goal_params.yaml
+sim_params_file: examples/sampling_c3/anything/parameters/sim_params.yaml
+vis_params_file: examples/sampling_c3/anything/parameters/vis_params.yaml
+osc_params_file: examples/sampling_c3/shared_parameters/osc_params.yaml
+osqp_settings_file: examples/sampling_c3/shared_parameters/sampling_c3_qp_settings.yaml
+osc_qp_settings_file: examples/sampling_c3/shared_parameters/osc_qp_settings.yaml
+franka_driver_channels_file: common/parameters/franka_drake_lcm_driver_channels.yaml
+lcm_channels_hardware_file: examples/sampling_c3/anything/parameters/lcm_channels_hardware.yaml
+lcm_channels_simulation_file: examples/sampling_c3/anything/parameters/lcm_channels_simulation.yaml
+object_models:
+- examples/sampling_c3/urdf/DOMINO_020_hammer_safe/DOMINO_020_hammer_safe_controller.sdf
+base_names:
+- DOMINO_020_hammer_safe
+include_end_effector_orientation: false
+control_loop_delay_ms: 0
+sampling_meshes:
+- examples/sampling_c3/urdf/DOMINO_020_hammer_safe/DOMINO_020_hammer_safe_safe_guarded.obj
+unsafe_meshes:
+- examples/sampling_c3/urdf/DOMINO_020_hammer_safe/DOMINO_020_hammer_safe_unsafe.obj
+semantic_guard_clearance: 0.025
+semantic_guard_stop_distance: 0.055
+closed_gripper_collision_meshes:
+- examples/sampling_c3/urdf/shared_physx_contact/panda_leftfinger_0.obj
+- examples/sampling_c3/urdf/shared_physx_contact/panda_leftfinger_1.obj
+- examples/sampling_c3/urdf/shared_physx_contact/panda_leftfinger_2.obj
+- examples/sampling_c3/urdf/shared_physx_contact/panda_leftfinger_3.obj
+- examples/sampling_c3/urdf/shared_physx_contact/panda_rightfinger_0.obj
+- examples/sampling_c3/urdf/shared_physx_contact/panda_rightfinger_1.obj
+- examples/sampling_c3/urdf/shared_physx_contact/panda_rightfinger_2.obj
+- examples/sampling_c3/urdf/shared_physx_contact/panda_rightfinger_3.obj
+use_simulation_time_for_plans: true
+enforce_actor_workspace_bounds: true
+enforce_nonnegative_contact_forces: true
+use_foh_pd_rollout: false
+planner_finger_table_clearance: 0.002

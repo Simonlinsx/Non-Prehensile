@@ -1,0 +1,52 @@
+{
+  "schema": "nonprehensile.contact_planner_m3.c1_outward120_eval50.v1",
+  "date": "2026-09-02",
+  "distribution": {
+    "asset": "020_hammer:0",
+    "clutter": false,
+    "scene_count": 50,
+    "relative_goal_direction_deg": [-60.0, 60.0],
+    "relative_goal_yaw_deg": [-10.0, 10.0],
+    "goal_distance_m": [0.06, 0.10]
+  },
+  "acceptance": {
+    "minimum_joint_success_rate": 0.8,
+    "minimum_per_direction_bin_rate": 0.6,
+    "maximum_c1_violations": 0
+  },
+  "result": {
+    "attempted": 50,
+    "evaluable": 50,
+    "infrastructure_failures": 0,
+    "joint_successes": 41,
+    "joint_success_rate": 0.82,
+    "c1_successes": 50,
+    "c1_success_rate": 1.0,
+    "legal_contact_scenes": 50,
+    "c1_violation_scenes": 0,
+    "passed": true,
+    "direction_bins": {
+      "[-60,-30)": [9, 12],
+      "[-30,0)": [13, 13],
+      "[0,30)": [8, 12],
+      "[30,60]": [11, 13]
+    },
+    "failed_scene_ids": [
+      "scene008",
+      "scene009",
+      "scene014",
+      "scene031",
+      "scene036",
+      "scene038",
+      "scene039",
+      "scene043",
+      "scene048"
+    ]
+  },
+  "artifacts": {
+    "manifest": "data/manifests/contact_planner_m3/hammer_c1_outward120_eval50_seed20260902.jsonl",
+    "manifest_sha256": "067f109028119acef86f498eb1077f074c94a87f22cc167470077bc3ced79518",
+    "generated_summary": "outputs/contact_planner_m3/hammer_c1_outward120_eval50_margin_v1/summary.json",
+    "generated_summary_sha256": "20b31c6ca3e4151350b3120dfc40675f75584704212d3159eb83a1cf3babcbc1"
+  }
+}

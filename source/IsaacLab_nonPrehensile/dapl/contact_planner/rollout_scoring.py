@@ -150,6 +150,53 @@ def rank_physics_rollouts(
     return best_index, has_candidate, scores
 
 
+def rank_safe_plateau_rollouts(
+    *,
+    current_cost: torch.Tensor,
+    rollout_cost: torch.Tensor,
+    rollout_rotation_error: torch.Tensor,
+    legal_safe_contact: torch.Tensor,
+    maximum_cost_increase: float,
+    transient_rotation_cap_rad: float,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Select a bounded, C1-safe plateau escape when no action improves.
+
+    This is intentionally separate from the strict improving selector.  It
+    permits a finite-horizon controller to take one reversible setup contact,
+    while bounding both objective degradation and transient object rotation.
+    Final task success is unaffected by these planning-only bounds.
+    """
+
+    if rollout_cost.ndim != 2:
+        raise ValueError("rollout_cost must have shape [B, K]")
+    expected = rollout_cost.shape
+    if rollout_rotation_error.shape != expected:
+        raise ValueError("rollout_rotation_error must match rollout_cost")
+    if legal_safe_contact.shape != expected:
+        raise ValueError("legal_safe_contact must match rollout_cost")
+    if current_cost.shape != (expected[0],):
+        raise ValueError("current_cost must have shape [B]")
+    if maximum_cost_increase < 0.0:
+        raise ValueError("maximum_cost_increase must be non-negative")
+    if transient_rotation_cap_rad <= 0.0:
+        raise ValueError("transient_rotation_cap_rad must be positive")
+
+    bounded = rollout_cost <= current_cost[:, None] + maximum_cost_increase
+    rotation_safe = rollout_rotation_error <= transient_rotation_cap_rad
+    valid = legal_safe_contact.bool() & bounded & rotation_safe
+    scores = torch.where(
+        valid,
+        rollout_cost,
+        torch.full_like(rollout_cost, torch.inf),
+    )
+    best_score, best_index = scores.min(dim=1)
+    has_candidate = torch.isfinite(best_score)
+    best_index = torch.where(
+        has_candidate, best_index, torch.full_like(best_index, -1)
+    )
+    return best_index, has_candidate, scores
+
+
 def rank_physics_rollout_pairs(
     *,
     current_cost: torch.Tensor,

@@ -1,0 +1,306 @@
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -32,6 +32,8 @@
+ #include "drake/geometry/proximity/polygon_surface_mesh.h"
+ #include "drake/common/trajectories/piecewise_polynomial.h"
+ #include "drake/multibody/plant/multibody_plant.h"
++
++#include "drake/solvers/moby_lcp_solver.h"
+ 
+ namespace dairlib {
+ 
+@@ -3871,5 +3873,189 @@
+   *unsuccessful_sample_buffer_costs = unsuccessful_sample_costs_buffer_;
+ }
+ 
++// Offline-only model of the executor's packet/reference sample-and-hold.
++std::pair<vector<VectorXd>, vector<VectorXd>>
++SamplingC3Controller::AuditSampledPDReplay(
++    const vector<VectorXd>& x_plan, const vector<VectorXd>& u_plan,
++    double dt, bool track_force) const {
++  Matrix3d inertia = Matrix3d::Identity();
++  const char* inertia_value = std::getenv("PUSH_ANYTHING_OFFLINE_PD_INERTIA");
++  const bool tensor_mode = inertia_value && *inertia_value;
++  if (tensor_mode) {
++    std::istringstream values(inertia_value);
++    for (int i = 0; i < 3; ++i) for (int j = 0; j < 3; ++j)
++      DRAKE_THROW_UNLESS(static_cast<bool>(values >> inertia(i,j)));
++    std::string trailing;
++    DRAKE_THROW_UNLESS(!(values >> trailing));
++    DRAKE_THROW_UNLESS(inertia.allFinite() && (inertia - inertia.transpose()).norm() < 1e-10);
++    Eigen::SelfAdjointEigenSolver<Matrix3d> eigen(inertia);
++    DRAKE_THROW_UNLESS(eigen.info() == Eigen::Success && eigen.eigenvalues().minCoeff() > 1e-6);
++    DRAKE_THROW_UNLESS(controller_params_.sampling_c3_options.contact_model == "anitescu");
++    std::cout << std::setprecision(17) << "C3_OFFLINE_PD_INERTIA {\"matrix_kg\":[";
++    for (int i = 0; i < 3; ++i) {
++      if (i) std::cout << ',';
++      std::cout << '[' << inertia(i,0) << ',' << inertia(i,1) << ',' << inertia(i,2) << ']';
++    }
++    std::cout << "]}" << std::endl;
++  }
++  const int rate = sampling_c3_options_.lcs_dt_resolution;
++  const double fine_dt = dt / rate;
++  const double servo_ratio = .01 / fine_dt;
++  DRAKE_THROW_UNLESS(std::abs(servo_ratio - std::round(servo_ratio)) < 1e-9 && servo_ratio >= 1);
++  DRAKE_THROW_UNLESS(x_plan.size() == u_plan.size() + 1 && u_plan.size() == N_);
++  const VectorXd saved_x = plant_.GetPositionsAndVelocities(*context_);
++  const auto& body = plant_.GetBodyByName("end_effector_simple");
++  const auto& body_ad = plant_ad_.GetBodyByName("end_effector_simple");
++  const double saved_mass = body.get_mass(*context_);
++  const auto saved_mass_ad = body_ad.get_mass(*context_ad_);
++  const auto restore = [&]() {
++    UpdateContext(n_q_, n_v_, n_u_, plant_, context_, plant_ad_, context_ad_, saved_x);
++    body.SetMass(context_, saved_mass);
++    body_ad.SetMass(context_ad_, saved_mass_ad);
++  };
++  try {
++    body.SetMass(context_, 1.0);
++    body_ad.SetMass(context_ad_, drake::AutoDiffXd(1.0));
++    auto config = c3::LCSSimulateConfig();
++    config.regularized = true;
++    config.min_exp = -8;
++    if (const char* value = std::getenv("PUSH_ANYTHING_OFFLINE_PD_LCP_ZERO_TOL")) {
++      std::size_t used = 0;
++      const std::string text(value);
++      const double tolerance = std::stod(text, &used);
++      DRAKE_THROW_UNLESS(used == text.size() && std::isfinite(tolerance) && tolerance >= 1e-12 && tolerance <= 1e-4);
++      config.zero_tol = tolerance;
++      std::cout << std::setprecision(17) << "C3_OFFLINE_PD_LCP_OPTIONS {\"zero_tol\":" << tolerance << "}" << std::endl;
++    }
++    vector<VectorXd> states, inputs;
++    VectorXd state = x_plan.front();
++    for (int step = 0; step < N_ * rate; ++step) {
++      const double time = step * fine_dt;
++      const double servo_time = std::floor(time / .01 + 1e-9) * .01;
++      const double packet_time = std::floor(servo_time / .05 + 1e-9) * .05;
++      const int left = std::min(static_cast<int>(std::floor(packet_time / dt + 1e-9)), N_ - 1);
++      const int right = std::min(left + 1, N_ - 1);
++      const double alpha = left == right ? 0.0 : (packet_time - left * dt) / dt;
++      const Vector3d velocity = (x_plan[right].head<3>() - x_plan[left].head<3>()) / dt;
++      const Vector3d position = (1 - alpha) * x_plan[left].head<3>() +
++          alpha * x_plan[right].head<3>() + (servo_time - packet_time) * velocity;
++      Vector3d external_force = Vector3d::Zero();
++      if (track_force) external_force = -((1 - alpha) * u_plan[left] + alpha * u_plan[right]);
++      Vector3d force = 200.0 * (position - state.head<3>()) +
++          20.0 * (velocity - state.segment<3>(n_q_)) + external_force -
++          plant_.gravity_field().gravity_vector();
++      if (tensor_mode) force = inertia * (200.0 * (position - state.head<3>()) +
++          20.0 * (velocity - state.segment<3>(n_q_)) - plant_.gravity_field().gravity_vector()) + external_force;
++      if (step % rate == 0) { states.push_back(state); inputs.push_back(force); }
++      if (step % static_cast<int>(std::round(servo_ratio)) == 0) {
++        std::cout << std::setprecision(17) << "C3_OFFLINE_PD_REFERENCE {\"time_s\":" << time
++                  << ",\"position_m\":[" << position[0] << ',' << position[1] << ',' << position[2]
++                  << "],\"velocity_m_s\":[" << velocity[0] << ',' << velocity[1] << ',' << velocity[2]
++                  << "],\"external_force_n\":[" << external_force[0] << ',' << external_force[1] << ',' << external_force[2] << "]}" << std::endl;
++      }
++      VectorXd current = state;
++      for (int j = 0; j < controller_params_.num_objects; ++j) current.segment<4>(3 + 7 * j).normalize();
++      UpdateContext(n_q_, n_v_, n_u_, plant_, context_, plant_ad_, context_ad_, current);
++      const auto contacts = GetResolvedContactPairs(plant_, *context_, contact_pairs_,
++          sampling_c3_options_.resolve_contacts_to_for_cost,
++          sampling_c3_options_.num_friction_directions_per_contact_for_cost, false);
++      LCSFactoryOptions options = {
++          .contact_model = controller_params_.sampling_c3_options.contact_model,
++          .N = 1, .dt = fine_dt, .num_contacts = contacts.size(), .spring_stiffness = 0.0,
++          .num_friction_directions_per_contact = sampling_c3_options_.num_friction_directions_per_contact_for_cost,
++          .mu_per_contact = sampling_c3_options_.mu_for_cost,
++          .planar_normal_direction = sampling_c3_options_.planar_normal_direction};
++      LCS fine = LCSFactory(plant_, *context_, plant_ad_, *context_ad_, contacts, options).GenerateLCS();
++      if (tensor_mode) {
++        // Anitescu D_v = dt M^-1 Jc^T. The source actor has exactly unit
++        // Cartesian inertia; recover its Jc columns and replace only that block.
++        const auto transform = [&](const LCS& source, const Matrix3d& inverse_inertia) {
++          MatrixXd B = source.B().front(), D = source.D().front();
++          MatrixXd F = source.F().front(), H = source.H().front();
++          const MatrixXd old_Bv = B.middleRows(n_q_, 3);
++          const MatrixXd old_Dv = D.middleRows(n_q_, 3);
++          DRAKE_THROW_UNLESS((old_Bv / fine_dt - Matrix3d::Identity()).norm() < 1e-9);
++          const MatrixXd Jc_actor = old_Dv.transpose() / fine_dt;
++          B.topRows(3) = (inverse_inertia * B.topRows(3)).eval();
++          B.middleRows(n_q_, 3) = inverse_inertia * old_Bv;
++          D.topRows(3) = (inverse_inertia * D.topRows(3)).eval();
++          D.middleRows(n_q_, 3) = inverse_inertia * old_Dv;
++          F += Jc_actor * (D.middleRows(n_q_, 3) - old_Dv);
++          H += Jc_actor * (B.middleRows(n_q_, 3) - old_Bv);
++          return LCS(source.A().front(), B, D, source.d().front(), source.E().front(),
++                     F, H, source.c().front(), source.N(), source.dt());
++        };
++        // Verify against the unchanged multibody factory at three real scalar
++        // masses, including all eight LCS coefficients and contact LCP outputs.
++        if (step % rate == 0) {
++          double coefficient_error = 0, simulation_error = 0;
++          for (double mass : {.25, 2.0, 10.0}) {
++            body.SetMass(context_, mass);
++            body_ad.SetMass(context_ad_, drake::AutoDiffXd(mass));
++            const LCS direct = LCSFactory(plant_, *context_, plant_ad_, *context_ad_, contacts, options).GenerateLCS();
++            body.SetMass(context_, 1.0);
++            body_ad.SetMass(context_ad_, drake::AutoDiffXd(1.0));
++            const LCS mapped = transform(fine, Matrix3d::Identity() / mass);
++            const auto compare = [&](const auto& a, const auto& b) {
++              coefficient_error = std::max(coefficient_error, (a.front() - b.front()).cwiseAbs().maxCoeff());
++            };
++            compare(direct.A(), mapped.A()); compare(direct.B(), mapped.B());
++            compare(direct.D(), mapped.D()); compare(direct.d(), mapped.d());
++            compare(direct.E(), mapped.E()); compare(direct.F(), mapped.F());
++            compare(direct.H(), mapped.H()); compare(direct.c(), mapped.c());
++            for (const Vector3d input : {Vector3d(.1, -.2, 9.8), Vector3d(-1.0, 2.0, 0.0)}) {
++              const VectorXd a = direct.Simulate(current, input, config);
++              const VectorXd b = mapped.Simulate(current, input, config);
++              DRAKE_THROW_UNLESS(a.allFinite() && b.allFinite());
++              simulation_error = std::max(simulation_error, (a - b).cwiseAbs().maxCoeff());
++              if ((a - b).cwiseAbs().maxCoeff() >= 1e-7) {
++                for (const auto& item : {std::make_pair("direct", &direct), std::make_pair("mapped", &mapped)}) {
++                  const LCS& model = *item.second;
++                  const VectorXd q = model.E().front() * current + model.c().front() + model.H().front() * input;
++                  VectorXd lambda;
++                  drake::solvers::MobyLcpSolver solver;
++                  const bool solved = solver.SolveLcpLemkeRegularized(model.F().front(), q, &lambda,
++                      config.min_exp, config.step_exp, config.max_exp, config.piv_tol, config.zero_tol);
++                  const VectorXd w = model.F().front() * lambda + q;
++                  const VectorXd residual = lambda.array() * w.array();
++                  std::cout << "C3_OFFLINE_PD_LCP_DIAGNOSTIC {\"step\":" << step
++                            << ",\"mass_kg\":" << mass << ",\"model\":\"" << item.first
++                            << "\",\"solver_success\":" << (solved ? "true" : "false")
++                            << ",\"minimum_lambda\":" << lambda.minCoeff()
++                            << ",\"minimum_original_w\":" << w.minCoeff()
++                            << ",\"maximum_original_complementarity\":" << residual.cwiseAbs().maxCoeff()
++                            << ",\"state_difference\":" << (a - b).cwiseAbs().maxCoeff() << "}" << std::endl;
++                }
++              }
++            }
++          }
++          std::cout << "C3_OFFLINE_PD_INERTIA_TRANSFORM {\"step\":" << step
++                    << ",\"maximum_coefficient_error\":" << coefficient_error
++                    << ",\"maximum_lcp_state_error\":" << simulation_error << "}" << std::endl;
++          DRAKE_THROW_UNLESS(coefficient_error < 1e-8 && simulation_error < 1e-7);
++        }
++        fine = transform(fine, inertia.inverse());
++      }
++      state = fine.Simulate(current, force, config);
++      for (int j = 0; j < controller_params_.num_objects; ++j) state.segment<4>(3 + 7 * j).normalize();
++      DRAKE_THROW_UNLESS(state.allFinite());
++      // Offline-only, exact fine-step samples for first-period physical comparisons.
++      if (const char* audit = std::getenv("PUSH_ANYTHING_OFFLINE_PD_FIRST_PERIOD");
++          audit != nullptr && std::string(audit) == "1" && (step + 1) * fine_dt <= .05 + 1e-12) {
++        std::cout << std::setprecision(17) << "C3_OFFLINE_PD_FINE_STATE {\"time_s\":"
++                  << (step + 1) * fine_dt << ",\"state\":[";
++        for (int j = 0; j < state.size(); ++j) {
++          if (j) std::cout << ',';
++          std::cout << state[j];
++        }
++        std::cout << "]}" << std::endl;
++      }
++    }
++    states.push_back(state);
++    restore();
++    return {states, inputs};
++  } catch (...) { restore(); throw; }
++}
++
+ }  // namespace systems
+ }  // namespace dairlib
+diff --git a/systems/controllers/sampling_based_c3_controller.h b/systems/controllers/sampling_based_c3_controller.h
+--- a/systems/controllers/sampling_based_c3_controller.h
++++ b/systems/controllers/sampling_based_c3_controller.h
+@@ -68,6 +68,21 @@
+ 
+ class SamplingC3Controller : public drake::systems::LeafSystem<double> {
+  public:
++  // Offline audit only: evaluate a supplied reference without computing or
++  // publishing a control command. Resolution is set in the audit constructor.
++  std::pair<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>>
++  AuditRelinearizedPDReplay(const std::vector<Eigen::VectorXd>& x,
++                           const std::vector<Eigen::VectorXd>& u,
++                           double dt, bool track_force, bool sampled_clocks = false) const {
++    if (sampled_clocks) return AuditSampledPDReplay(x, u, dt, track_force);
++    return SimulateRelinearizedPDCost(x, u, dt, track_force);
++  }
++
++  std::pair<std::vector<Eigen::VectorXd>, std::vector<Eigen::VectorXd>>
++  AuditSampledPDReplay(const std::vector<Eigen::VectorXd>& x,
++                       const std::vector<Eigen::VectorXd>& u,
++                       double dt, bool track_force) const;
++
+   explicit SamplingC3Controller(
+       drake::multibody::MultibodyPlant<double>& plant,
+       drake::systems::Context<double>* context,
+diff --git a/examples/sampling_c3/franka_sampling_c3_controller.cc b/examples/sampling_c3/franka_sampling_c3_controller.cc
+--- a/examples/sampling_c3/franka_sampling_c3_controller.cc
++++ b/examples/sampling_c3/franka_sampling_c3_controller.cc
+@@ -66,6 +66,9 @@
+               "LCM URL with IP, port, and TTL settings");
+ DEFINE_string(demo_name, "jacktoy",
+               "Demo within sampling_c3; used to find controller params file");
++
++DEFINE_bool(offline_pd_sampled_references, false, "Offline audit of 20Hz packet and 100Hz reference clocks");
++DEFINE_string(offline_pd_replay_input, "", "Offline reference audit: N nx nu dt resolution track_force, arm q(7), x(N+1), u(N); no control commands");
+ 
+ int DoMain(int argc, char* argv[]) {
+   gflags::ParseCommandLineFlags(&argc, &argv, true);
+@@ -420,6 +423,65 @@
+ 
+   // Piece together the diagram.
+   DiagramBuilder<double> builder;
++
++  if (!FLAGS_offline_pd_replay_input.empty()) {
++    try {
++      DRAKE_THROW_UNLESS(controller_params.closed_gripper_collision_meshes.has_value());
++      std::ifstream input(FLAGS_offline_pd_replay_input);
++      int N, nx, nu, resolution, track_force;
++      double dt;
++      DRAKE_THROW_UNLESS(static_cast<bool>(input >> N >> nx >> nu >> dt >> resolution >> track_force));
++      DRAKE_THROW_UNLESS(N == sampling_c3_options.N && nx == plant_lcs.num_multibody_states() && nu == 3);
++      DRAKE_THROW_UNLESS(std::isfinite(dt) && dt > 0 && resolution >= 1 && resolution <= 64 && (track_force == 0 || track_force == 1));
++      VectorXd qf(7);
++      for (int j = 0; j < 7; ++j) DRAKE_THROW_UNLESS(static_cast<bool>(input >> qf[j]));
++      DRAKE_THROW_UNLESS(qf.allFinite());
++      vector<VectorXd> x(N + 1, VectorXd(nx)), u(N, VectorXd(nu));
++      for (auto& state : x) {
++        for (int j = 0; j < nx; ++j) DRAKE_THROW_UNLESS(static_cast<bool>(input >> state[j]));
++        DRAKE_THROW_UNLESS(state.allFinite());
++      }
++      for (auto& force : u) {
++        for (int j = 0; j < nu; ++j) DRAKE_THROW_UNLESS(static_cast<bool>(input >> force[j]));
++        DRAKE_THROW_UNLESS(force.allFinite());
++      }
++      std::string trailing;
++      DRAKE_THROW_UNLESS(!(input >> trailing));
++      plant_franka.SetPositions(franka_context.get(), qf);
++      const auto R = plant_franka.EvalBodyPoseInWorld(*franka_context,
++          plant_franka.GetBodyByName("panda_link7")).rotation() *
++          drake::math::RotationMatrix<double>::MakeZRotation(-0.785398163397);
++      const auto q = R.ToQuaternion();
++      const Eigen::Vector4d hand_q(q.w(), q.x(), q.y(), q.z());
++      SetClosedGripperOrientation(plant_lcs, &plant_lcs_context, hand_q);
++      SetClosedGripperOrientation(*plant_lcs_autodiff, plant_lcs_context_ad.get(), hand_q);
++      plant_lcs.SetPositionsAndVelocities(&plant_lcs_context, x.front());
++      controller_params.sampling_c3_options.lcs_dt_resolution = resolution;
++      systems::SamplingC3Controller replay(plant_lcs, &plant_lcs_context,
++          *plant_lcs_autodiff, plant_lcs_context_ad.get(), contact_pairs, controller_params);
++      const auto prediction = replay.AuditRelinearizedPDReplay(x, u, dt, track_force != 0, FLAGS_offline_pd_sampled_references);
++      std::cout << std::setprecision(17) << "C3_OFFLINE_PD_REPLAY {\"resolution\":" << resolution
++                << ",\"sampled_reference_clocks\":" << (FLAGS_offline_pd_sampled_references ? "true" : "false")
++                << ",\"dt_s\":" << dt << ",\"actor_mass_kg\":1,\"states\":[";
++      for (int k = 0; k < static_cast<int>(prediction.first.size()); ++k) {
++        if (k) std::cout << ',';
++        std::cout << '[';
++        for (int j = 0; j < nx; ++j) {
++          if (j) std::cout << ',';
++          std::cout << prediction.first[k][j];
++        }
++        std::cout << ']';
++      }
++      std::cout << "]}" << std::endl;
++      return 0;
++    } catch (const std::exception& error) {
++      std::string message = error.what();
++      for (char& ch : message) if (ch < ' ') ch = ' ';
++      std::cout << "C3_OFFLINE_PD_REPLAY {\"failed\":true,\"error\":"
++                << std::quoted(message) << "}" << std::endl;
++      return 2;
++    }
++  }
+ 
+   assert(lcm_channel_params.object_state_channels.size() ==
+          controller_params.num_objects);

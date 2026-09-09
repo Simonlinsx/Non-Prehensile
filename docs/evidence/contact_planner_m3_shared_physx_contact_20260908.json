@@ -1,0 +1,727 @@
+{
+  "schema": "nonprehensile.shared_physx_contact_evidence.v1",
+  "date": "2026-09-08",
+  "contact_geometry_fix_validated": true,
+  "gate1_passed": false,
+  "conclusion": "Shared target/finger collision surfaces validated; strict closed-gripper task acceptance remains open.",
+  "model": {
+    "target_convex_count": 16,
+    "finger_convex_count": 2,
+    "candidate_finger_target_pair_count": 32,
+    "active_contact_count": "upstream configured count unchanged (one target contact in this scene)",
+    "hand_orientation": "measured FK each replan, fixed over the prediction horizon",
+    "reference_offset_m": 0.10427911200523377,
+    "default_evaluator": "scripts/evaluate_push_anything_isaaclab_c1.py",
+    "legacy_flag": "--legacy-sphere-contact-model"
+  },
+  "geometry_validation": {
+    "sample_count": 19,
+    "maximum_positive_native_gap_m": 3.368509261070268e-05,
+    "maximum_separation_error_m": 1.970177964005311e-05,
+    "maximum_closest_manifold_normal_error_deg": 4.277810303642912,
+    "maximum_hand_orientation_error_rad": 1.1512481126166511e-06,
+    "limitation": "Zero-velocity, one-step contact probe; compares closest manifold normal, not every contact force or task success.",
+    "geometry_check_passed": true,
+    "physx_export_sha256": "e52c4e739044cbe418adf04e62f03a59743bfb2295bb3e6a0d3f33b4e8967a86",
+    "native_log_sha256": "a7edd5986338e61d23bbd49d4954fab2e6a7e6b098c5ba77e61ec07bff190668"
+  },
+  "validation": {
+    "native_online_build": "passed",
+    "native_patch_reverse_check": "passed",
+    "shell_syntax": "passed",
+    "git_diff_check": "passed",
+    "extended_existing_checkout_patch_dry_run": "passed; extended build not tested",
+    "passed_tests": 38,
+    "pytest_command": "/data1/linsixu/miniconda3/envs/dapl-isaaclab/bin/python -m pytest -q tests/test_shared_physx_contact_staging.py tests/test_closed_gripper_geometry_audit.py tests/test_c3_effect_audit.py tests/test_c3_execution_tracking.py tests/test_c3_online_protocol.py tests/test_push_anything_isaac_bridge.py",
+    "final_native_audit_identical_to_regression_build": true
+  },
+  "runs": {
+    "scene007_corrected_short": {
+      "stopped_reason": "maximum_sim_time",
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "pose_c1_success": false,
+      "safe_robot_contact_ever": true,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.05994417518377304,
+      "final_height_error_m": 0.0009901085868477821,
+      "final_rotation_error_rad": 0.17735148966312408,
+      "minimum_planar_error_m": 0.05993136018514633,
+      "minimum_rotation_error_rad": 0.1745329201221466,
+      "maximum_strict_dwell_steps": 0,
+      "wall_time_s": 226.88524418789893,
+      "strict_pose_thresholds": {
+        "dwell_time_s": 0.5,
+        "height_m": 0.01,
+        "planar_m": 0.02,
+        "rotation_rad": 0.105
+      },
+      "status": "complete",
+      "c1_pass": true,
+      "final_rotation_error_deg": 10.161491848055057,
+      "osc_track_trajectory_velocity": false,
+      "first_safe_contact_time_s": 18.87,
+      "first_contact_time_convention": "start of recorded control step",
+      "is_acceptance_trial": true,
+      "trace_samples": 350,
+      "contact_export_sha256": null,
+      "asset_contract_recorded": false,
+      "contact_audit_timestamp_mismatches": 0,
+      "tracking": {
+        "schema": "nonprehensile.c3_execution_tracking.v1",
+        "sample_period_s": 0.1,
+        "physical_end_effector": "stock_franka_gripper_closed",
+        "controller_parameters": {
+          "c3_force_action_sign": -1.0,
+          "contact_acquisition_forbidden_margin_m": 0.003,
+          "contact_acquisition_max_travel_m": 0.018,
+          "contact_acquisition_speed_m_s": 0.0,
+          "contact_acquisition_trigger_m": 0.018,
+          "execution_rotation_guard_limit_rad": 3.0,
+          "execution_rotation_guard_lookahead_s": 0.2,
+          "execution_rotation_guard_retreat_m": 0.03,
+          "execution_rotation_recovery_outward_rate_tolerance_rad_s": 0.005,
+          "force_c3_contact_max_duration_s": 3.0,
+          "force_c3_on_legal_safe_contact": false,
+          "force_c3_yaw_regression_tolerance_rad": 0.005,
+          "max_feedforward_force_n": 5.0,
+          "max_task_target_speed_m_s": 0.25,
+          "measured_c3_yaw_brake": false,
+          "measured_yaw_recovery_min_progress_rad": 0.002,
+          "minimum_task_target_z_m": -0.005,
+          "osc_control_frame": "panda_hand_analytic_closed_gripper_proxy_center",
+          "osc_damping_ratio": 1.0,
+          "osc_inertial_dynamics_decoupling": true,
+          "osc_motion_axes": "xyz_rpy_hold",
+          "osc_nullspace_damping_ratio": 1.0,
+          "osc_nullspace_stiffness": 10.0,
+          "osc_nullspace_target": "push_anything_joint2",
+          "osc_rotation_stiffness": 25.0,
+          "osc_track_orientation": true,
+          "osc_track_trajectory_velocity": false,
+          "osc_translation_stiffness": 150.0,
+          "physical_contact_force_threshold_n": 0.1,
+          "position_feedforward_compliance_m_per_n": 0.0,
+          "position_feedforward_max_offset_m": 0.01,
+          "rmpflow_max_joint_reference_error_rad": 0.35,
+          "rmpflow_proxy_padding_m": 0.01,
+          "rmpflow_safe_approach_switch_m": 0.06,
+          "semantic_contact_activation_planar_threshold_m": null,
+          "semantic_contact_axis_source": "planned",
+          "semantic_contact_compression_m": 0.002,
+          "semantic_contact_max_additional_compression_m": 0.015,
+          "semantic_contact_max_axis_deviation_rad": 1.22,
+          "semantic_contact_max_duration_s": 1.0,
+          "semantic_contact_max_lateral_offset_m": 0.02,
+          "semantic_contact_planar_regression_tolerance_m": 0.001,
+          "semantic_contact_push_speed_m_s": 0.0,
+          "semantic_contact_yaw_gain_m_per_rad": 0.0,
+          "semantic_contact_yaw_moment_gain_m_per_rad": 0.04,
+          "semantic_contact_yaw_rate_moment_gain_m_s_per_rad": 0.02
+        },
+        "executed_sim_time_s": 35.0,
+        "success": false,
+        "forbidden_contact_ever": false,
+        "final_planar_error_m": 0.05994417518377304,
+        "final_rotation_error_rad": 0.17735148966312408,
+        "first_physical_contact_time_s": 18.87,
+        "all": {
+          "sample_count": 350,
+          "physical_safe_contact_samples": 1,
+          "physical_safe_contact_sample_fraction": 0.002857142857142857,
+          "raw_to_measured_m": {
+            "count": 350,
+            "median": 0.000252475686587285,
+            "p95": 0.0015485532874818034,
+            "max": 0.022628667212155337
+          },
+          "governed_to_measured_m": {
+            "count": 350,
+            "median": 0.0032870890140902055,
+            "p95": 0.0035956248675435057,
+            "max": 0.021156436911879805
+          },
+          "raw_to_governed_m": {
+            "count": 350,
+            "median": 0.0035404421877685416,
+            "p95": 0.0036263174012778937,
+            "max": 0.006444471928164227
+          }
+        },
+        "fresh_reposition": {
+          "sample_count": 331,
+          "physical_safe_contact_samples": 0,
+          "physical_safe_contact_sample_fraction": 0.0,
+          "raw_to_measured_m": {
+            "count": 331,
+            "median": 0.0002522078365143595,
+            "p95": 0.0002579550977869096,
+            "max": 0.00035556098204154215
+          },
+          "governed_to_measured_m": {
+            "count": 331,
+            "median": 0.003286668456253815,
+            "p95": 0.003383848337222434,
+            "max": 0.006100678323306915
+          },
+          "raw_to_governed_m": {
+            "count": 331,
+            "median": 0.0035416635838530375,
+            "p95": 0.0036223055435715334,
+            "max": 0.006444471928164227
+          }
+        },
+        "fresh_c3": {
+          "sample_count": 18,
+          "physical_safe_contact_samples": 1,
+          "physical_safe_contact_sample_fraction": 0.05555555555555555,
+          "raw_to_measured_m": {
+            "count": 18,
+            "median": 0.007813768895680653,
+            "p95": 0.022628667212155337,
+            "max": 0.022628667212155337
+          },
+          "governed_to_measured_m": {
+            "count": 18,
+            "median": 0.006462872866238609,
+            "p95": 0.021156436911879805,
+            "max": 0.021156436911879805
+          },
+          "raw_to_governed_m": {
+            "count": 18,
+            "median": 0.0,
+            "p95": 0.004583993071924518,
+            "max": 0.004583993071924518
+          }
+        },
+        "physical_contact": {
+          "sample_count": 1,
+          "physical_safe_contact_samples": 1,
+          "physical_safe_contact_sample_fraction": 1.0,
+          "raw_to_measured_m": {
+            "count": 1,
+            "median": 0.022381315724966693,
+            "p95": 0.022381315724966693,
+            "max": 0.022381315724966693
+          },
+          "governed_to_measured_m": {
+            "count": 1,
+            "median": 0.020192529821672526,
+            "p95": 0.020192529821672526,
+            "max": 0.020192529821672526
+          },
+          "raw_to_governed_m": {
+            "count": 1,
+            "median": 0.004479217773049589,
+            "p95": 0.004479217773049589,
+            "max": 0.004479217773049589
+          }
+        },
+        "sampled_contact_outside_fresh_c3": 0
+      }
+    },
+    "scene007_velocity_short": {
+      "stopped_reason": "maximum_sim_time",
+      "executed_sim_time_s": 35.0,
+      "online_closed_loop_success": false,
+      "pose_c1_success": false,
+      "safe_robot_contact_ever": true,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.038120515644550323,
+      "final_height_error_m": 0.0009883381426334381,
+      "final_rotation_error_rad": 0.5059499740600586,
+      "minimum_planar_error_m": 0.038120485842227936,
+      "minimum_rotation_error_rad": 0.1745329201221466,
+      "maximum_strict_dwell_steps": 0,
+      "wall_time_s": 227.26844573486596,
+      "strict_pose_thresholds": {
+        "dwell_time_s": 0.5,
+        "height_m": 0.01,
+        "planar_m": 0.02,
+        "rotation_rad": 0.105
+      },
+      "status": "complete",
+      "c1_pass": true,
+      "final_rotation_error_deg": 28.98879815839484,
+      "osc_track_trajectory_velocity": true,
+      "first_safe_contact_time_s": 3.0100000000000002,
+      "first_contact_time_convention": "start of recorded control step",
+      "is_acceptance_trial": true,
+      "trace_samples": 350,
+      "contact_export_sha256": "e8a330fe7469836448a7c4822bc04b7ce575aa881f06ca995e9679a35aa137be",
+      "asset_contract_recorded": false,
+      "contact_audit_timestamp_mismatches": 0,
+      "tracking": {
+        "schema": "nonprehensile.c3_execution_tracking.v1",
+        "sample_period_s": 0.1,
+        "physical_end_effector": "stock_franka_gripper_closed",
+        "controller_parameters": {
+          "c3_force_action_sign": -1.0,
+          "contact_acquisition_forbidden_margin_m": 0.003,
+          "contact_acquisition_max_travel_m": 0.018,
+          "contact_acquisition_speed_m_s": 0.0,
+          "contact_acquisition_trigger_m": 0.018,
+          "execution_rotation_guard_limit_rad": 3.0,
+          "execution_rotation_guard_lookahead_s": 0.2,
+          "execution_rotation_guard_retreat_m": 0.03,
+          "execution_rotation_recovery_outward_rate_tolerance_rad_s": 0.005,
+          "force_c3_contact_max_duration_s": 3.0,
+          "force_c3_on_legal_safe_contact": false,
+          "force_c3_yaw_regression_tolerance_rad": 0.005,
+          "max_feedforward_force_n": 5.0,
+          "max_task_target_speed_m_s": 0.25,
+          "measured_c3_yaw_brake": false,
+          "measured_yaw_recovery_min_progress_rad": 0.002,
+          "minimum_task_target_z_m": -0.005,
+          "osc_control_frame": "panda_hand_analytic_closed_gripper_proxy_center",
+          "osc_damping_ratio": 1.0,
+          "osc_inertial_dynamics_decoupling": true,
+          "osc_motion_axes": "xyz_rpy_hold",
+          "osc_nullspace_damping_ratio": 1.0,
+          "osc_nullspace_stiffness": 10.0,
+          "osc_nullspace_target": "push_anything_joint2",
+          "osc_rotation_stiffness": 25.0,
+          "osc_track_orientation": true,
+          "osc_track_trajectory_velocity": true,
+          "osc_translation_stiffness": 150.0,
+          "physical_contact_force_threshold_n": 0.1,
+          "position_feedforward_compliance_m_per_n": 0.0,
+          "position_feedforward_max_offset_m": 0.01,
+          "rmpflow_max_joint_reference_error_rad": 0.35,
+          "rmpflow_proxy_padding_m": 0.01,
+          "rmpflow_safe_approach_switch_m": 0.06,
+          "semantic_contact_activation_planar_threshold_m": null,
+          "semantic_contact_axis_source": "planned",
+          "semantic_contact_compression_m": 0.002,
+          "semantic_contact_max_additional_compression_m": 0.015,
+          "semantic_contact_max_axis_deviation_rad": 1.22,
+          "semantic_contact_max_duration_s": 1.0,
+          "semantic_contact_max_lateral_offset_m": 0.02,
+          "semantic_contact_planar_regression_tolerance_m": 0.001,
+          "semantic_contact_push_speed_m_s": 0.0,
+          "semantic_contact_yaw_gain_m_per_rad": 0.0,
+          "semantic_contact_yaw_moment_gain_m_per_rad": 0.04,
+          "semantic_contact_yaw_rate_moment_gain_m_s_per_rad": 0.02
+        },
+        "executed_sim_time_s": 35.0,
+        "success": false,
+        "forbidden_contact_ever": false,
+        "final_planar_error_m": 0.038120515644550323,
+        "final_rotation_error_rad": 0.5059499740600586,
+        "first_physical_contact_time_s": 3.0100000000000002,
+        "all": {
+          "sample_count": 350,
+          "physical_safe_contact_samples": 1,
+          "physical_safe_contact_sample_fraction": 0.002857142857142857,
+          "raw_to_measured_m": {
+            "count": 350,
+            "median": 0.0017038670964035561,
+            "p95": 0.01876290347532404,
+            "max": 0.025818232677330057
+          },
+          "governed_to_measured_m": {
+            "count": 350,
+            "median": 0.0017398243124507815,
+            "p95": 0.0071108472791241014,
+            "max": 0.01030347109286187
+          },
+          "raw_to_governed_m": {
+            "count": 350,
+            "median": 0.0,
+            "p95": 0.01593674429018263,
+            "max": 0.021055724741496747
+          }
+        },
+        "fresh_reposition": {
+          "sample_count": 216,
+          "physical_safe_contact_samples": 0,
+          "physical_safe_contact_sample_fraction": 0.0,
+          "raw_to_measured_m": {
+            "count": 216,
+            "median": 0.0014560440173901805,
+            "p95": 0.001766247221931518,
+            "max": 0.014692451804654734
+          },
+          "governed_to_measured_m": {
+            "count": 216,
+            "median": 0.0016391451338416151,
+            "p95": 0.003703683641636316,
+            "max": 0.005548937790569146
+          },
+          "raw_to_governed_m": {
+            "count": 216,
+            "median": 0.0,
+            "p95": 0.004303094519592921,
+            "max": 0.010635174852968101
+          }
+        },
+        "fresh_c3": {
+          "sample_count": 133,
+          "physical_safe_contact_samples": 1,
+          "physical_safe_contact_sample_fraction": 0.007518796992481203,
+          "raw_to_measured_m": {
+            "count": 133,
+            "median": 0.007171702312793597,
+            "p95": 0.021172475213745146,
+            "max": 0.025818232677330057
+          },
+          "governed_to_measured_m": {
+            "count": 133,
+            "median": 0.004889934916719897,
+            "p95": 0.00813157536620459,
+            "max": 0.01030347109286187
+          },
+          "raw_to_governed_m": {
+            "count": 133,
+            "median": 0.0004863933537795076,
+            "p95": 0.01915727931968758,
+            "max": 0.021055724741496747
+          }
+        },
+        "physical_contact": {
+          "sample_count": 1,
+          "physical_safe_contact_samples": 1,
+          "physical_safe_contact_sample_fraction": 1.0,
+          "raw_to_measured_m": {
+            "count": 1,
+            "median": 0.016002465829434626,
+            "p95": 0.016002465829434626,
+            "max": 0.016002465829434626
+          },
+          "governed_to_measured_m": {
+            "count": 1,
+            "median": 0.006346446615870395,
+            "p95": 0.006346446615870395,
+            "max": 0.006346446615870395
+          },
+          "raw_to_governed_m": {
+            "count": 1,
+            "median": 0.011405177174746447,
+            "p95": 0.011405177174746447,
+            "max": 0.011405177174746447
+          }
+        },
+        "sampled_contact_outside_fresh_c3": 0
+      }
+    },
+    "default_entry_smoke/scene007": {
+      "stopped_reason": "maximum_sim_time",
+      "executed_sim_time_s": 1.0,
+      "online_closed_loop_success": false,
+      "pose_c1_success": false,
+      "safe_robot_contact_ever": false,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.059931498020887375,
+      "final_height_error_m": 0.0009877979755401611,
+      "final_rotation_error_rad": 0.17517569661140442,
+      "minimum_planar_error_m": 0.05993136018514633,
+      "minimum_rotation_error_rad": 0.1745329201221466,
+      "maximum_strict_dwell_steps": 0,
+      "wall_time_s": 8.662281088996679,
+      "strict_pose_thresholds": {
+        "dwell_time_s": 0.5,
+        "height_m": 0.01,
+        "planar_m": 0.02,
+        "rotation_rad": 0.105
+      },
+      "status": "complete",
+      "c1_pass": true,
+      "final_rotation_error_deg": 10.03682808909763,
+      "osc_track_trajectory_velocity": false,
+      "first_safe_contact_time_s": null,
+      "first_contact_time_convention": "start of recorded control step",
+      "is_acceptance_trial": false,
+      "trace_samples": 10,
+      "contact_export_sha256": "7c654d5394d695fa3c67d18052fc59b7763fc5760f564b1c2330a1d081adec37",
+      "asset_contract_recorded": true,
+      "contact_audit_timestamp_mismatches": 0
+    },
+    "velocity_full180/scene007": {
+      "stopped_reason": "maximum_sim_time",
+      "executed_sim_time_s": 180.0,
+      "online_closed_loop_success": false,
+      "pose_c1_success": false,
+      "safe_robot_contact_ever": true,
+      "forbidden_robot_contact_ever": false,
+      "final_planar_error_m": 0.037999942898750305,
+      "final_height_error_m": 0.0009881723672151566,
+      "final_rotation_error_rad": 0.7673887610435486,
+      "minimum_planar_error_m": 0.03799993917346001,
+      "minimum_rotation_error_rad": 0.1745329201221466,
+      "maximum_strict_dwell_steps": 0,
+      "wall_time_s": 1127.4863945366815,
+      "strict_pose_thresholds": {
+        "dwell_time_s": 0.5,
+        "height_m": 0.01,
+        "planar_m": 0.02,
+        "rotation_rad": 0.105
+      },
+      "status": "complete",
+      "c1_pass": true,
+      "final_rotation_error_deg": 43.96813725356858,
+      "osc_track_trajectory_velocity": true,
+      "first_safe_contact_time_s": 3.0100000000000002,
+      "first_contact_time_convention": "start of recorded control step",
+      "is_acceptance_trial": true,
+      "trace_samples": 1800,
+      "contact_export_sha256": "7c654d5394d695fa3c67d18052fc59b7763fc5760f564b1c2330a1d081adec37",
+      "asset_contract_recorded": true,
+      "contact_audit_timestamp_mismatches": 0,
+      "tracking": {
+        "schema": "nonprehensile.c3_execution_tracking.v1",
+        "sample_period_s": 0.1,
+        "physical_end_effector": "stock_franka_gripper_closed",
+        "controller_parameters": {
+          "c3_force_action_sign": -1.0,
+          "contact_acquisition_forbidden_margin_m": 0.003,
+          "contact_acquisition_max_travel_m": 0.018,
+          "contact_acquisition_speed_m_s": 0.0,
+          "contact_acquisition_trigger_m": 0.018,
+          "execution_rotation_guard_limit_rad": 3.0,
+          "execution_rotation_guard_lookahead_s": 0.2,
+          "execution_rotation_guard_retreat_m": 0.03,
+          "execution_rotation_recovery_outward_rate_tolerance_rad_s": 0.005,
+          "force_c3_contact_max_duration_s": 3.0,
+          "force_c3_on_legal_safe_contact": false,
+          "force_c3_yaw_regression_tolerance_rad": 0.005,
+          "max_feedforward_force_n": 5.0,
+          "max_task_target_speed_m_s": 0.25,
+          "measured_c3_yaw_brake": false,
+          "measured_yaw_recovery_min_progress_rad": 0.002,
+          "minimum_task_target_z_m": -0.005,
+          "osc_control_frame": "panda_hand_analytic_closed_gripper_proxy_center",
+          "osc_damping_ratio": 1.0,
+          "osc_inertial_dynamics_decoupling": true,
+          "osc_motion_axes": "xyz_rpy_hold",
+          "osc_nullspace_damping_ratio": 1.0,
+          "osc_nullspace_stiffness": 10.0,
+          "osc_nullspace_target": "push_anything_joint2",
+          "osc_rotation_stiffness": 25.0,
+          "osc_track_orientation": true,
+          "osc_track_trajectory_velocity": true,
+          "osc_translation_stiffness": 150.0,
+          "physical_contact_force_threshold_n": 0.1,
+          "position_feedforward_compliance_m_per_n": 0.0,
+          "position_feedforward_max_offset_m": 0.01,
+          "rmpflow_max_joint_reference_error_rad": 0.35,
+          "rmpflow_proxy_padding_m": 0.01,
+          "rmpflow_safe_approach_switch_m": 0.06,
+          "semantic_contact_activation_planar_threshold_m": null,
+          "semantic_contact_axis_source": "planned",
+          "semantic_contact_compression_m": 0.002,
+          "semantic_contact_max_additional_compression_m": 0.015,
+          "semantic_contact_max_axis_deviation_rad": 1.22,
+          "semantic_contact_max_duration_s": 1.0,
+          "semantic_contact_max_lateral_offset_m": 0.02,
+          "semantic_contact_planar_regression_tolerance_m": 0.001,
+          "semantic_contact_push_speed_m_s": 0.0,
+          "semantic_contact_yaw_gain_m_per_rad": 0.0,
+          "semantic_contact_yaw_moment_gain_m_per_rad": 0.04,
+          "semantic_contact_yaw_rate_moment_gain_m_s_per_rad": 0.02
+        },
+        "executed_sim_time_s": 180.0,
+        "success": false,
+        "forbidden_contact_ever": false,
+        "final_planar_error_m": 0.037999942898750305,
+        "final_rotation_error_rad": 0.7673887610435486,
+        "first_physical_contact_time_s": 3.0100000000000002,
+        "all": {
+          "sample_count": 1800,
+          "physical_safe_contact_samples": 2,
+          "physical_safe_contact_sample_fraction": 0.0011111111111111111,
+          "raw_to_measured_m": {
+            "count": 1800,
+            "median": 0.0016988946226440204,
+            "p95": 0.012104929596756603,
+            "max": 0.02235034524905174
+          },
+          "governed_to_measured_m": {
+            "count": 1800,
+            "median": 0.0017496808372488835,
+            "p95": 0.006724945400781681,
+            "max": 0.008915129249833282
+          },
+          "raw_to_governed_m": {
+            "count": 1800,
+            "median": 0.00015905410801696142,
+            "p95": 0.008197663150320413,
+            "max": 0.01911311042998675
+          }
+        },
+        "fresh_reposition": {
+          "sample_count": 1045,
+          "physical_safe_contact_samples": 0,
+          "physical_safe_contact_sample_fraction": 0.0,
+          "raw_to_measured_m": {
+            "count": 1045,
+            "median": 0.0012433093577365333,
+            "p95": 0.001749448864847803,
+            "max": 0.014927933752547931
+          },
+          "governed_to_measured_m": {
+            "count": 1045,
+            "median": 0.00153139143054194,
+            "p95": 0.00395872742339978,
+            "max": 0.0056422903837527036
+          },
+          "raw_to_governed_m": {
+            "count": 1045,
+            "median": 0.0001155279466612258,
+            "p95": 0.004806547797418898,
+            "max": 0.010603402999530005
+          }
+        },
+        "fresh_c3": {
+          "sample_count": 754,
+          "physical_safe_contact_samples": 2,
+          "physical_safe_contact_sample_fraction": 0.002652519893899204,
+          "raw_to_measured_m": {
+            "count": 754,
+            "median": 0.005026108048858609,
+            "p95": 0.016353038071523555,
+            "max": 0.02235034524905174
+          },
+          "governed_to_measured_m": {
+            "count": 754,
+            "median": 0.0037292010806901114,
+            "p95": 0.007556181087577855,
+            "max": 0.008915129249833282
+          },
+          "raw_to_governed_m": {
+            "count": 754,
+            "median": 0.0002985318280970428,
+            "p95": 0.011740477396889631,
+            "max": 0.01911311042998675
+          }
+        },
+        "physical_contact": {
+          "sample_count": 2,
+          "physical_safe_contact_samples": 2,
+          "physical_safe_contact_sample_fraction": 1.0,
+          "raw_to_measured_m": {
+            "count": 2,
+            "median": 0.017504351393792514,
+            "p95": 0.01769093290879519,
+            "max": 0.01769093290879519
+          },
+          "governed_to_measured_m": {
+            "count": 2,
+            "median": 0.0040559787730057775,
+            "p95": 0.004673100205704484,
+            "max": 0.004673100205704484
+          },
+          "raw_to_governed_m": {
+            "count": 2,
+            "median": 0.013560944347237203,
+            "p95": 0.014260628432567889,
+            "max": 0.014260628432567889
+          }
+        },
+        "sampled_contact_outside_fresh_c3": 0
+      }
+    }
+  },
+  "limitations": [
+    "Zero-velocity one-step PhysX probes compare minimum separation and closest manifold normal; they do not recreate historical forces.",
+    "Original C3 target dynamics and three table-support spheres are retained.",
+    "Finger displacement is fixed at closure; finger orientation is not optimized within the prediction horizon.",
+    "Single target scene has no clutter; apparent C2/C3 passes do not establish clutter acceptance.",
+    "Short comparisons use identical convex file hashes but were staged from the original full export without the newer source asset-hash contract.",
+    "The corrected stock-OSC short run wrote its result before a wrapper postprocessing interruption; its effect audit was regenerated at 0.075 s.",
+    "No randomized 50-scene acceptance or hardware validation has been completed."
+  ],
+  "artifacts": {
+    "scene007_corrected_short/tracking.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/scene007_corrected_short/tracking.json",
+      "sha256": "aacbcfa12f01d785bd52d58f4d8992af5782556e5dc79630baa70ddf8c3642db"
+    },
+    "scene007_corrected_short/result.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/scene007_corrected_short/result.json",
+      "sha256": "44a80afeb2b5c60b1f56b0dfece64d4e4025545a1a96edfebfe9370d8999c4c5"
+    },
+    "scene007_velocity_short/tracking.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/scene007_velocity_short/tracking.json",
+      "sha256": "771d6443d9cfdf62a323c1bc11c5f87ee4e7b7c66e599245bbe53b3ce5e9df2d"
+    },
+    "scene007_velocity_short/result.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/scene007_velocity_short/result.json",
+      "sha256": "fc85c38c16df0df80892f8db0fde60281bb4d1ab3489f676d4434ad0492e03b1"
+    },
+    "default_entry_smoke/scene007/result.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/default_entry_smoke/scene007/result.json",
+      "sha256": "349bd1b29b136277dd8b96471b004d6b52bcb4eee77f933d313e46ebc58fbd53"
+    },
+    "velocity_full180/scene007/tracking.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/velocity_full180/scene007/tracking.json",
+      "sha256": "e931b55a430def39f7636c0d301acd85d94732ae61e68fb867e46bba75c0fdea"
+    },
+    "velocity_full180/scene007/result.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/velocity_full180/scene007/result.json",
+      "sha256": "d2294f7a0d4e31688e06f837090cddec2e3238ac69588f011cdf4becb92d5637"
+    },
+    "data/contact_models/closed_franka_hammer_physx_v1.json": {
+      "path": "data/contact_models/closed_franka_hammer_physx_v1.json",
+      "sha256": "7c654d5394d695fa3c67d18052fc59b7763fc5760f564b1c2330a1d081adec37"
+    },
+    "third_party/push_anything/patches/0007-closed-gripper-convex-contact.patch": {
+      "path": "third_party/push_anything/patches/0007-closed-gripper-convex-contact.patch",
+      "sha256": "8b34a29a2d9a128414db9d1f191b4d32d0c59d0eb94d2785e6412aa0fdd2fd3c"
+    },
+    "geometry_validation.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/geometry_validation.json",
+      "sha256": "98f2919771861510d8c69ba9504a4e53bc49dc5cd9012078f89d8294f72ce1a4"
+    },
+    "geometry_validation_final.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/geometry_validation_final.json",
+      "sha256": "98f2919771861510d8c69ba9504a4e53bc49dc5cd9012078f89d8294f72ce1a4"
+    },
+    "native_geometry_audit_final.log": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/native_geometry_audit_final.log",
+      "sha256": "a7edd5986338e61d23bbd49d4954fab2e6a7e6b098c5ba77e61ec07bff190668"
+    },
+    "physx_contact_normals.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/physx_contact_normals.json",
+      "sha256": "e52c4e739044cbe418adf04e62f03a59743bfb2295bb3e6a0d3f33b4e8967a86"
+    },
+    "native_geometry_audit.log": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/native_geometry_audit.log",
+      "sha256": "a7edd5986338e61d23bbd49d4954fab2e6a7e6b098c5ba77e61ec07bff190668"
+    },
+    "reference_contacts.txt": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/reference_contacts.txt",
+      "sha256": "90bbd26596d040d66e6468637e4c31ad78e946115d25092a92cde01c776ed7b2"
+    },
+    "remaining_dynamics_comparison.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/remaining_dynamics_comparison.json",
+      "sha256": "65b0e7accac2b8fed469154936d055efdb099c1094bb419b8f0db41d81cf33ad"
+    },
+    "scene007_pose_regressions.png": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/scene007_pose_regressions.png",
+      "sha256": "28f64e38549bfa13c812399d55b0a62f9b68918fc67d4745d928cf37dd812e77"
+    },
+    "process_cleanup.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/process_cleanup.json",
+      "sha256": "2b66369f24ab4d4791e1331509cf8c5c8007fb17db86b90cbcfecb280a0abd8b"
+    },
+    "velocity_full180/evaluation_config.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/velocity_full180/evaluation_config.json",
+      "sha256": "291d66ba64ac79b037ae47e8ee5e987682111549f4b847fff4a6c1819d6a6464"
+    },
+    "velocity_full180/summary.json": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/velocity_full180/summary.json",
+      "sha256": "034238f6d4a5243f72e0d2e3ece9f50df49ce9f4754cb20e964f12a1e8e666fc"
+    },
+    "velocity_full180/results.jsonl": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/velocity_full180/results.jsonl",
+      "sha256": "a903f8effde1dc8aa6ee4806b1b23e4e4b76ebd9f3434003a5ce89c716d9f0c8"
+    },
+    "velocity_full180/native_binary_sha256.txt": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/velocity_full180/native_binary_sha256.txt",
+      "sha256": "278acd7dc9e56ca495b5c8487f344f0d76f4d79db44a07abb71a0a66ca066bfc"
+    },
+    "native_build_final.log": {
+      "path": "outputs/contact_planner_m3/shared_physx_contact_20260908/native_build_final.log",
+      "sha256": "173f1f9b7c2e85eec310945134d4089f4f95e129c78ef765a7a7bda66a1cc19f"
+    }
+  }
+}

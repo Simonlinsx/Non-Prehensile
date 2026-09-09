@@ -1,0 +1,52 @@
+diff --git a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+--- a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
++++ b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+@@ -48,6 +48,11 @@
+   // unmodified C3+ dynamics and cost.
+   std::optional<double> neutral_yaw_contact_max_moment_arm;
+   std::optional<double> neutral_yaw_contact_activation_threshold;
++  // Stop applying the signed-yaw contact filter once orientation is already
++  // inside the task acceptance band.  Translation then remains free to use
++  // any semantically safe contact instead of deadlocking on an unnecessary
++  // residual yaw correction.
++  std::optional<double> neutral_yaw_contact_deadband;
+   std::optional<std::vector<double>> neutral_yaw_contact_com_offset_xy;
+   std::optional<double> neutral_yaw_contact_yaw_moment_gain;
+   // Offline simulators may advance their state timestamp much more slowly
+@@ -97,6 +102,7 @@
+     a->Visit(DRAKE_NVP(semantic_guard_stop_distance));
+     a->Visit(DRAKE_NVP(neutral_yaw_contact_max_moment_arm));
+     a->Visit(DRAKE_NVP(neutral_yaw_contact_activation_threshold));
++    a->Visit(DRAKE_NVP(neutral_yaw_contact_deadband));
+     a->Visit(DRAKE_NVP(neutral_yaw_contact_com_offset_xy));
+     a->Visit(DRAKE_NVP(neutral_yaw_contact_yaw_moment_gain));
+     a->Visit(DRAKE_NVP(disable_wall_clock_solve_time_compensation));
+@@ -143,6 +149,16 @@
+           "neutral-yaw signed moment gain must be non-negative and requires "
+           "the base contact filter parameters");
+     }
++    if (neutral_yaw_contact_deadband.has_value() &&
++        (!all_neutral_yaw_parameters ||
++         neutral_yaw_contact_deadband.value() < 0.0 ||
++         neutral_yaw_contact_deadband.value() >
++             neutral_yaw_contact_activation_threshold.value())) {
++      throw std::runtime_error(
++          "neutral-yaw contact deadband must be non-negative, no larger "
++          "than the activation threshold, and requires the base filter "
++          "parameters");
++    }
+     if (minimum_planner_period_s.has_value() &&
+         minimum_planner_period_s.value() <= 0.0) {
+       throw std::runtime_error(
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -750,6 +750,8 @@
+   // Keeping the minimum-residual candidate as a fallback prevents an unlucky
+   // finite sample set from stopping replanning entirely.
+   if (controller_params_.neutral_yaw_contact_max_moment_arm.has_value() &&
++      current_orientation_error_ >
++          controller_params_.neutral_yaw_contact_deadband.value_or(0.0) &&
+       current_orientation_error_ <=
+           controller_params_.neutral_yaw_contact_activation_threshold.value()) {
+     Eigen::Quaterniond object_quaternion(

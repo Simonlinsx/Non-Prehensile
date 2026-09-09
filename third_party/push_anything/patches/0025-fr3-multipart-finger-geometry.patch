@@ -1,0 +1,76 @@
+--- a/systems/controllers/closed_gripper_contact_model.h
++++ b/systems/controllers/closed_gripper_contact_model.h
+@@ -12,6 +12,29 @@
+ inline void AddClosedGripperContactGeometry(
+     drake::multibody::MultibodyPlant<double>* plant,
+     const std::vector<std::string>& meshes) {
++  // Official FR3 stock fingers each contain four separate collision boxes.
++  // Retain two rigid fingers, each with four convex geometries; never fill
++  // the space between components by replacing them with a single hull.
++  if (meshes.size() == 8) {
++    const auto& actor = plant->GetBodyByName("end_effector_simple");
++    const auto& orientation = plant->AddFrame(
++        std::make_unique<drake::multibody::FixedOffsetFrame<double>>(
++            "closed_gripper_orientation", actor.body_frame(),
++            drake::math::RigidTransform<double>::Identity()));
++    for (int i = 0; i < 2; ++i) {
++      auto& finger = plant->AddRigidBody("closed_gripper_finger_" + std::to_string(i),
++          actor.model_instance(), drake::multibody::SpatialInertia<double>::Zero());
++      plant->WeldFrames(orientation, finger.body_frame());
++      for (int part = 0; part < 4; ++part) {
++        plant->RegisterCollisionGeometry(finger,
++            drake::math::RigidTransform<double>::Identity(),
++            drake::geometry::Convex(meshes[4 * i + part]),
++            "closed_gripper_convex_" + std::to_string(i) + "_" + std::to_string(part),
++            drake::multibody::CoulombFriction<double>(1., 1.));
++      }
++    }
++    return;
++  }
+   if (meshes.size() != 2) throw std::runtime_error("Expected two finger convex meshes");
+   const auto& actor = plant->GetBodyByName("end_effector_simple");
+   const auto& orientation = plant->AddFrame(
+--- a/examples/sampling_c3/franka_sampling_c3_controller.cc
++++ b/examples/sampling_c3/franka_sampling_c3_controller.cc
+@@ -362,12 +362,13 @@
+     ee_contact_pairs.clear();
+     ee_ground_contact.clear();
+     for (int i = 0; i < 2; ++i) {
+-      auto finger_id = plant_lcs.GetCollisionGeometriesForBody(
+-          plant_lcs.GetBodyByName("closed_gripper_finger_" + std::to_string(i))).at(0);
+-      ee_ground_contact.emplace_back(finger_id, ground_geoms);
+-      for (const auto& pair : old_ee_pairs) {
+-        auto object_id = pair.first() == ee_contact_points ? pair.second() : pair.first();
+-        ee_contact_pairs.emplace_back(finger_id, object_id);
++      for (const auto finger_id : plant_lcs.GetCollisionGeometriesForBody(
++          plant_lcs.GetBodyByName("closed_gripper_finger_" + std::to_string(i)))) {
++        ee_ground_contact.emplace_back(finger_id, ground_geoms);
++        for (const auto& pair : old_ee_pairs) {
++          auto object_id = pair.first() == ee_contact_points ? pair.second() : pair.first();
++          ee_contact_pairs.emplace_back(finger_id, object_id);
++        }
+       }
+     }
+     std::cout << "CLOSED_GRIPPER_CONTACT_MODEL fingers=2 ee_object_pairs="
+--- a/examples/sampling_c3/generate_samples.cc
++++ b/examples/sampling_c3/generate_samples.cc
+@@ -71,12 +71,13 @@
+   double support = -std::numeric_limits<double>::infinity();
+   for (int i = 0; i < 2; ++i) {
+     const auto& finger = plant.GetBodyByName("closed_gripper_finger_" + std::to_string(i));
+-    const auto id = plant.GetCollisionGeometriesForBody(finger).at(0);
+-    const auto& convex = dynamic_cast<const drake::geometry::Convex&>(inspector.GetShape(id));
+-    const auto& hull = convex.GetConvexHull();
+-    const auto X = plant.EvalBodyPoseInWorld(context, finger) * inspector.GetPoseInFrame(id);
+-    for (int v = 0; v < hull.num_vertices(); ++v)
+-      support = std::max(support, -(X * hull.vertex(v) - center).dot(normal));
++    for (const auto id : plant.GetCollisionGeometriesForBody(finger)) {
++      const auto& convex = dynamic_cast<const drake::geometry::Convex&>(inspector.GetShape(id));
++      const auto& hull = convex.GetConvexHull();
++      const auto X = plant.EvalBodyPoseInWorld(context, finger) * inspector.GetPoseInFrame(id);
++      for (int v = 0; v < hull.num_vertices(); ++v)
++        support = std::max(support, -(X * hull.vertex(v) - center).dot(normal));
++    }
+   }
+   return support - sphere.radius();
+ }

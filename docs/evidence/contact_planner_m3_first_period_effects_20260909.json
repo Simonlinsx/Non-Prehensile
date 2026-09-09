@@ -1,0 +1,153 @@
+{
+  "schema": "nonprehensile.first_period_effects_comparison.v1",
+  "runs": {
+    "outputs/contact_planner_m3/workspace_height_20260908/finite_hysteresis_success_regression180/scene007": {
+      "schema": "nonprehensile.c3_first_period_effects.v1",
+      "fresh_c3_matched": 187,
+      "stale_c3_plans_excluded": 0,
+      "exact_endpoint_missing": 0,
+      "eligible_unshielded_contact_windows": 4,
+      "predicted_improvement_actual_regression_windows": 0,
+      "top_contradictory_windows": [],
+      "limitations": [
+        "Published 75ms knots are linearly interpolated at50ms; this is not an exact nonlinear50ms rollout.",
+        "Measured endpoints are exact relay samples; no nearest-time substitution or missing servo interpolation.",
+        "Task cost is XY^2/20mm^2 plus fullSO3^2/.105rad^2, not the native optimization objective.",
+        "Only windows with all5 servo observations, positive legal contact and no recorded guard are eligible.",
+        "Contradictions identify replay candidates; they do not isolate contact-model versus controller error."
+      ],
+      "source_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/finite_hysteresis_success_regression180/scene007/result.json": "f46aeb9f0dabebc39d2908fda05c442009d17952a7db97b0f86c6728177ec566",
+        "outputs/contact_planner_m3/workspace_height_20260908/finite_hysteresis_success_regression180/scene007/effect_audit.jsonl": "50afdf64153271b016caee27bc96b5f76ac09199926f1fedbe4267663d8d2a51",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/finite_hysteresis_success_regression180/scene007/shared_runtime_1788913043087822089/examples/sampling_c3/anything/parameters/goal_params.yaml": "a966fdcb74b78a3c07b764c646d12a58eea2c1abe38615689de9b15a58dcf219",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/finite_hysteresis_success_regression180/scene007/shared_runtime_1788913043087822089/examples/sampling_c3/anything/parameters/sampling_c3_controller_params.yaml": "4a0a34d3b0bf4ae18f712fcf95523d517d266772a036a7b0bb60178ec962aa62",
+        "outputs/contact_planner_m3/workspace_height_20260908/finite_hysteresis_success_regression180/scene007/shared_runtime_1788913043087822089/examples/sampling_c3/anything/parameters/sampling_c3plus_options.yaml": "b74ca779d59bf7d325b2987b2a0f5aa31e01431dedd8290a38dedaeb84585da9",
+        "/data1/linsixu/IsaacLab-nonPrehensile/scripts/audit_c3_first_period_effects.py": "5e5f4d0c86551a9425858e17dce39f26084b8526c705fdb18c4cca03a572eb22"
+      }
+    },
+    "outputs/contact_planner_m3/workspace_height_20260908/osc_full_scene007_180/scene007": {
+      "schema": "nonprehensile.c3_first_period_effects.v1",
+      "fresh_c3_matched": 1153,
+      "stale_c3_plans_excluded": 32,
+      "exact_endpoint_missing": 0,
+      "eligible_unshielded_contact_windows": 21,
+      "predicted_improvement_actual_regression_windows": 3,
+      "top_contradictory_windows": [
+        {
+          "utime_us": 106350000,
+          "prediction_initial_xy_error_m": 2.2392311695095016e-08,
+          "planar_residual_m": 0.006637376043377198,
+          "actual_motion_m": 0.00844620945677523,
+          "predicted_motion_m": 0.005098168292018086,
+          "actual_delta_m": [
+            0.005898118019104004,
+            0.006045714020729065,
+            2.4046748876571655e-06
+          ],
+          "predicted_delta_m": [
+            -0.0006648474557481299,
+            0.005054631321305625,
+            0.00034506213451830983
+          ],
+          "predicted_task_cost_drop": 2.367061082507476,
+          "actual_task_cost_drop": -4.890386009758359,
+          "complete_servo_coverage": true,
+          "positive_legal_contact": true,
+          "any_recorded_guard": false,
+          "eligible_unshielded_contact": true
+        },
+        {
+          "utime_us": 119500000,
+          "prediction_initial_xy_error_m": 6.927160583651778e-14,
+          "planar_residual_m": 0.004224773740357715,
+          "actual_motion_m": 0.004779480435094062,
+          "predicted_motion_m": 0.0017779075958463935,
+          "actual_delta_m": [
+            0.0037800073623657227,
+            0.002924889326095581,
+            -7.227063179016113e-07
+          ],
+          "predicted_delta_m": [
+            -0.0002797760695717466,
+            0.001755756466672781,
+            0.00013087746705968753
+          ],
+          "predicted_task_cost_drop": 0.7027786161405061,
+          "actual_task_cost_drop": -5.48027827780777,
+          "complete_servo_coverage": true,
+          "positive_legal_contact": true,
+          "any_recorded_guard": false,
+          "eligible_unshielded_contact": true
+        },
+        {
+          "utime_us": 116350000,
+          "prediction_initial_xy_error_m": 1.5027017115030279e-12,
+          "planar_residual_m": 0.002503910050607589,
+          "actual_motion_m": 0.0033981615437756454,
+          "predicted_motion_m": 0.0032257333819573973,
+          "actual_delta_m": [
+            0.0019567012786865234,
+            0.002778276801109314,
+            -1.0672956705093384e-06
+          ],
+          "predicted_delta_m": [
+            -0.0005140349643328879,
+            0.00318451313498902,
+            0.00025076957303644953
+          ],
+          "predicted_task_cost_drop": 2.3174133130519863,
+          "actual_task_cost_drop": -1.7912293327068483,
+          "complete_servo_coverage": true,
+          "positive_legal_contact": true,
+          "any_recorded_guard": false,
+          "eligible_unshielded_contact": true
+        }
+      ],
+      "limitations": [
+        "Published 75ms knots are linearly interpolated at50ms; this is not an exact nonlinear50ms rollout.",
+        "Measured endpoints are exact relay samples; no nearest-time substitution or missing servo interpolation.",
+        "Task cost is XY^2/20mm^2 plus fullSO3^2/.105rad^2, not the native optimization objective.",
+        "Only windows with all5 servo observations, positive legal contact and no recorded guard are eligible.",
+        "Contradictions identify replay candidates; they do not isolate contact-model versus controller error."
+      ],
+      "source_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_scene007_180/scene007/result.json": "f2e0fe4ad2f84402bd91783ba10fd6edba6009d6fe5965c4ac4cfa698e3c00c7",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_scene007_180/scene007/effect_audit.jsonl": "6f7c60fe4f68a28ec953bfe8e7ef389d99bbde36930e0e166f827e6863cafe30",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/osc_full_scene007_180/scene007/shared_runtime_1788915618400574830/examples/sampling_c3/anything/parameters/goal_params.yaml": "a966fdcb74b78a3c07b764c646d12a58eea2c1abe38615689de9b15a58dcf219",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/osc_full_scene007_180/scene007/shared_runtime_1788915618400574830/examples/sampling_c3/anything/parameters/sampling_c3_controller_params.yaml": "4a0a34d3b0bf4ae18f712fcf95523d517d266772a036a7b0bb60178ec962aa62",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_scene007_180/scene007/shared_runtime_1788915618400574830/examples/sampling_c3/anything/parameters/sampling_c3plus_options.yaml": "b74ca779d59bf7d325b2987b2a0f5aa31e01431dedd8290a38dedaeb84585da9",
+        "/data1/linsixu/IsaacLab-nonPrehensile/scripts/audit_c3_first_period_effects.py": "5e5f4d0c86551a9425858e17dce39f26084b8526c705fdb18c4cca03a572eb22"
+      }
+    },
+    "outputs/contact_planner_m3/workspace_height_20260908/osc_full_aligned_clearance180/scene007": {
+      "schema": "nonprehensile.c3_first_period_effects.v1",
+      "fresh_c3_matched": 1586,
+      "stale_c3_plans_excluded": 11,
+      "exact_endpoint_missing": 1,
+      "eligible_unshielded_contact_windows": 1,
+      "predicted_improvement_actual_regression_windows": 0,
+      "top_contradictory_windows": [],
+      "limitations": [
+        "Published 75ms knots are linearly interpolated at50ms; this is not an exact nonlinear50ms rollout.",
+        "Measured endpoints are exact relay samples; no nearest-time substitution or missing servo interpolation.",
+        "Task cost is XY^2/20mm^2 plus fullSO3^2/.105rad^2, not the native optimization objective.",
+        "Only windows with all5 servo observations, positive legal contact and no recorded guard are eligible.",
+        "Contradictions identify replay candidates; they do not isolate contact-model versus controller error."
+      ],
+      "source_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_aligned_clearance180/scene007/result.json": "e287b2d12a188aeccfb4fa2a5252984688607eb94b5b571627fa45f42fa9fe57",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_aligned_clearance180/scene007/effect_audit.jsonl": "09b80ddf8b6d60cfb00eaf044be9ac4e89ad664d23cbb27d902d942416e69549",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/osc_full_aligned_clearance180/scene007/shared_runtime_1788916752039443973/examples/sampling_c3/anything/parameters/goal_params.yaml": "a966fdcb74b78a3c07b764c646d12a58eea2c1abe38615689de9b15a58dcf219",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/osc_full_aligned_clearance180/scene007/shared_runtime_1788916752039443973/examples/sampling_c3/anything/parameters/sampling_c3_controller_params.yaml": "4a0a34d3b0bf4ae18f712fcf95523d517d266772a036a7b0bb60178ec962aa62",
+        "outputs/contact_planner_m3/workspace_height_20260908/osc_full_aligned_clearance180/scene007/shared_runtime_1788916752039443973/examples/sampling_c3/anything/parameters/sampling_c3plus_options.yaml": "b74ca779d59bf7d325b2987b2a0f5aa31e01431dedd8290a38dedaeb84585da9",
+        "/data1/linsixu/IsaacLab-nonPrehensile/scripts/audit_c3_first_period_effects.py": "5e5f4d0c86551a9425858e17dce39f26084b8526c705fdb18c4cca03a572eb22"
+      }
+    }
+  },
+  "artifact_sha256": {
+    "outputs/contact_planner_m3/workspace_height_20260908/finite_hysteresis_success_regression180/scene007/first_period_effect_audit.json": "8c186b9af4c351a3fe87981663b7639ea143191b3de59c0a9a1dea3a8d5f8193",
+    "outputs/contact_planner_m3/workspace_height_20260908/osc_full_scene007_180/scene007/first_period_effect_audit.json": "f1a2416f7cfdb5b5bb37924faca3bceab05ac7ce5fe63e08357f119970828576",
+    "outputs/contact_planner_m3/workspace_height_20260908/osc_full_aligned_clearance180/scene007/first_period_effect_audit.json": "9a12f37775f79ba6e198582ff0b2c69f442445f674f5a69dd6301d589bf918e4"
+  },
+  "tests": "2 passed; staleplan,exactendpoint,missingsamples,guardedandunknown-guard exclusions"
+}

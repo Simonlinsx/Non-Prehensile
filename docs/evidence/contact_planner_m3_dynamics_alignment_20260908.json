@@ -1,0 +1,682 @@
+{
+  "schema": "nonprehensile.simulation_dynamics_alignment.v1",
+  "date": "2026-09-08",
+  "gate1_passed": false,
+  "scope": "Fixed scene007 diagnostics only; no randomized success claim.",
+  "gates": {
+    "xy_m": 0.02,
+    "height_m": 0.01,
+    "so3_rad": 0.105,
+    "dwell_s": 0.5,
+    "legal_contact_required": true,
+    "c1_violation_allowed": false
+  },
+  "models": [
+    {
+      "path": "data/contact_models/closed_franka_hammer_physx_v1.json",
+      "sha256": "7c654d5394d695fa3c67d18052fc59b7763fc5760f564b1c2330a1d081adec37"
+    },
+    {
+      "path": "data/contact_models/closed_franka_hammer_physx_v2.json",
+      "sha256": "b763f125564fa92ea111bc86dee6cf89431fd9f24ac48e3c4cde3916707c9e51"
+    },
+    {
+      "path": "data/contact_models/closed_franka_hammer_physx_v3.json",
+      "sha256": "a51e7f13b3feaaa32d22a073c55d3f882a5195bde7fd1ab0585e4c93c7800473"
+    },
+    {
+      "path": "data/contact_models/closed_franka_hammer_physx_v4.json",
+      "sha256": "b7294428120efc1b7c35c07825e837f0adf047840283357c25f7fd4e1890462f"
+    }
+  ],
+  "support_export": {
+    "path": "outputs/contact_planner_m3/shared_dynamics_20260908/target_support.json",
+    "sha256": "b320fdd89a7d6d4511670a9432b90754e213b354ea87decfc4cf004be3172dee"
+  },
+  "support_recheck": {
+    "path": "outputs/contact_planner_m3/shared_dynamics_20260908/target_support_recheck.json",
+    "sha256": "f9ff69bd8e3cd42bdbabaa4a9f9b99086924e696e5a963a3f6bd4648a355a99c"
+  },
+  "support_recheck_set_max_error_m": 0.0,
+  "support_force_sum_n": 0.49058686941862106,
+  "kinematic_check": {
+    "schema": "nonprehensile.task_point_kinematics_validation.v1",
+    "checks": [
+      {
+        "joint_displacement_rad": 0.0,
+        "maximum_linear_jacobian_error_m_per_rad": 8.594989776611328e-05,
+        "maximum_angular_jacobian_error": 0.00024170748142038345,
+        "maximum_twist_error": 2.003546768221398e-05,
+        "maximum_wrench_virtual_work_error_nm": 1.0848969410337528e-08
+      },
+      {
+        "joint_displacement_rad": 0.15,
+        "maximum_linear_jacobian_error_m_per_rad": 0.00010448694229125977,
+        "maximum_angular_jacobian_error": 0.0003225061038637511,
+        "maximum_twist_error": 2.6823814236687227e-05,
+        "maximum_wrench_virtual_work_error_nm": 6.739159900265301e-09
+      },
+      {
+        "joint_displacement_rad": -0.15,
+        "maximum_linear_jacobian_error_m_per_rad": 8.597224950790405e-05,
+        "maximum_angular_jacobian_error": 0.0002056244004672303,
+        "maximum_twist_error": 1.730696625687478e-05,
+        "maximum_wrench_virtual_work_error_nm": 1.5327560401456886e-08
+      }
+    ],
+    "passed": true
+  },
+  "contact_trace_check": {
+    "schema": "nonprehensile.contact_trace_check.v1",
+    "control_period_s": 0.01,
+    "trace_stride": 10,
+    "trace_sampling_policy": "stride_plus_all_physical_contact_steps",
+    "trace_count": 106,
+    "physical_contact_samples": 26,
+    "physical_c3_contact_samples": 26,
+    "first_safe_contact_step": 404,
+    "first_trace_contact_step": 404,
+    "contact_timestamps_match": true,
+    "effect_audit_contact_overlap": {
+      "committed_execution_windows": 0,
+      "committed_execution_windows_in_c3_mode": 0,
+      "committed_execution_windows_outside_c3_mode": 0,
+      "physical_contact_windows": 9,
+      "physical_contact_windows_in_c3_mode": 8,
+      "physical_contact_windows_outside_c3_mode": 1
+    },
+    "passed": true
+  },
+  "native_patches": [
+    {
+      "path": "third_party/push_anything/patches/0007-closed-gripper-convex-contact.patch",
+      "sha256": "8b34a29a2d9a128414db9d1f191b4d32d0c59d0eb94d2785e6412aa0fdd2fd3c"
+    },
+    {
+      "path": "third_party/push_anything/patches/0008-synchronous-simulation-plan-clock.patch",
+      "sha256": "85b86963c62ed8f7a2a8d6f2d69cbd3c15c833a494f3b08283526136841cd7a4"
+    }
+  ],
+  "runs": [
+    {
+      "name": "aligned_full180",
+      "result": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/aligned_full180/scene007/result.json",
+        "sha256": "0bc2478b79511811073f0a246607dc0aba977f7ef651b3e25e2a9396fc91add6"
+      },
+      "configuration": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/aligned_full180/evaluation_config.json",
+        "sha256": "9d84a9a560342903bc9e90da5497f12e60692f9678f580e5b6a25e860bca9084"
+      },
+      "runtime_contract": {
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/shared_dynamics_20260908/aligned_full180/scene007/shared_runtime_1788886961948101318/shared_contact_model.json",
+        "sha256": "f1dc43bb579d49a144a39c92d3669703ccbd668aa0d8e45db0b1efd615768ab1"
+      },
+      "requested_sim_time_s": 180.0,
+      "executed_sim_time_s": 89.51,
+      "stopped_reason": "watchdog_timeout",
+      "success": false,
+      "c1_pass": true,
+      "final_xy_mm": 49.5988093316555,
+      "final_so3_deg": 21.84279640908633,
+      "final_height_mm": 0.9840019047260284,
+      "first_safe_contact_step": 404,
+      "dynamics_validation": {
+        "com_error_m": 0.0,
+        "mass_error_kg": 0.0,
+        "maximum_inertia_entry_error_kg_m2": 0.0,
+        "passed": true
+      },
+      "first_prediction_height_change_m": 6.384221868174778e-08,
+      "plan_clock": {
+        "schema": "nonprehensile.synchronous_plan_clock_audit.v1",
+        "sample_count": 1790,
+        "c3_mode_samples": 433,
+        "median_plan_start_lead_s": 0.0,
+        "maximum_absolute_plan_start_error_s": 0.25,
+        "maximum_absolute_query_offset_s": 0.0,
+        "tolerance_s": 1e-05,
+        "passed": false,
+        "scope": "Fresh task references with zero lookahead on the synchronous Isaac bridge; not task acceptance."
+      },
+      "tracking": {
+        "c3_servo_error_p95_m": 0.005899143447517406,
+        "physical_contact_samples": 0,
+        "trace_sampling_policy": "uniform_stride"
+      },
+      "native_failure_lines": [
+        "Workspace violation: ee= 0.229643  0.371305 0.0227185, constraint=0, projection=0.229643, bounds=(0.23, 0.8)",
+        "abort: Failure at systems/controllers/sampling_based_c3_controller.cc:1727 in CheckForWorkspaceLimitViolations(): condition 'projection > lower' failed."
+      ],
+      "plan_clock_failure_explanation": "Five old trajectory references after native workspace assertion. All preceding references had matching plan-start, query and measurement time. Executor marked stale commands and stopped on watchdog."
+    },
+    {
+      "name": "contact_trace_check",
+      "result": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/contact_trace_check/scene007/result.json",
+        "sha256": "d9c4402034bd3f90672537912bb68814ae2b7f50eebcc431e1101bb715ea65ce"
+      },
+      "configuration": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/contact_trace_check/evaluation_config.json",
+        "sha256": "31012b3434aa16e8f3d252c2c2f68fc84621647ebbd625dc499eaa191fb8ff5a"
+      },
+      "runtime_contract": {
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/shared_dynamics_20260908/contact_trace_check/scene007/shared_runtime_1788887199247093604/shared_contact_model.json",
+        "sha256": "f1dc43bb579d49a144a39c92d3669703ccbd668aa0d8e45db0b1efd615768ab1"
+      },
+      "requested_sim_time_s": 8.0,
+      "executed_sim_time_s": 8.0,
+      "stopped_reason": "maximum_sim_time",
+      "success": false,
+      "c1_pass": true,
+      "final_xy_mm": 49.59890618920326,
+      "final_so3_deg": 21.843385512902245,
+      "final_height_mm": 0.9840214625000954,
+      "first_safe_contact_step": 404,
+      "dynamics_validation": {
+        "com_error_m": 0.0,
+        "mass_error_kg": 0.0,
+        "maximum_inertia_entry_error_kg_m2": 0.0,
+        "passed": true
+      },
+      "first_prediction_height_change_m": 6.384221868174778e-08,
+      "plan_clock": {
+        "schema": "nonprehensile.synchronous_plan_clock_audit.v1",
+        "sample_count": 159,
+        "c3_mode_samples": 47,
+        "median_plan_start_lead_s": 0.0,
+        "maximum_absolute_plan_start_error_s": 0.0,
+        "maximum_absolute_query_offset_s": 0.0,
+        "tolerance_s": 1e-05,
+        "passed": true,
+        "scope": "Fresh task references with zero lookahead on the synchronous Isaac bridge; not task acceptance."
+      },
+      "tracking": {
+        "c3_servo_error_p95_m": 0.006053584336356551,
+        "physical_contact_samples": 26,
+        "trace_sampling_policy": "stride_plus_all_physical_contact_steps"
+      },
+      "native_failure_lines": []
+    },
+    {
+      "name": "default_entry_smoke",
+      "result": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/default_entry_smoke/scene007/result.json",
+        "sha256": "5edbeb5210b5bd59f04213ac1b4b8b0f56abb25d459e4591d065612b2e6f705a"
+      },
+      "configuration": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/default_entry_smoke/evaluation_config.json",
+        "sha256": "4fe6153ef1d11198de5e97c14061c586eb7028270571d33a08672afd927b36ef"
+      },
+      "runtime_contract": {
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/shared_dynamics_20260908/default_entry_smoke/scene007/shared_runtime_1788887435604158267/shared_contact_model.json",
+        "sha256": "f1dc43bb579d49a144a39c92d3669703ccbd668aa0d8e45db0b1efd615768ab1"
+      },
+      "requested_sim_time_s": 1.0,
+      "executed_sim_time_s": 1.0,
+      "stopped_reason": "maximum_sim_time",
+      "success": false,
+      "c1_pass": true,
+      "final_xy_mm": 59.931498020887375,
+      "final_so3_deg": 10.03682808909763,
+      "final_height_mm": 0.9877979755401611,
+      "first_safe_contact_step": null,
+      "dynamics_validation": {
+        "com_error_m": 0.0,
+        "mass_error_kg": 0.0,
+        "maximum_inertia_entry_error_kg_m2": 0.0,
+        "passed": true
+      },
+      "first_prediction_height_change_m": 6.384221868174778e-08,
+      "plan_clock": {
+        "schema": "nonprehensile.synchronous_plan_clock_audit.v1",
+        "sample_count": 19,
+        "c3_mode_samples": 0,
+        "median_plan_start_lead_s": 0.0,
+        "maximum_absolute_plan_start_error_s": 0.0,
+        "maximum_absolute_query_offset_s": 0.0,
+        "tolerance_s": 1e-05,
+        "passed": true,
+        "scope": "Fresh task references with zero lookahead on the synchronous Isaac bridge; not task acceptance."
+      },
+      "tracking": {
+        "c3_servo_error_p95_m": null,
+        "physical_contact_samples": 0,
+        "trace_sampling_policy": "stride_plus_all_physical_contact_steps"
+      },
+      "native_failure_lines": []
+    },
+    {
+      "name": "friction_xy_short",
+      "result": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/friction_xy_short/scene007/result.json",
+        "sha256": "22ec12a597687be6fe182f988e30107940473c94d671dcf0910012489cb7e29a"
+      },
+      "configuration": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/friction_xy_short/evaluation_config.json",
+        "sha256": "87ab7085e72b9ee80c94203701bfe506e3fdd04584d2eae63d6318fad78b0e17"
+      },
+      "runtime_contract": {
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/shared_dynamics_20260908/friction_xy_short/scene007/shared_runtime_1788886795164772982/shared_contact_model.json",
+        "sha256": "f1dc43bb579d49a144a39c92d3669703ccbd668aa0d8e45db0b1efd615768ab1"
+      },
+      "requested_sim_time_s": 35.0,
+      "executed_sim_time_s": 35.0,
+      "stopped_reason": "maximum_sim_time",
+      "success": false,
+      "c1_pass": true,
+      "final_xy_mm": 49.59878325462341,
+      "final_so3_deg": 21.84284592795781,
+      "final_height_mm": 0.9839991107583046,
+      "first_safe_contact_step": 404,
+      "dynamics_validation": {
+        "com_error_m": 0.0,
+        "mass_error_kg": 0.0,
+        "maximum_inertia_entry_error_kg_m2": 0.0,
+        "passed": true
+      },
+      "first_prediction_height_change_m": 8.060602710996401e-08,
+      "plan_clock": {
+        "schema": "nonprehensile.synchronous_plan_clock_audit.v1",
+        "sample_count": 699,
+        "c3_mode_samples": 156,
+        "median_plan_start_lead_s": 0.0,
+        "maximum_absolute_plan_start_error_s": 0.0,
+        "maximum_absolute_query_offset_s": 0.0,
+        "tolerance_s": 1e-05,
+        "passed": true,
+        "scope": "Fresh task references with zero lookahead on the synchronous Isaac bridge; not task acceptance."
+      },
+      "tracking": {
+        "c3_servo_error_p95_m": 0.005772889721996047,
+        "physical_contact_samples": 0,
+        "trace_sampling_policy": "uniform_stride"
+      },
+      "native_failure_lines": []
+    },
+    {
+      "name": "matched_short",
+      "result": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/matched_short/scene007/result.json",
+        "sha256": "84bcc4f608750e3f733e416fd052af389653cb4cb07a2b8e9c19cc0d125687d9"
+      },
+      "configuration": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/matched_short/evaluation_config.json",
+        "sha256": "68822c3d4aeb9f736caf508b8651a9b1ef7cf8e9ceca60dafa7eb8ad2064258d"
+      },
+      "runtime_contract": {
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/shared_dynamics_20260908/matched_short/scene007/shared_runtime_1788884491955906072/shared_contact_model.json",
+        "sha256": "801a1c89a82839b5604d4bc67a0e9dbbbb44c6b6876f1ed619dcbdf90707931b"
+      },
+      "requested_sim_time_s": 35.0,
+      "executed_sim_time_s": 35.0,
+      "stopped_reason": "maximum_sim_time",
+      "success": false,
+      "c1_pass": true,
+      "final_xy_mm": 40.07888212800026,
+      "final_so3_deg": 26.5210354433436,
+      "final_height_mm": 0.9864680469036102,
+      "first_safe_contact_step": 300,
+      "dynamics_validation": {
+        "com_error_m": 0.0,
+        "mass_error_kg": 0.0,
+        "maximum_inertia_entry_error_kg_m2": 0.0,
+        "passed": true
+      },
+      "first_prediction_height_change_m": 0.001988499111495984,
+      "plan_clock": null,
+      "tracking": {
+        "c3_servo_error_p95_m": 0.008862707492083309,
+        "physical_contact_samples": 1,
+        "trace_sampling_policy": "uniform_stride"
+      },
+      "native_failure_lines": []
+    },
+    {
+      "name": "simclock_fullpose_short",
+      "result": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/simclock_fullpose_short/scene007/result.json",
+        "sha256": "87f720bc08dc9e05746b4dc11b1131fa168740b60924fb40bf892b16ca6cc83b"
+      },
+      "configuration": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/simclock_fullpose_short/evaluation_config.json",
+        "sha256": "49b3e11bcc6a534bdae1e2b6e922f224712a97c0d00a40e660d664d8a6cc60d8"
+      },
+      "runtime_contract": {
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/shared_dynamics_20260908/simclock_fullpose_short/scene007/shared_runtime_1788885179109326949/shared_contact_model.json",
+        "sha256": "eddf79d1186346237bff069b303fd6d21042385a740f68dcaddbeeec42207f8a"
+      },
+      "requested_sim_time_s": 35.0,
+      "executed_sim_time_s": 35.0,
+      "stopped_reason": "maximum_sim_time",
+      "success": false,
+      "c1_pass": true,
+      "final_xy_mm": 52.58016288280487,
+      "final_so3_deg": 14.729606888550563,
+      "final_height_mm": 0.9850775822997093,
+      "first_safe_contact_step": 1472,
+      "dynamics_validation": {
+        "com_error_m": 0.0,
+        "mass_error_kg": 0.0,
+        "maximum_inertia_entry_error_kg_m2": 0.0,
+        "passed": true
+      },
+      "first_prediction_height_change_m": 0.001988499111495984,
+      "plan_clock": {
+        "schema": "nonprehensile.synchronous_plan_clock_audit.v1",
+        "sample_count": 699,
+        "c3_mode_samples": 280,
+        "median_plan_start_lead_s": 0.0,
+        "maximum_absolute_plan_start_error_s": 0.0,
+        "maximum_absolute_query_offset_s": 0.0,
+        "tolerance_s": 1e-05,
+        "passed": true,
+        "scope": "Fresh task references with zero lookahead on the synchronous Isaac bridge; not task acceptance."
+      },
+      "tracking": {
+        "c3_servo_error_p95_m": 0.004902213703353907,
+        "physical_contact_samples": 1,
+        "trace_sampling_policy": "uniform_stride"
+      },
+      "native_failure_lines": []
+    },
+    {
+      "name": "simclock_short",
+      "result": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/simclock_short/scene007/result.json",
+        "sha256": "b4778524a2856dbefbeff2f6be8cc796c5a4d79b39cc022e7d52f902e3cdb853"
+      },
+      "configuration": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/simclock_short/evaluation_config.json",
+        "sha256": "3d584ed806806cbf4ac601b652ea4a087550f0105c9d805c43125399ea58f5a9"
+      },
+      "runtime_contract": {
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/shared_dynamics_20260908/simclock_short/scene007/shared_runtime_1788885064763242568/shared_contact_model.json",
+        "sha256": "eddf79d1186346237bff069b303fd6d21042385a740f68dcaddbeeec42207f8a"
+      },
+      "requested_sim_time_s": 35.0,
+      "executed_sim_time_s": 35.0,
+      "stopped_reason": "maximum_sim_time",
+      "success": false,
+      "c1_pass": true,
+      "final_xy_mm": 49.960192292928696,
+      "final_so3_deg": 21.443358408687523,
+      "final_height_mm": 0.9870994836091995,
+      "first_safe_contact_step": 301,
+      "dynamics_validation": {
+        "com_error_m": 0.0,
+        "mass_error_kg": 0.0,
+        "maximum_inertia_entry_error_kg_m2": 0.0,
+        "passed": true
+      },
+      "first_prediction_height_change_m": 0.001988499111495984,
+      "plan_clock": {
+        "schema": "nonprehensile.synchronous_plan_clock_audit.v1",
+        "sample_count": 699,
+        "c3_mode_samples": 286,
+        "median_plan_start_lead_s": 0.0,
+        "maximum_absolute_plan_start_error_s": 0.0,
+        "maximum_absolute_query_offset_s": 0.0,
+        "tolerance_s": 1e-05,
+        "passed": true,
+        "scope": "Fresh task references with zero lookahead on the synchronous Isaac bridge; not task acceptance."
+      },
+      "tracking": {
+        "c3_servo_error_p95_m": 0.004766821495433205,
+        "physical_contact_samples": 0,
+        "trace_sampling_policy": "uniform_stride"
+      },
+      "native_failure_lines": []
+    },
+    {
+      "name": "stiff600_short",
+      "result": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/stiff600_short/scene007/result.json",
+        "sha256": "de07cb5fd1144244918e68d3c04f88a556d9182257bd2c8165e2d1046b88c1bd"
+      },
+      "configuration": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/stiff600_short/evaluation_config.json",
+        "sha256": "6c68fab34ecfa3e3af4e697ee80feb08b2440e25ef5258ba0c56b2550d263d89"
+      },
+      "runtime_contract": {
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/shared_dynamics_20260908/stiff600_short/scene007/shared_runtime_1788884671534141633/shared_contact_model.json",
+        "sha256": "801a1c89a82839b5604d4bc67a0e9dbbbb44c6b6876f1ed619dcbdf90707931b"
+      },
+      "requested_sim_time_s": 35.0,
+      "executed_sim_time_s": 35.0,
+      "stopped_reason": "maximum_sim_time",
+      "success": false,
+      "c1_pass": true,
+      "final_xy_mm": 42.05918312072754,
+      "final_so3_deg": 23.48752645179291,
+      "final_height_mm": 0.9869281202554703,
+      "first_safe_contact_step": 205,
+      "dynamics_validation": {
+        "com_error_m": 0.0,
+        "mass_error_kg": 0.0,
+        "maximum_inertia_entry_error_kg_m2": 0.0,
+        "passed": true
+      },
+      "first_prediction_height_change_m": 0.001988499111495984,
+      "plan_clock": null,
+      "tracking": {
+        "c3_servo_error_p95_m": 0.002976717112915688,
+        "physical_contact_samples": 0,
+        "trace_sampling_policy": "uniform_stride"
+      },
+      "native_failure_lines": []
+    },
+    {
+      "name": "support_fullpose_short",
+      "result": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/support_fullpose_short/scene007/result.json",
+        "sha256": "b30fa1e4f3e6c5f3878786825b70e87a80ea380c49e8bf02a5f00204570e3eea"
+      },
+      "configuration": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/support_fullpose_short/evaluation_config.json",
+        "sha256": "cb30103cd20c35629fcfd5e9e91c52b941efd3179eade98c54434dab22c2ec61"
+      },
+      "runtime_contract": {
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/shared_dynamics_20260908/support_fullpose_short/scene007/shared_runtime_1788886678852806193/shared_contact_model.json",
+        "sha256": "c0e661e34423a1e5f66cb3b16a710329e0ec3b74eddf992161009fb27115c6eb"
+      },
+      "requested_sim_time_s": 35.0,
+      "executed_sim_time_s": 35.0,
+      "stopped_reason": "maximum_sim_time",
+      "success": false,
+      "c1_pass": true,
+      "final_xy_mm": 59.72117930650711,
+      "final_so3_deg": 10.115883259872296,
+      "final_height_mm": 0.989111140370369,
+      "first_safe_contact_step": null,
+      "dynamics_validation": {
+        "com_error_m": 0.0,
+        "mass_error_kg": 0.0,
+        "maximum_inertia_entry_error_kg_m2": 0.0,
+        "passed": true
+      },
+      "first_prediction_height_change_m": 8.060602710996401e-08,
+      "plan_clock": {
+        "schema": "nonprehensile.synchronous_plan_clock_audit.v1",
+        "sample_count": 699,
+        "c3_mode_samples": 266,
+        "median_plan_start_lead_s": 0.0,
+        "maximum_absolute_plan_start_error_s": 0.0,
+        "maximum_absolute_query_offset_s": 0.0,
+        "tolerance_s": 1e-05,
+        "passed": true,
+        "scope": "Fresh task references with zero lookahead on the synchronous Isaac bridge; not task acceptance."
+      },
+      "tracking": {
+        "c3_servo_error_p95_m": 0.006700231974362537,
+        "physical_contact_samples": 0,
+        "trace_sampling_policy": "uniform_stride"
+      },
+      "native_failure_lines": []
+    },
+    {
+      "name": "support_xy_short",
+      "result": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/support_xy_short/scene007/result.json",
+        "sha256": "34456309a7a78d22492cb625977c40efeacb6f874847f74b835032e0891f1330"
+      },
+      "configuration": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/support_xy_short/evaluation_config.json",
+        "sha256": "33d80fb9e588de5702c7e78885bab81b5d62b549c039f6bf87c9799a210df1ee"
+      },
+      "runtime_contract": {
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/shared_dynamics_20260908/support_xy_short/scene007/shared_runtime_1788886639216154218/shared_contact_model.json",
+        "sha256": "c0e661e34423a1e5f66cb3b16a710329e0ec3b74eddf992161009fb27115c6eb"
+      },
+      "requested_sim_time_s": 35.0,
+      "executed_sim_time_s": 12.46,
+      "stopped_reason": "watchdog_timeout",
+      "success": false,
+      "c1_pass": true,
+      "final_xy_mm": 47.95345664024353,
+      "final_so3_deg": 22.671767930914314,
+      "final_height_mm": 0.9869420900940895,
+      "first_safe_contact_step": 394,
+      "dynamics_validation": {
+        "com_error_m": 0.0,
+        "mass_error_kg": 0.0,
+        "maximum_inertia_entry_error_kg_m2": 0.0,
+        "passed": true
+      },
+      "first_prediction_height_change_m": 6.384221868521722e-08,
+      "plan_clock": {
+        "schema": "nonprehensile.synchronous_plan_clock_audit.v1",
+        "sample_count": 249,
+        "c3_mode_samples": 43,
+        "median_plan_start_lead_s": 0.0,
+        "maximum_absolute_plan_start_error_s": 0.25,
+        "maximum_absolute_query_offset_s": 0.0,
+        "tolerance_s": 1e-05,
+        "passed": false,
+        "scope": "Fresh task references with zero lookahead on the synchronous Isaac bridge; not task acceptance."
+      },
+      "tracking": {
+        "c3_servo_error_p95_m": 0.004895856889613728,
+        "physical_contact_samples": 0,
+        "trace_sampling_policy": "uniform_stride"
+      },
+      "native_failure_lines": [
+        "Workspace violation: ee= 0.229165  0.244619 0.0360623, constraint=0, projection=0.229165, bounds=(0.23, 0.8)",
+        "abort: Failure at systems/controllers/sampling_based_c3_controller.cc:1727 in CheckForWorkspaceLimitViolations(): condition 'projection > lower' failed."
+      ],
+      "plan_clock_failure_explanation": "Five old trajectory references after native workspace assertion. All preceding references had matching plan-start, query and measurement time. Executor marked stale commands and stopped on watchdog."
+    },
+    {
+      "name": "tip_fullpose_short",
+      "result": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/tip_fullpose_short/scene007/result.json",
+        "sha256": "fc15a036106c94a6ab0e5f9c52717cdcbf5b1c90e60b24addbcb3420c4d09950"
+      },
+      "configuration": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/tip_fullpose_short/evaluation_config.json",
+        "sha256": "1247a9223cf67c6a5d4bce98d0f9d6226d92b7df8fd0eb0aa7575bb877186dfb"
+      },
+      "runtime_contract": {
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/shared_dynamics_20260908/tip_fullpose_short/scene007/shared_runtime_1788885663795606418/shared_contact_model.json",
+        "sha256": "eddf79d1186346237bff069b303fd6d21042385a740f68dcaddbeeec42207f8a"
+      },
+      "requested_sim_time_s": 35.0,
+      "executed_sim_time_s": 35.0,
+      "stopped_reason": "maximum_sim_time",
+      "success": false,
+      "c1_pass": true,
+      "final_xy_mm": 59.78921055793762,
+      "final_so3_deg": 10.129854411819558,
+      "final_height_mm": 0.9876051917672157,
+      "first_safe_contact_step": 2974,
+      "dynamics_validation": {
+        "com_error_m": 0.0,
+        "mass_error_kg": 0.0,
+        "maximum_inertia_entry_error_kg_m2": 0.0,
+        "passed": true
+      },
+      "first_prediction_height_change_m": 0.001988499111495984,
+      "plan_clock": {
+        "schema": "nonprehensile.synchronous_plan_clock_audit.v1",
+        "sample_count": 699,
+        "c3_mode_samples": 280,
+        "median_plan_start_lead_s": 0.0,
+        "maximum_absolute_plan_start_error_s": 0.0,
+        "maximum_absolute_query_offset_s": 0.0,
+        "tolerance_s": 1e-05,
+        "passed": true,
+        "scope": "Fresh task references with zero lookahead on the synchronous Isaac bridge; not task acceptance."
+      },
+      "tracking": {
+        "c3_servo_error_p95_m": 0.005141103641174685,
+        "physical_contact_samples": 0,
+        "trace_sampling_policy": "uniform_stride"
+      },
+      "native_failure_lines": []
+    },
+    {
+      "name": "tip_xy_short",
+      "result": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/tip_xy_short/scene007/result.json",
+        "sha256": "0f15e5b6cc581dc2b2fe5e3a2c21934c31222b72be303540e048b2db2ff5c9b7"
+      },
+      "configuration": {
+        "path": "outputs/contact_planner_m3/shared_dynamics_20260908/tip_xy_short/evaluation_config.json",
+        "sha256": "6a1df45e9dc73514159dccda9dc4876a820766bf3905a23ac13872be66cc10e5"
+      },
+      "runtime_contract": {
+        "path": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/shared_dynamics_20260908/tip_xy_short/scene007/shared_runtime_1788885658976736678/shared_contact_model.json",
+        "sha256": "eddf79d1186346237bff069b303fd6d21042385a740f68dcaddbeeec42207f8a"
+      },
+      "requested_sim_time_s": 35.0,
+      "executed_sim_time_s": 35.0,
+      "stopped_reason": "maximum_sim_time",
+      "success": false,
+      "c1_pass": true,
+      "final_xy_mm": 27.792084962129593,
+      "final_so3_deg": 59.521027823915794,
+      "final_height_mm": 0.9841090068221092,
+      "first_safe_contact_step": 393,
+      "dynamics_validation": {
+        "com_error_m": 0.0,
+        "mass_error_kg": 0.0,
+        "maximum_inertia_entry_error_kg_m2": 0.0,
+        "passed": true
+      },
+      "first_prediction_height_change_m": 0.001988499111495984,
+      "plan_clock": {
+        "schema": "nonprehensile.synchronous_plan_clock_audit.v1",
+        "sample_count": 699,
+        "c3_mode_samples": 261,
+        "median_plan_start_lead_s": 0.0,
+        "maximum_absolute_plan_start_error_s": 0.0,
+        "maximum_absolute_query_offset_s": 0.0,
+        "tolerance_s": 1e-05,
+        "passed": true,
+        "scope": "Fresh task references with zero lookahead on the synchronous Isaac bridge; not task acceptance."
+      },
+      "tracking": {
+        "c3_servo_error_p95_m": 0.005283248006400267,
+        "physical_contact_samples": 5,
+        "trace_sampling_policy": "uniform_stride"
+      },
+      "native_failure_lines": []
+    }
+  ],
+  "limitations": [
+    "No strict pose success.",
+    "The aligned 180 s attempt stopped at 89.51 s after crossing the original workspace limit.",
+    "Three-point support is a resting approximation; finger orientation is frozen over each prediction horizon; only one finger-target pair is active in C3.",
+    "Uniform-stride historical traces can miss brief contact; all-step task and safety flags remain authoritative."
+  ],
+  "validation": {
+    "focused_tests": {
+      "passed": 39,
+      "skipped": 1,
+      "log": "outputs/contact_planner_m3/shared_dynamics_20260908/focused_tests.log",
+      "sha256": "7eab3606bdaf96b736235ff76ac6f91f06d2de3aa06445766f81ae8ea94fe9cb"
+    },
+    "native_build_check_passed": true,
+    "native_clock_patch_build_passed": true
+  }
+}

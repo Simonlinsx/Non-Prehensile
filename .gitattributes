@@ -11,3 +11,6 @@
 *.jit filter=lfs diff=lfs merge=lfs -text
 *.hdf5 filter=lfs diff=lfs merge=lfs -text
 *.patch -whitespace
+# Preserve the exact upstream and measured-runtime bytes for checksum audits.
+data/robot_models/fr3_stock_20260909/vendor/franka_description/** -whitespace
+data/baselines/fr3_native_osc_20260909/runtime/** -whitespace

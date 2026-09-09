@@ -1,0 +1,51 @@
+{
+  "source_result": "outputs/contact_planner_m3/workspace_height_20260908/foh_native_gains_fixed_goal35/scene007/result.json",
+  "source_sha256": "96a6d3ded404edc88c4a5ec7e525db7697b7920d102d889cc8e275c23767c00b",
+  "description": "Subset of actual failed FOH diagnostic result; never represents acceptance success.",
+  "result": {
+    "schema": "nonprehensile.c3_online_isaaclab_task.v1",
+    "executed_sim_time_s": 35.0,
+    "executed_steps": 3500,
+    "physical_end_effector": "stock_franka_gripper_closed",
+    "strict_pose_thresholds": {
+      "dwell_time_s": 0.5,
+      "height_m": 0.01,
+      "planar_m": 0.02,
+      "rotation_rad": 0.105
+    },
+    "forbidden_robot_contact_ever": false,
+    "online_closed_loop_success": false,
+    "stopped_reason": "maximum_sim_time",
+    "final_planar_error_m": 0.05807419493794441,
+    "final_height_error_m": 0.0009858356788754463,
+    "final_rotation_error_rad": 0.44493988156318665,
+    "maximum_strict_dwell_steps": 0,
+    "control_period_s": 0.01,
+    "first_safe_contact_step": 286,
+    "controller_parameters": {
+      "native_goal_mode": 2,
+      "native_pd_rollout_interpolation": "foh"
+    },
+    "trace": [
+      {
+        "legal_safe_robot_contact": true,
+        "forbidden_robot_contact": false,
+        "robot_target_contact_force_n_by_sensor": {
+          "target_hand_contacts": 2.119945526123047,
+          "target_hand_contacts:panda_hand": 0.0,
+          "target_hand_contacts:panda_leftfinger": 2.119945526123047,
+          "target_hand_contacts:panda_rightfinger": 0.0,
+          "target_robot_contacts": 0.0,
+          "target_robot_contacts:panda_link0": 0.0,
+          "target_robot_contacts:panda_link1": 0.0,
+          "target_robot_contacts:panda_link2": 0.0,
+          "target_robot_contacts:panda_link3": 0.0,
+          "target_robot_contacts:panda_link4": 0.0,
+          "target_robot_contacts:panda_link5": 0.0,
+          "target_robot_contacts:panda_link6": 0.0,
+          "target_robot_contacts:panda_link7": 0.0
+        }
+      }
+    ]
+  }
+}

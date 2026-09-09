@@ -582,6 +582,47 @@ def _robot_arm_proxy_points_in_env_frame(
     return ((1.0 - alpha) * segment_start + alpha * segment_end).flatten(1, 2)
 
 
+def _spherical_pusher_points_in_env_frame(
+    env: "ManagerBasedRLEnv",
+    *,
+    tip_from_hand_m: float,
+    tip_radius_m: float,
+    robot_cfg: SceneEntityCfg,
+    point_count: int = 256,
+) -> torch.Tensor:
+    """Sample the physical Push Anything sphere instead of the stock gripper."""
+
+    if tip_from_hand_m <= 0.0 or tip_radius_m <= 0.0:
+        raise ValueError("pusher tip offset and radius must be positive")
+    if point_count < 4:
+        raise ValueError("pusher sphere needs at least four audit points")
+    robot = env.scene[robot_cfg.name]
+    body_names = tuple(robot.body_names)
+    if "panda_hand" not in body_names:
+        raise RuntimeError("spherical pusher audit could not resolve panda_hand")
+    hand_id = body_names.index("panda_hand")
+    position_w = robot.data.body_pos_w[:, hand_id, :3]
+    quaternion_w = robot.data.body_quat_w[:, hand_id, :]
+    device = position_w.device
+    dtype = position_w.dtype
+
+    index = torch.arange(point_count, device=device, dtype=dtype)
+    z = 1.0 - 2.0 * (index + 0.5) / float(point_count)
+    radial = torch.sqrt(torch.clamp(1.0 - z.square(), min=0.0))
+    azimuth = index * (torch.pi * (3.0 - 5.0**0.5))
+    unit_sphere = torch.stack(
+        (radial * torch.cos(azimuth), radial * torch.sin(azimuth), z), dim=1
+    )
+    local_points = unit_sphere * float(tip_radius_m)
+    local_points[:, 2] += float(tip_from_hand_m)
+    local_points = local_points.unsqueeze(0).expand(env.num_envs, -1, -1)
+    expanded_quaternion = quaternion_w.unsqueeze(1).expand(-1, point_count, -1)
+    points_w = quat_apply(
+        expanded_quaternion.reshape(-1, 4), local_points.reshape(-1, 3)
+    ).reshape(env.num_envs, point_count, 3)
+    return points_w + position_w.unsqueeze(1) - env.scene.env_origins.unsqueeze(1)
+
+
 def _filtered_contact_event(
     env: "ManagerBasedRLEnv",
     sensor_name: ContactSensorNames,
@@ -638,10 +679,13 @@ def domino_affordance_contact_state(
     robot_link_proxy_radius_m: float = 0.045,
     robot_link_samples_per_segment: int = 5,
     physical_contact_force_threshold_n: float = 0.5,
+    pusher_tip_from_hand_m: float | None = None,
+    pusher_tip_radius_m: float = 0.0195,
     evaluate_protected: bool = True,
     evaluate_robot_obstacle: bool = False,
     require_physical_protected_contact: bool = False,
     robot_target_sensor_name: ContactSensorNames = None,
+    hand_target_sensor_name: ContactSensorNames = None,
     robot_obstacle_sensor_name: ContactSensorNames = None,
     target_obstacle_sensor_name: ContactSensorNames = None,
     safe_radius_m: float | None = None,
@@ -685,10 +729,13 @@ def domino_affordance_contact_state(
         round(float(robot_link_proxy_radius_m), 8),
         int(robot_link_samples_per_segment),
         round(float(physical_contact_force_threshold_n), 8),
+        _radius_key(pusher_tip_from_hand_m),
+        round(float(pusher_tip_radius_m), 8),
         bool(evaluate_protected),
         bool(evaluate_robot_obstacle),
         bool(require_physical_protected_contact),
         robot_target_sensor_name,
+        hand_target_sensor_name,
         robot_obstacle_sensor_name,
         target_obstacle_sensor_name,
         _radius_key(safe_radius_m),
@@ -719,9 +766,39 @@ def domino_affordance_contact_state(
     features = geometry["features"]
     target_points = geometry["target_points"]
     obstacle_points = geometry["obstacle_points"]
-    end_effector_points = geometry["end_effector_points"]
-    robot_point_distance = geometry["robot_point_distance"]
-    robot_target_index = geometry["robot_target_index"]
+    if pusher_tip_from_hand_m is None:
+        end_effector_points = geometry["end_effector_points"]
+        robot_point_distance = geometry["robot_point_distance"]
+        robot_target_index = geometry["robot_target_index"]
+        semantic_minima = (
+            geometry["minimum_safe_distance"],
+            geometry["minimum_robot_forbidden_distance"],
+            geometry["minimum_robot_neutral_distance"],
+            geometry["minimum_robot_protected_distance"],
+        )
+    else:
+        end_effector_points = _spherical_pusher_points_in_env_frame(
+            env,
+            tip_from_hand_m=float(pusher_tip_from_hand_m),
+            tip_radius_m=float(pusher_tip_radius_m),
+            robot_cfg=robot_cfg,
+        )
+        safe_mask = geometry["safe_mask"]
+        protected_mask = geometry["protected_mask"]
+        forbidden_mask = geometry["forbidden_mask"]
+        neutral_mask = geometry["neutral_mask"]
+        robot_point_distance, robot_target_index, semantic_minima = (
+            _chunked_target_semantic_distances(
+                end_effector_points,
+                target_points,
+                semantic_masks=(
+                    safe_mask,
+                    forbidden_mask,
+                    neutral_mask,
+                    protected_mask,
+                ),
+            )
+        )
     minimum_robot_distance, closest_robot_index = robot_point_distance.min(dim=1)
     closest_target_index = torch.gather(
         robot_target_index, 1, closest_robot_index[:, None]
@@ -767,6 +844,13 @@ def domino_affordance_contact_state(
             ),
         )
     )
+    hand_target_physical_contact, hand_target_sensor_available = (
+        _filtered_contact_event(
+            env,
+            hand_target_sensor_name,
+            force_threshold_n=physical_contact_force_threshold_n,
+        )
+    )
     forbidden_robot_contact = forbidden_hand_contact | arm_target_physical_contact
     # Soft exploration still needs pose-progress gradients when one hand point
     # reaches the safe patch while another point briefly violates C1.  Keep the
@@ -774,17 +858,16 @@ def domino_affordance_contact_state(
     # separate legal predicate for the one-time bonus and strict accounting.
     # Hard profiles terminate the same mixed-contact transition immediately.
     legal_safe_robot_contact = safe_robot_contact & ~forbidden_robot_contact
+    legal_physical_safe_hand_contact = (
+        legal_safe_robot_contact & hand_target_physical_contact
+    )
 
     safe_mask = geometry["safe_mask"]
     protected_mask = geometry["protected_mask"]
-    minimum_safe_distance = geometry["minimum_safe_distance"]
-    minimum_robot_forbidden_distance = geometry[
-        "minimum_robot_forbidden_distance"
-    ]
-    minimum_robot_neutral_distance = geometry["minimum_robot_neutral_distance"]
-    minimum_robot_protected_distance = geometry[
-        "minimum_robot_protected_distance"
-    ]
+    minimum_safe_distance = semantic_minima[0]
+    minimum_robot_forbidden_distance = semantic_minima[1]
+    minimum_robot_neutral_distance = semantic_minima[2]
+    minimum_robot_protected_distance = semantic_minima[3]
     if evaluate_robot_obstacle:
         minimum_hand_obstacle_distance, _ = _chunked_closest_right_point(
             end_effector_points, obstacle_points
@@ -805,6 +888,15 @@ def domino_affordance_contact_state(
             minimum_hand_obstacle_distance, minimum_arm_obstacle_distance
         )
     else:
+        minimum_hand_obstacle_distance = torch.full_like(
+            minimum_robot_distance, torch.inf
+        )
+        minimum_arm_centerline_distance = torch.full_like(
+            minimum_robot_distance, torch.inf
+        )
+        minimum_arm_obstacle_distance = torch.full_like(
+            minimum_robot_distance, torch.inf
+        )
         minimum_robot_obstacle_distance = torch.full_like(
             minimum_robot_distance, torch.inf
         )
@@ -852,6 +944,7 @@ def domino_affordance_contact_state(
         "robot_contact": robot_contact,
         "safe_robot_contact": safe_robot_contact,
         "legal_safe_robot_contact": legal_safe_robot_contact,
+        "legal_physical_safe_hand_contact": legal_physical_safe_hand_contact,
         "forbidden_robot_contact": forbidden_robot_contact,
         "forbidden_hand_contact": forbidden_hand_contact,
         "neutral_hand_contact": neutral_hand_contact,
@@ -859,10 +952,14 @@ def domino_affordance_contact_state(
         "protected_obstacle_collision": protected_obstacle_collision,
         "robot_obstacle_collision": robot_obstacle_collision,
         "arm_target_physical_contact": arm_target_physical_contact,
+        "hand_target_physical_contact": hand_target_physical_contact,
         "target_obstacle_physical_contact": target_obstacle_physical_contact,
         "robot_obstacle_physical_contact": robot_obstacle_physical_contact,
         "robot_target_sensor_available": torch.full_like(
             robot_contact, robot_target_sensor_available
+        ),
+        "hand_target_sensor_available": torch.full_like(
+            robot_contact, hand_target_sensor_available
         ),
         "target_obstacle_sensor_available": torch.full_like(
             robot_contact, target_obstacle_sensor_available
@@ -876,7 +973,18 @@ def domino_affordance_contact_state(
         "minimum_robot_neutral_distance": minimum_robot_neutral_distance,
         "minimum_robot_protected_distance": minimum_robot_protected_distance,
         "closest_safe_score": closest_safe_score,
+        # Expose references to the step-local geometry for downstream
+        # collision-aware controllers.  These tensors are already cached by
+        # this function; returning them does not duplicate point-cloud memory.
+        "target_points": target_points,
+        "obstacle_points": obstacle_points,
+        "safe_mask": safe_mask,
+        "protected_mask": protected_mask,
+        "forbidden_mask": ~safe_mask,
         "protected_clearance": minimum_functional_distance,
+        "hand_obstacle_clearance": minimum_hand_obstacle_distance,
+        "arm_obstacle_centerline_distance": minimum_arm_centerline_distance,
+        "arm_obstacle_clearance": minimum_arm_obstacle_distance,
         "robot_obstacle_clearance": minimum_robot_obstacle_distance,
     }
     cache[cache_key] = result

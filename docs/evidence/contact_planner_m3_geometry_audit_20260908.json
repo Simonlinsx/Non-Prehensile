@@ -1,0 +1,78 @@
+{
+  "schema": "nonprehensile.contact_geometry_evidence.v1",
+  "date": "2026-09-08",
+  "gate1_passed": false,
+  "conclusion": "A single 8 mm sphere misses closed finger contacts even against the same PhysX target convexes; the target source meshes also differ.",
+  "reference_sample_count": 19,
+  "target_physx_convex_count": 16,
+  "finger_runtime_contact_offsets_m": [
+    0.00042049578041769564,
+    0.00042049578041769564
+  ],
+  "target_runtime_contact_offsets_m": [
+    0.0005901989061385393
+  ],
+  "all_robot_and_target_rest_offsets_zero": true,
+  "maximum_reconstructed_tip_error_m": 7.411182430267585e-08,
+  "usd_source_to_planner_surface_distance_m": {
+    "median": 0.0013724627816944076,
+    "p95": 0.0031587363618312096,
+    "max": 0.01199531244393772
+  },
+  "geometry_statistics": {
+    "planner_sphere_clearance_m": {
+      "median": 0.006881992760039788,
+      "max": 0.01239401490416744
+    },
+    "physx_convex_sphere_clearance_m": {
+      "median": 0.005717483995908351,
+      "max": 0.009921278680876236
+    },
+    "closed_fingers_to_physx_target_distance_m": {
+      "median": 1.0572186446133484e-07,
+      "max": 3.364257088060147e-05
+    }
+  },
+  "limitations": [
+    "Reconstruction assumes zero finger displacement; historical finger states and substep contact points were not logged. Convex distance is zero for overlap, not penetration depth.",
+    "Contact force is the last 2.5 ms physics interval; pose is the endpoint. Contact point/normal agreement is not established.",
+    "Source surface distances are one-direction sampled distances over the whole target, not contact-specific errors."
+  ],
+  "changes": [
+    "Diagnostic exporters and comparisons",
+    "Trace records finger positions, contact body poses, base/env transforms and separate contact audit timestamp",
+    "Proxy audit handles explicit frames and excludes stale timestamped audits",
+    "Corrected unsupported inscribed-sphere description; baseline geometry unchanged"
+  ],
+  "validation": {
+    "pytest_command": "/data1/linsixu/miniconda3/envs/dapl-isaaclab/bin/python -m pytest -q tests/test_closed_gripper_geometry_audit.py tests/test_c3_effect_audit.py tests/test_c3_execution_tracking.py",
+    "passed_tests": 12,
+    "trace_smoke_sim_time_s": 1,
+    "trace_smoke_samples": 10,
+    "trace_smoke_timestamp_match": true,
+    "trace_smoke_finger_range_m": [
+      -2.0478851183725055e-06,
+      2.605047484394163e-05
+    ],
+    "trace_smoke_is_acceptance_trial": false
+  },
+  "artifacts": {
+    "live_collision.json": {
+      "path": "outputs/contact_planner_m3/closed_gripper_geometry_audit_20260908/live_collision.json",
+      "sha256": "e8a330fe7469836448a7c4822bc04b7ce575aa881f06ca995e9679a35aa137be"
+    },
+    "comparison.json": {
+      "path": "outputs/contact_planner_m3/closed_gripper_geometry_audit_20260908/comparison.json",
+      "sha256": "ec7a1fed251fbd98c36008a9fe3a36aa25956584061be7b457a8604ea5ca0af2"
+    },
+    "contact_gap_comparison.png": {
+      "path": "outputs/contact_planner_m3/closed_gripper_geometry_audit_20260908/contact_gap_comparison.png",
+      "sha256": "aee8c5e43ab32971a9bd241efc9e400125c243b927b8d60c29fd685c15c197f2"
+    },
+    "trace_smoke/result.json": {
+      "path": "outputs/contact_planner_m3/closed_gripper_geometry_audit_20260908/trace_smoke/result.json",
+      "sha256": "86f0115ebf657298afc3d9ddeaeccf3496f4b9230c03b1c4c30a56a6889c6a53"
+    }
+  },
+  "next_step": "Align target collision asset contract, then validate finger contact representation, positions and normals before frozen-scene rollout."
+}

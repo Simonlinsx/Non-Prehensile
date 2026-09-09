@@ -1,0 +1,872 @@
+{
+  "schema": "nonprehensile.offline_pd_tensor_and_lcp.v1",
+  "updated_utc": "2026-09-09T00:03:01.815059+00:00",
+  "native_binary_sha256": "16a3b15fbaf5ea59f57cbb2ac864bdc8e29499253112f210e57022784c3bf4d4",
+  "reports": {
+    "t8p35_scalar_tol1e-8": {
+      "schema": "nonprehensile.offline_pd_resolution_comparison.v1",
+      "acceptance_eligible": false,
+      "capture_utime_us": 8350000,
+      "duration_s": 0.3,
+      "original_resolution_exactly_reproduced": true,
+      "predictions": {
+        "4": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.01875,
+          "sampled_reference_clocks": false,
+          "lcp_zero_tolerance": "original_default",
+          "endpoint_xy_error_m": 0.009530565139342742,
+          "endpoint_height_error_m": 1.4179852352476374e-06,
+          "endpoint_so3_error_rad": 0.003536212447381303,
+          "predicted_xy_displacement_m": 0.018210416670679422,
+          "output_sha256": "753a2bd5befbcfb0f0e6a4c71d03ab85fe1b0156093a187f8c6fb6118d291afd",
+          "inertia_model": {
+            "mode": "scalar",
+            "mass_kg": 1.0
+          },
+          "maximum_state_difference_from_online_baseline": 0.0
+        },
+        "30": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.0025,
+          "sampled_reference_clocks": true,
+          "lcp_zero_tolerance": 1e-08,
+          "endpoint_xy_error_m": 0.00848801018030832,
+          "endpoint_height_error_m": 1.4179852352406985e-06,
+          "endpoint_so3_error_rad": 0.017392847592568046,
+          "predicted_xy_displacement_m": 0.02297843796483898,
+          "output_sha256": "3ad5a42188103c784bcb9467b0f95a933ecc811803c2b69245e2295afee62b5e",
+          "reference_clock_audit": {
+            "matched_samples": 15,
+            "matched_times_s": [
+              0,
+              0.02,
+              0.03,
+              0.04,
+              0.05,
+              0.06,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.12,
+              0.13,
+              0.14,
+              0.15,
+              0.25
+            ],
+            "unavailable_trace_times_s": [
+              0.01,
+              0.11,
+              0.16,
+              0.17,
+              0.18,
+              0.19,
+              0.2,
+              0.21,
+              0.22,
+              0.23,
+              0.24,
+              0.26,
+              0.27,
+              0.28,
+              0.29
+            ],
+            "raw_reference_maximum_absolute_error": {
+              "position_m": 2.220446049250313e-16,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 7.216449660063518e-15
+            },
+            "applied_reference_maximum_absolute_error": {
+              "position_m": 0.0003071980942495889,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 7.216449660063518e-15
+            },
+            "all_available_raw_references_match": true,
+            "complete_trace_coverage": false,
+            "limitation": "Sparse historical trace: missing timestamps are not verified. Position governor and physical dynamics are not modeled."
+          },
+          "inertia_model": {
+            "mode": "scalar",
+            "mass_kg": 1.0
+          }
+        }
+      },
+      "physical_replay_audit": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_calibrated_pd_t8p3_diag10/scene007/reference_replay_audit.json",
+      "artifact_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/t8p35_scalar_tol1e-8/input_provenance.json": "0391eb89d28e70a5852b9699e33961688aa4ef2961d5397d859a27fcdc5b16dd",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_calibrated_pd_t8p3_diag10/scene007/reference_replay_audit.json": "b804454a15897c18d9ada206dcd59272a2f467a2bba8aaee7979bf6e21eacbce",
+        "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/controller_online.log": "f0c31f8ecdca1b2fcfbc7917d909fbdd08a9cba1b193fc72e445636d7b2a04d8"
+      },
+      "limitations": [
+        "A counterfactual model comparison, not another physical trial.",
+        "Nearby overlapping windows do not constitute independent held-out scenes.",
+        "All variants retain supplied knots and force convention; sampled_reference_clocks and inertia_model explicitly identify model changes."
+      ]
+    },
+    "t8p35_tol1e-10": {
+      "schema": "nonprehensile.offline_pd_resolution_comparison.v1",
+      "acceptance_eligible": false,
+      "capture_utime_us": 8350000,
+      "duration_s": 0.3,
+      "original_resolution_exactly_reproduced": true,
+      "predictions": {
+        "4": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.01875,
+          "sampled_reference_clocks": false,
+          "lcp_zero_tolerance": "original_default",
+          "endpoint_xy_error_m": 0.009530565139342742,
+          "endpoint_height_error_m": 1.4179852352476374e-06,
+          "endpoint_so3_error_rad": 0.003536212447381303,
+          "predicted_xy_displacement_m": 0.018210416670679422,
+          "output_sha256": "753a2bd5befbcfb0f0e6a4c71d03ab85fe1b0156093a187f8c6fb6118d291afd",
+          "inertia_model": {
+            "mode": "scalar",
+            "mass_kg": 1.0
+          },
+          "maximum_state_difference_from_online_baseline": 0.0
+        },
+        "30": {
+          "prediction_valid": false,
+          "error": "Failure at systems/controllers/sampling_based_c3_controller.cc:3975 in AuditSampledPDReplay(): condition 'coefficient_error < 1e-8 && simulation_error < 1e-7' failed.",
+          "lcp_zero_tolerance": 1e-10
+        }
+      },
+      "physical_replay_audit": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_calibrated_pd_t8p3_diag10/scene007/reference_replay_audit.json",
+      "artifact_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/t8p35_tol1e-10/input_provenance.json": "0391eb89d28e70a5852b9699e33961688aa4ef2961d5397d859a27fcdc5b16dd",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_calibrated_pd_t8p3_diag10/scene007/reference_replay_audit.json": "b804454a15897c18d9ada206dcd59272a2f467a2bba8aaee7979bf6e21eacbce",
+        "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/controller_online.log": "f0c31f8ecdca1b2fcfbc7917d909fbdd08a9cba1b193fc72e445636d7b2a04d8"
+      },
+      "limitations": [
+        "A counterfactual model comparison, not another physical trial.",
+        "Nearby overlapping windows do not constitute independent held-out scenes.",
+        "All variants retain supplied knots and force convention; sampled_reference_clocks and inertia_model explicitly identify model changes."
+      ]
+    },
+    "t8p35_tol1e-6": {
+      "schema": "nonprehensile.offline_pd_resolution_comparison.v1",
+      "acceptance_eligible": false,
+      "capture_utime_us": 8350000,
+      "duration_s": 0.3,
+      "original_resolution_exactly_reproduced": true,
+      "predictions": {
+        "4": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.01875,
+          "sampled_reference_clocks": false,
+          "lcp_zero_tolerance": "original_default",
+          "endpoint_xy_error_m": 0.009530565139342742,
+          "endpoint_height_error_m": 1.4179852352476374e-06,
+          "endpoint_so3_error_rad": 0.003536212447381303,
+          "predicted_xy_displacement_m": 0.018210416670679422,
+          "output_sha256": "753a2bd5befbcfb0f0e6a4c71d03ab85fe1b0156093a187f8c6fb6118d291afd",
+          "inertia_model": {
+            "mode": "scalar",
+            "mass_kg": 1.0
+          },
+          "maximum_state_difference_from_online_baseline": 0.0
+        },
+        "30": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.0025,
+          "sampled_reference_clocks": true,
+          "lcp_zero_tolerance": 1e-06,
+          "endpoint_xy_error_m": 0.016587847426488184,
+          "endpoint_height_error_m": 7.285487871048352e-06,
+          "endpoint_so3_error_rad": 0.06581128462649061,
+          "predicted_xy_displacement_m": 0.04036776205982168,
+          "output_sha256": "9e408f3aa31c5543605bd60252a502ff7dff470950ba790c5cc7b8e295a286f4",
+          "reference_clock_audit": {
+            "matched_samples": 15,
+            "matched_times_s": [
+              0,
+              0.02,
+              0.03,
+              0.04,
+              0.05,
+              0.06,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.12,
+              0.13,
+              0.14,
+              0.15,
+              0.25
+            ],
+            "unavailable_trace_times_s": [
+              0.01,
+              0.11,
+              0.16,
+              0.17,
+              0.18,
+              0.19,
+              0.2,
+              0.21,
+              0.22,
+              0.23,
+              0.24,
+              0.26,
+              0.27,
+              0.28,
+              0.29
+            ],
+            "raw_reference_maximum_absolute_error": {
+              "position_m": 2.220446049250313e-16,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 7.216449660063518e-15
+            },
+            "applied_reference_maximum_absolute_error": {
+              "position_m": 0.0003071980942495889,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 7.216449660063518e-15
+            },
+            "all_available_raw_references_match": true,
+            "complete_trace_coverage": false,
+            "limitation": "Sparse historical trace: missing timestamps are not verified. Position governor and physical dynamics are not modeled."
+          },
+          "inertia_model": {
+            "mode": "frozen_measured_translational_tensor",
+            "matrix_kg": [
+              [
+                1.4835129327174499,
+                -0.28428533758800734,
+                -2.232874732315353
+              ],
+              [
+                -0.28428533758800734,
+                1.1377485628973365,
+                1.2841455936260395
+              ],
+              [
+                -2.232874732315353,
+                1.2841455936260395,
+                8.286500334164893
+              ]
+            ],
+            "factory_equivalence_checks": 10,
+            "maximum_coefficient_error": 1.7763568394002505e-15,
+            "maximum_lcp_state_error": 1.9895196601282805e-13,
+            "provenance": "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/t8p35_tol1e-6/inertia_provenance.json",
+            "limitation": "Frozen local 3D inertia approximation. Cached state precedes the last physics substep; arm rotation, nullspace, joint limits and inertia changes are not modeled."
+          }
+        }
+      },
+      "physical_replay_audit": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_calibrated_pd_t8p3_diag10/scene007/reference_replay_audit.json",
+      "artifact_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/t8p35_tol1e-6/input_provenance.json": "0391eb89d28e70a5852b9699e33961688aa4ef2961d5397d859a27fcdc5b16dd",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_calibrated_pd_t8p3_diag10/scene007/reference_replay_audit.json": "b804454a15897c18d9ada206dcd59272a2f467a2bba8aaee7979bf6e21eacbce",
+        "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/controller_online.log": "f0c31f8ecdca1b2fcfbc7917d909fbdd08a9cba1b193fc72e445636d7b2a04d8"
+      },
+      "limitations": [
+        "A counterfactual model comparison, not another physical trial.",
+        "Nearby overlapping windows do not constitute independent held-out scenes.",
+        "All variants retain supplied knots and force convention; sampled_reference_clocks and inertia_model explicitly identify model changes."
+      ]
+    },
+    "t8p35_tol1e-8": {
+      "schema": "nonprehensile.offline_pd_resolution_comparison.v1",
+      "acceptance_eligible": false,
+      "capture_utime_us": 8350000,
+      "duration_s": 0.3,
+      "original_resolution_exactly_reproduced": true,
+      "predictions": {
+        "4": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.01875,
+          "sampled_reference_clocks": false,
+          "lcp_zero_tolerance": "original_default",
+          "endpoint_xy_error_m": 0.009530565139342742,
+          "endpoint_height_error_m": 1.4179852352476374e-06,
+          "endpoint_so3_error_rad": 0.003536212447381303,
+          "predicted_xy_displacement_m": 0.018210416670679422,
+          "output_sha256": "753a2bd5befbcfb0f0e6a4c71d03ab85fe1b0156093a187f8c6fb6118d291afd",
+          "inertia_model": {
+            "mode": "scalar",
+            "mass_kg": 1.0
+          },
+          "maximum_state_difference_from_online_baseline": 0.0
+        },
+        "30": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.0025,
+          "sampled_reference_clocks": true,
+          "lcp_zero_tolerance": 1e-08,
+          "endpoint_xy_error_m": 0.016587847426488184,
+          "endpoint_height_error_m": 7.285487871048352e-06,
+          "endpoint_so3_error_rad": 0.06581128462649061,
+          "predicted_xy_displacement_m": 0.04036776205982168,
+          "output_sha256": "1c6324ad8473f766610a3506af3291a1e99654d5e09a5872bece4808196f030c",
+          "reference_clock_audit": {
+            "matched_samples": 15,
+            "matched_times_s": [
+              0,
+              0.02,
+              0.03,
+              0.04,
+              0.05,
+              0.06,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.12,
+              0.13,
+              0.14,
+              0.15,
+              0.25
+            ],
+            "unavailable_trace_times_s": [
+              0.01,
+              0.11,
+              0.16,
+              0.17,
+              0.18,
+              0.19,
+              0.2,
+              0.21,
+              0.22,
+              0.23,
+              0.24,
+              0.26,
+              0.27,
+              0.28,
+              0.29
+            ],
+            "raw_reference_maximum_absolute_error": {
+              "position_m": 2.220446049250313e-16,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 7.216449660063518e-15
+            },
+            "applied_reference_maximum_absolute_error": {
+              "position_m": 0.0003071980942495889,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 7.216449660063518e-15
+            },
+            "all_available_raw_references_match": true,
+            "complete_trace_coverage": false,
+            "limitation": "Sparse historical trace: missing timestamps are not verified. Position governor and physical dynamics are not modeled."
+          },
+          "inertia_model": {
+            "mode": "frozen_measured_translational_tensor",
+            "matrix_kg": [
+              [
+                1.4835129327174499,
+                -0.28428533758800734,
+                -2.232874732315353
+              ],
+              [
+                -0.28428533758800734,
+                1.1377485628973365,
+                1.2841455936260395
+              ],
+              [
+                -2.232874732315353,
+                1.2841455936260395,
+                8.286500334164893
+              ]
+            ],
+            "factory_equivalence_checks": 10,
+            "maximum_coefficient_error": 1.7763568394002505e-15,
+            "maximum_lcp_state_error": 2.4868995751603507e-13,
+            "provenance": "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/t8p35_tol1e-8/inertia_provenance.json",
+            "limitation": "Frozen local 3D inertia approximation. Cached state precedes the last physics substep; arm rotation, nullspace, joint limits and inertia changes are not modeled."
+          }
+        }
+      },
+      "physical_replay_audit": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_calibrated_pd_t8p3_diag10/scene007/reference_replay_audit.json",
+      "artifact_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/t8p35_tol1e-8/input_provenance.json": "0391eb89d28e70a5852b9699e33961688aa4ef2961d5397d859a27fcdc5b16dd",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_calibrated_pd_t8p3_diag10/scene007/reference_replay_audit.json": "b804454a15897c18d9ada206dcd59272a2f467a2bba8aaee7979bf6e21eacbce",
+        "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/controller_online.log": "f0c31f8ecdca1b2fcfbc7917d909fbdd08a9cba1b193fc72e445636d7b2a04d8"
+      },
+      "limitations": [
+        "A counterfactual model comparison, not another physical trial.",
+        "Nearby overlapping windows do not constitute independent held-out scenes.",
+        "All variants retain supplied knots and force convention; sampled_reference_clocks and inertia_model explicitly identify model changes."
+      ]
+    },
+    "t8p3_scalar_tol1e-8": {
+      "schema": "nonprehensile.offline_pd_resolution_comparison.v1",
+      "acceptance_eligible": false,
+      "capture_utime_us": 8299999,
+      "duration_s": 0.3,
+      "original_resolution_exactly_reproduced": true,
+      "predictions": {
+        "4": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.01875,
+          "sampled_reference_clocks": false,
+          "lcp_zero_tolerance": "original_default",
+          "endpoint_xy_error_m": 0.006707830155643719,
+          "endpoint_height_error_m": 1.379707778904199e-06,
+          "endpoint_so3_error_rad": 0.04525399977657174,
+          "predicted_xy_displacement_m": 0.013773244794965403,
+          "output_sha256": "6bda9b42895b0d252b20a371424fb65e977a7a18ff5deb9e674d1325d44f6c25",
+          "inertia_model": {
+            "mode": "scalar",
+            "mass_kg": 1.0
+          },
+          "maximum_state_difference_from_online_baseline": 0.0
+        },
+        "30": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.0025,
+          "sampled_reference_clocks": true,
+          "lcp_zero_tolerance": 1e-08,
+          "endpoint_xy_error_m": 0.008998253124155198,
+          "endpoint_height_error_m": 1.379707778904199e-06,
+          "endpoint_so3_error_rad": 0.06148592374737459,
+          "predicted_xy_displacement_m": 0.010491542357688354,
+          "output_sha256": "9548f79f6e0b8a0732f01f259f9942759242020dedec4240f59ed6d9758f3ca7",
+          "reference_clock_audit": {
+            "matched_samples": 14,
+            "matched_times_s": [
+              0,
+              0.01,
+              0.02,
+              0.03,
+              0.04,
+              0.05,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.13,
+              0.14,
+              0.15,
+              0.2
+            ],
+            "unavailable_trace_times_s": [
+              0.06,
+              0.11,
+              0.12,
+              0.16,
+              0.17,
+              0.18,
+              0.19,
+              0.21,
+              0.22,
+              0.23,
+              0.24,
+              0.25,
+              0.26,
+              0.27,
+              0.28,
+              0.29
+            ],
+            "raw_reference_maximum_absolute_error": {
+              "position_m": 2.498001805406602e-16,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "applied_reference_maximum_absolute_error": {
+              "position_m": 0.000733927908398796,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "all_available_raw_references_match": true,
+            "complete_trace_coverage": false,
+            "limitation": "Sparse historical trace: missing timestamps are not verified. Position governor and physical dynamics are not modeled."
+          },
+          "inertia_model": {
+            "mode": "scalar",
+            "mass_kg": 1.0
+          }
+        }
+      },
+      "physical_replay_audit": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/reference_replay_audit.json",
+      "artifact_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/t8p3_scalar_tol1e-8/input_provenance.json": "be109dd8b5131d95a5af6419ce51e16faaf5b2f0828ceeea2e386f2a91e9347d",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/reference_replay_audit.json": "ff9263457fa49674c41f4b6ca274f47305d6752e9d5373187d50cefad4fa93c5",
+        "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/controller_online.log": "f0c31f8ecdca1b2fcfbc7917d909fbdd08a9cba1b193fc72e445636d7b2a04d8"
+      },
+      "limitations": [
+        "A counterfactual model comparison, not another physical trial.",
+        "Nearby overlapping windows do not constitute independent held-out scenes.",
+        "All variants retain supplied knots and force convention; sampled_reference_clocks and inertia_model explicitly identify model changes."
+      ]
+    },
+    "t8p3_tol1e-10": {
+      "schema": "nonprehensile.offline_pd_resolution_comparison.v1",
+      "acceptance_eligible": false,
+      "capture_utime_us": 8299999,
+      "duration_s": 0.3,
+      "original_resolution_exactly_reproduced": true,
+      "predictions": {
+        "4": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.01875,
+          "sampled_reference_clocks": false,
+          "lcp_zero_tolerance": "original_default",
+          "endpoint_xy_error_m": 0.006707830155643719,
+          "endpoint_height_error_m": 1.379707778904199e-06,
+          "endpoint_so3_error_rad": 0.04525399977657174,
+          "predicted_xy_displacement_m": 0.013773244794965403,
+          "output_sha256": "6bda9b42895b0d252b20a371424fb65e977a7a18ff5deb9e674d1325d44f6c25",
+          "inertia_model": {
+            "mode": "scalar",
+            "mass_kg": 1.0
+          },
+          "maximum_state_difference_from_online_baseline": 0.0
+        },
+        "30": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.0025,
+          "sampled_reference_clocks": true,
+          "lcp_zero_tolerance": 1e-10,
+          "endpoint_xy_error_m": 0.020375895527043084,
+          "endpoint_height_error_m": 1.3797077789007295e-06,
+          "endpoint_so3_error_rad": 0.016150568893264324,
+          "predicted_xy_displacement_m": 0.03746914356483893,
+          "output_sha256": "ba90b4dcf1758adedc1fcb63bfb5e197b7f7611f2a296e197d168ff0d86ce475",
+          "reference_clock_audit": {
+            "matched_samples": 14,
+            "matched_times_s": [
+              0,
+              0.01,
+              0.02,
+              0.03,
+              0.04,
+              0.05,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.13,
+              0.14,
+              0.15,
+              0.2
+            ],
+            "unavailable_trace_times_s": [
+              0.06,
+              0.11,
+              0.12,
+              0.16,
+              0.17,
+              0.18,
+              0.19,
+              0.21,
+              0.22,
+              0.23,
+              0.24,
+              0.25,
+              0.26,
+              0.27,
+              0.28,
+              0.29
+            ],
+            "raw_reference_maximum_absolute_error": {
+              "position_m": 2.498001805406602e-16,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "applied_reference_maximum_absolute_error": {
+              "position_m": 0.000733927908398796,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "all_available_raw_references_match": true,
+            "complete_trace_coverage": false,
+            "limitation": "Sparse historical trace: missing timestamps are not verified. Position governor and physical dynamics are not modeled."
+          },
+          "inertia_model": {
+            "mode": "frozen_measured_translational_tensor",
+            "matrix_kg": [
+              [
+                1.4960194738223225,
+                -0.2976111956057538,
+                -2.2583638779280366
+              ],
+              [
+                -0.2976111956057538,
+                1.1535529833879277,
+                1.3301160630849487
+              ],
+              [
+                -2.2583638779280366,
+                1.3301160630849487,
+                8.340808701481922
+              ]
+            ],
+            "factory_equivalence_checks": 10,
+            "maximum_coefficient_error": 1.7763568394002505e-15,
+            "maximum_lcp_state_error": 7.247535904753022e-13,
+            "provenance": "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/t8p3_tol1e-10/inertia_provenance.json",
+            "limitation": "Frozen local 3D inertia approximation. Cached state precedes the last physics substep; arm rotation, nullspace, joint limits and inertia changes are not modeled."
+          }
+        }
+      },
+      "physical_replay_audit": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/reference_replay_audit.json",
+      "artifact_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/t8p3_tol1e-10/input_provenance.json": "be109dd8b5131d95a5af6419ce51e16faaf5b2f0828ceeea2e386f2a91e9347d",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/reference_replay_audit.json": "ff9263457fa49674c41f4b6ca274f47305d6752e9d5373187d50cefad4fa93c5",
+        "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/controller_online.log": "f0c31f8ecdca1b2fcfbc7917d909fbdd08a9cba1b193fc72e445636d7b2a04d8"
+      },
+      "limitations": [
+        "A counterfactual model comparison, not another physical trial.",
+        "Nearby overlapping windows do not constitute independent held-out scenes.",
+        "All variants retain supplied knots and force convention; sampled_reference_clocks and inertia_model explicitly identify model changes."
+      ]
+    },
+    "t8p3_tol1e-6": {
+      "schema": "nonprehensile.offline_pd_resolution_comparison.v1",
+      "acceptance_eligible": false,
+      "capture_utime_us": 8299999,
+      "duration_s": 0.3,
+      "original_resolution_exactly_reproduced": true,
+      "predictions": {
+        "4": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.01875,
+          "sampled_reference_clocks": false,
+          "lcp_zero_tolerance": "original_default",
+          "endpoint_xy_error_m": 0.006707830155643719,
+          "endpoint_height_error_m": 1.379707778904199e-06,
+          "endpoint_so3_error_rad": 0.04525399977657174,
+          "predicted_xy_displacement_m": 0.013773244794965403,
+          "output_sha256": "6bda9b42895b0d252b20a371424fb65e977a7a18ff5deb9e674d1325d44f6c25",
+          "inertia_model": {
+            "mode": "scalar",
+            "mass_kg": 1.0
+          },
+          "maximum_state_difference_from_online_baseline": 0.0
+        },
+        "30": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.0025,
+          "sampled_reference_clocks": true,
+          "lcp_zero_tolerance": 1e-06,
+          "endpoint_xy_error_m": 0.020375895527043084,
+          "endpoint_height_error_m": 1.3797077789007295e-06,
+          "endpoint_so3_error_rad": 0.016150568893264324,
+          "predicted_xy_displacement_m": 0.03746914356483893,
+          "output_sha256": "84ff4541dbee0d394136861e0a9679b510d3f7d356371fc7f56947cba095a3ee",
+          "reference_clock_audit": {
+            "matched_samples": 14,
+            "matched_times_s": [
+              0,
+              0.01,
+              0.02,
+              0.03,
+              0.04,
+              0.05,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.13,
+              0.14,
+              0.15,
+              0.2
+            ],
+            "unavailable_trace_times_s": [
+              0.06,
+              0.11,
+              0.12,
+              0.16,
+              0.17,
+              0.18,
+              0.19,
+              0.21,
+              0.22,
+              0.23,
+              0.24,
+              0.25,
+              0.26,
+              0.27,
+              0.28,
+              0.29
+            ],
+            "raw_reference_maximum_absolute_error": {
+              "position_m": 2.498001805406602e-16,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "applied_reference_maximum_absolute_error": {
+              "position_m": 0.000733927908398796,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "all_available_raw_references_match": true,
+            "complete_trace_coverage": false,
+            "limitation": "Sparse historical trace: missing timestamps are not verified. Position governor and physical dynamics are not modeled."
+          },
+          "inertia_model": {
+            "mode": "frozen_measured_translational_tensor",
+            "matrix_kg": [
+              [
+                1.4960194738223225,
+                -0.2976111956057538,
+                -2.2583638779280366
+              ],
+              [
+                -0.2976111956057538,
+                1.1535529833879277,
+                1.3301160630849487
+              ],
+              [
+                -2.2583638779280366,
+                1.3301160630849487,
+                8.340808701481922
+              ]
+            ],
+            "factory_equivalence_checks": 10,
+            "maximum_coefficient_error": 1.7763568394002505e-15,
+            "maximum_lcp_state_error": 7.247535904753022e-13,
+            "provenance": "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/t8p3_tol1e-6/inertia_provenance.json",
+            "limitation": "Frozen local 3D inertia approximation. Cached state precedes the last physics substep; arm rotation, nullspace, joint limits and inertia changes are not modeled."
+          }
+        }
+      },
+      "physical_replay_audit": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/reference_replay_audit.json",
+      "artifact_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/t8p3_tol1e-6/input_provenance.json": "be109dd8b5131d95a5af6419ce51e16faaf5b2f0828ceeea2e386f2a91e9347d",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/reference_replay_audit.json": "ff9263457fa49674c41f4b6ca274f47305d6752e9d5373187d50cefad4fa93c5",
+        "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/controller_online.log": "f0c31f8ecdca1b2fcfbc7917d909fbdd08a9cba1b193fc72e445636d7b2a04d8"
+      },
+      "limitations": [
+        "A counterfactual model comparison, not another physical trial.",
+        "Nearby overlapping windows do not constitute independent held-out scenes.",
+        "All variants retain supplied knots and force convention; sampled_reference_clocks and inertia_model explicitly identify model changes."
+      ]
+    },
+    "t8p3_tol1e-8": {
+      "schema": "nonprehensile.offline_pd_resolution_comparison.v1",
+      "acceptance_eligible": false,
+      "capture_utime_us": 8299999,
+      "duration_s": 0.3,
+      "original_resolution_exactly_reproduced": true,
+      "predictions": {
+        "4": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.01875,
+          "sampled_reference_clocks": false,
+          "lcp_zero_tolerance": "original_default",
+          "endpoint_xy_error_m": 0.006707830155643719,
+          "endpoint_height_error_m": 1.379707778904199e-06,
+          "endpoint_so3_error_rad": 0.04525399977657174,
+          "predicted_xy_displacement_m": 0.013773244794965403,
+          "output_sha256": "6bda9b42895b0d252b20a371424fb65e977a7a18ff5deb9e674d1325d44f6c25",
+          "inertia_model": {
+            "mode": "scalar",
+            "mass_kg": 1.0
+          },
+          "maximum_state_difference_from_online_baseline": 0.0
+        },
+        "30": {
+          "prediction_valid": true,
+          "fine_dt_s": 0.0025,
+          "sampled_reference_clocks": true,
+          "lcp_zero_tolerance": 1e-08,
+          "endpoint_xy_error_m": 0.020375895527043084,
+          "endpoint_height_error_m": 1.3797077789007295e-06,
+          "endpoint_so3_error_rad": 0.016150568893264324,
+          "predicted_xy_displacement_m": 0.03746914356483893,
+          "output_sha256": "26ab3d1c42a51bad1b5cb3a0ec5ebd6b234ea8b25170dcc3effdcd37bdeca7a9",
+          "reference_clock_audit": {
+            "matched_samples": 14,
+            "matched_times_s": [
+              0,
+              0.01,
+              0.02,
+              0.03,
+              0.04,
+              0.05,
+              0.07,
+              0.08,
+              0.09,
+              0.1,
+              0.13,
+              0.14,
+              0.15,
+              0.2
+            ],
+            "unavailable_trace_times_s": [
+              0.06,
+              0.11,
+              0.12,
+              0.16,
+              0.17,
+              0.18,
+              0.19,
+              0.21,
+              0.22,
+              0.23,
+              0.24,
+              0.25,
+              0.26,
+              0.27,
+              0.28,
+              0.29
+            ],
+            "raw_reference_maximum_absolute_error": {
+              "position_m": 2.498001805406602e-16,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "applied_reference_maximum_absolute_error": {
+              "position_m": 0.000733927908398796,
+              "velocity_m_s": 1.9984014443252818e-15,
+              "external_force_n": 6.9111383282915995e-15
+            },
+            "all_available_raw_references_match": true,
+            "complete_trace_coverage": false,
+            "limitation": "Sparse historical trace: missing timestamps are not verified. Position governor and physical dynamics are not modeled."
+          },
+          "inertia_model": {
+            "mode": "frozen_measured_translational_tensor",
+            "matrix_kg": [
+              [
+                1.4960194738223225,
+                -0.2976111956057538,
+                -2.2583638779280366
+              ],
+              [
+                -0.2976111956057538,
+                1.1535529833879277,
+                1.3301160630849487
+              ],
+              [
+                -2.2583638779280366,
+                1.3301160630849487,
+                8.340808701481922
+              ]
+            ],
+            "factory_equivalence_checks": 10,
+            "maximum_coefficient_error": 1.7763568394002505e-15,
+            "maximum_lcp_state_error": 7.247535904753022e-13,
+            "provenance": "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/t8p3_tol1e-8/inertia_provenance.json",
+            "limitation": "Frozen local 3D inertia approximation. Cached state precedes the last physics substep; arm rotation, nullspace, joint limits and inertia changes are not modeled."
+          }
+        }
+      },
+      "physical_replay_audit": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/reference_replay_audit.json",
+      "artifact_sha256": {
+        "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/t8p3_tol1e-8/input_provenance.json": "be109dd8b5131d95a5af6419ce51e16faaf5b2f0828ceeea2e386f2a91e9347d",
+        "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/reference_replay_audit.json": "ff9263457fa49674c41f4b6ca274f47305d6752e9d5373187d50cefad4fa93c5",
+        "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_relinearized_isolated_t8p3_diag10/scene007/controller_online.log": "f0c31f8ecdca1b2fcfbc7917d909fbdd08a9cba1b193fc72e445636d7b2a04d8"
+      },
+      "limitations": [
+        "A counterfactual model comparison, not another physical trial.",
+        "Nearby overlapping windows do not constitute independent held-out scenes.",
+        "All variants retain supplied knots and force convention; sampled_reference_clocks and inertia_model explicitly identify model changes."
+      ]
+    }
+  },
+  "source_snapshot": "outputs/contact_planner_m3/workspace_height_20260908/offline_pd_tensor_tolerance/source_snapshot",
+  "physical_controller_unchanged": true,
+  "acceptance_eligible": false,
+  "conclusion": "Reject frozen measured tensor promotion: at matched sampled clocks,2.5ms integration and1e-8 tolerance, XYerror worsens in both physical replay windows; rotation improves only in first. Under default tolerance, roundoff-level coefficient changes can select different regularization strengths, causing large state differences. Fixed1e-8/1e-6 tolerances pass scalar-factory checks and yield predictions within1.1e-10 across all states, but not consistently better physical predictions.",
+  "validation": "Native build and all patch reverse checks pass;17 offline input,clock and inertia tests pass.",
+  "limitations": [
+    "Two overlapping captured windows of one tuned debug scene, not independent acceptance scenes.",
+    "Measured partial OSC inertia is frozen and cached before the last2.5ms physics substep.",
+    "Model excludes articulated rotation, changing inertia, nullspace,joint limits and position governor.",
+    "Regularized solver success does not itself certify original unregularized complementarity.",
+    "Scalar factory equivalence tests use masses.25,2,10 at10coarse states, two forces each; do not certify every actual fine-step LCP."
+  ]
+}

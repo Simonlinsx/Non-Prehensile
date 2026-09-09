@@ -97,6 +97,23 @@ def test_planner_selects_legal_trailing_safe_contact() -> None:
     assert candidates.push_tcp[0, best, 0] > candidates.contact_tcp[0, best, 0]
 
 
+def test_contact_surface_is_separate_from_full_collision_envelope() -> None:
+    scene = _scene()
+    contact_surface = scene.hand_points_local.clone()
+    # A large proximal housing point belongs to the collision envelope but
+    # must never be selected as the deliberate contact feature.
+    scene.hand_points_local = torch.cat(
+        (contact_surface, torch.tensor([[0.0, 0.20, -0.05]])), dim=0
+    )
+    scene.pusher_contact_points_local = contact_surface
+    candidates = OracleSafeContactPlanner().plan(scene)
+    assert bool(candidates.any_valid[0])
+    assert torch.all(
+        candidates.hand_point_index[0, candidates.valid[0]]
+        < contact_surface.shape[0]
+    )
+
+
 def test_planner_rotates_push_frame_with_goal_direction() -> None:
     candidates = OracleSafeContactPlanner().plan(_scene(goal_y=0.08))
     assert bool(candidates.any_valid[0])
@@ -176,6 +193,26 @@ def test_yaw_error_selects_contact_with_correct_moment_sign() -> None:
     assert negative.contact_moment_arm[0, 0] < 0.0
     assert positive.predicted_yaw_error[0, 0] < 0.15
     assert negative.predicted_yaw_error[0, 0] < 0.15
+
+
+def test_contact_moment_arm_uses_physical_com_when_available() -> None:
+    com_scene = _scene(yaw_error=0.15)
+    com_scene.target_com_position = torch.tensor([[0.0, 0.025, 0.10]])
+    com_candidates = OracleSafeContactPlanner().plan(com_scene)
+    rank = int(torch.nonzero(com_candidates.valid[0])[0])
+    contact = com_candidates.contact_point[0, rank, :2]
+    direction = com_candidates.push_direction[0, rank, :2]
+    radius_from_com = contact - com_scene.target_com_position[0, :2]
+    expected = radius_from_com[0] * direction[1] - radius_from_com[1] * direction[0]
+    radius_from_origin = contact - com_scene.target_position[0, :2]
+    wrong_origin_value = (
+        radius_from_origin[0] * direction[1]
+        - radius_from_origin[1] * direction[0]
+    )
+    assert com_candidates.contact_moment_arm[0, rank] == pytest.approx(
+        float(expected), abs=1.0e-6
+    )
+    assert abs(float(expected - wrong_origin_value)) > 1.0e-3
 
 
 def test_output_preserves_positive_neutral_and_negative_torque_modes() -> None:

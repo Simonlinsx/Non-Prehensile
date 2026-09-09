@@ -1,0 +1,523 @@
+diff --git a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+index 411ab93..55ef8d4 100644
+--- a/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
++++ b/examples/sampling_c3/parameter_headers/sampling_c3_controller_params.h
+@@ -1,5 +1,6 @@
+ #pragma once
+ 
++#include <algorithm>
+ #include <optional>
+ #include <stdexcept>
+ 
+@@ -35,6 +36,14 @@ struct SamplingC3ControllerParams {
+   // complete object_models remain unchanged for dynamics and contact.  This
+   // lets a semantic planner sample from a conservative safe-only surface.
+   std::optional<std::vector<std::string>> sampling_meshes;
++  // Optional per-object mask controlling which objects may generate global
++  // end-effector contact samples.  Non-sampleable objects remain in the full
++  // dynamics/collision model.  This distinguishes a manipuland from clutter
++  // that the robot must avoid, without relying on the clutter staying exactly
++  // at its nominal pose.
++  // Use integers instead of vector<bool>: Drake's YAML archive needs real
++  // element addresses, while vector<bool> stores proxy bits.
++  std::optional<std::vector<int>> sampleable_objects;
+   // Optional per-object union of every surface the end effector must not
+   // touch.  Unlike sampling_meshes, these meshes are checked against the
+   // complete predicted C3 execution trajectory.
+@@ -52,6 +61,24 @@ struct SamplingC3ControllerParams {
+   // for elongated tools whose simulator contact response is model-sensitive.
+   std::optional<double> neutral_yaw_contact_max_moment_arm;
+   std::optional<double> neutral_yaw_contact_activation_threshold;
++  // Candidate-level trust region evaluated on C3's dynamically feasible
++  // terminal target pose.  A contact may improve translation only if it does
++  // not regress translation or rotation beyond these small allowances.  The
++  // success thresholds form the lower bound, so already-correct pose axes stay
++  // inside their acceptance region.
++  std::optional<double> pose_effect_max_planar_regression;
++  std::optional<double> pose_effect_max_rotation_regression;
++  // Required decrease in threshold-normalized pose violation.  Errors already
++  // inside their success thresholds contribute zero, preventing a no-op
++  // candidate from winning by "improving" an axis that is already accepted.
++  std::optional<double> pose_effect_minimum_normalized_progress;
++  // Require the full predicted target-orientation trajectory (not only its
++  // terminal knot) to remain inside the accepted rotation envelope.  The
++  // optional velocity lookahead inflates each knot by ||omega|| times the
++  // perception/planning/braking latency, which makes the same check usable on
++  // hardware without simulator-only contact signals.
++  std::optional<double> pose_effect_max_horizon_rotation_error;
++  std::optional<double> pose_effect_rotation_velocity_lookahead_s;
+ 
+   double workspace_margin;
+   bool include_end_effector_orientation;
+@@ -87,17 +114,40 @@ struct SamplingC3ControllerParams {
+     a->Visit(DRAKE_NVP(base_names));
+     a->Visit(DRAKE_NVP(object_models));
+     a->Visit(DRAKE_NVP(sampling_meshes));
++    a->Visit(DRAKE_NVP(sampleable_objects));
+     a->Visit(DRAKE_NVP(unsafe_meshes));
+     a->Visit(DRAKE_NVP(semantic_guard_clearance));
+     a->Visit(DRAKE_NVP(semantic_guard_stop_distance));
+     a->Visit(DRAKE_NVP(neutral_yaw_contact_max_moment_arm));
+     a->Visit(DRAKE_NVP(neutral_yaw_contact_activation_threshold));
++    a->Visit(DRAKE_NVP(pose_effect_max_planar_regression));
++    a->Visit(DRAKE_NVP(pose_effect_max_rotation_regression));
++    a->Visit(DRAKE_NVP(pose_effect_minimum_normalized_progress));
++    a->Visit(DRAKE_NVP(pose_effect_max_horizon_rotation_error));
++    a->Visit(DRAKE_NVP(pose_effect_rotation_velocity_lookahead_s));
+ 
+     if (sampling_meshes.has_value() && !sampling_meshes->empty() &&
+         sampling_meshes->size() != base_names.size()) {
+       throw std::runtime_error(
+           "sampling_meshes must be absent/empty or match base_names size");
+     }
++    if (sampleable_objects.has_value() &&
++        sampleable_objects->size() != base_names.size()) {
++      throw std::runtime_error(
++          "sampleable_objects must be absent or match base_names size");
++    }
++    if (sampleable_objects.has_value() &&
++        std::any_of(sampleable_objects->begin(), sampleable_objects->end(),
++                    [](int value) { return value != 0 && value != 1; })) {
++      throw std::runtime_error(
++          "sampleable_objects entries must be 0 or 1");
++    }
++    if (sampleable_objects.has_value() &&
++        std::none_of(sampleable_objects->begin(), sampleable_objects->end(),
++                     [](int value) { return value == 1; })) {
++      throw std::runtime_error(
++          "sampleable_objects must enable at least one object");
++    }
+     if (unsafe_meshes.has_value() && !unsafe_meshes->empty() &&
+         unsafe_meshes->size() != base_names.size()) {
+       throw std::runtime_error(
+@@ -134,6 +184,31 @@ struct SamplingC3ControllerParams {
+       throw std::runtime_error(
+           "neutral-yaw contact filter parameters must be set together");
+     }
++    if (pose_effect_max_planar_regression.has_value() &&
++        pose_effect_max_planar_regression.value() < 0.0) {
++      throw std::runtime_error(
++          "pose_effect_max_planar_regression must be non-negative");
++    }
++    if (pose_effect_max_rotation_regression.has_value() &&
++        pose_effect_max_rotation_regression.value() < 0.0) {
++      throw std::runtime_error(
++          "pose_effect_max_rotation_regression must be non-negative");
++    }
++    if (pose_effect_minimum_normalized_progress.has_value() &&
++        pose_effect_minimum_normalized_progress.value() < 0.0) {
++      throw std::runtime_error(
++          "pose_effect_minimum_normalized_progress must be non-negative");
++    }
++    if (pose_effect_max_horizon_rotation_error.has_value() &&
++        pose_effect_max_horizon_rotation_error.value() <= 0.0) {
++      throw std::runtime_error(
++          "pose_effect_max_horizon_rotation_error must be positive");
++    }
++    if (pose_effect_rotation_velocity_lookahead_s.has_value() &&
++        pose_effect_rotation_velocity_lookahead_s.value() < 0.0) {
++      throw std::runtime_error(
++          "pose_effect_rotation_velocity_lookahead_s must be non-negative");
++    }
+ 
+     /// Store individual parameter classes internally.
+     sampling_c3_options =
+diff --git a/systems/controllers/sampling_based_c3_controller.cc b/systems/controllers/sampling_based_c3_controller.cc
+index f6739fc..c973c2c 100644
+--- a/systems/controllers/sampling_based_c3_controller.cc
++++ b/systems/controllers/sampling_based_c3_controller.cc
+@@ -895,6 +895,7 @@ drake::systems::EventStatus SamplingC3Controller::ComputePlan(
+         sampling_c3_options_.planning_dt_position;  // Always set dt_ according
+                                                     // to pose or position mode.
+     x_final_target_ = x_lcs_final_des.value();
++    target_rotation_success_latched_ = false;
+     // is_doing_c3_ = false;
+     detected_goal_changes_++;
+ 
+@@ -938,7 +939,10 @@ drake::systems::EventStatus SamplingC3Controller::ComputePlan(
+ 
+   // Detect if all goals have been reached.
+   vector<bool> object_on_target;
+-  bool all_reached = true;
++  bool all_sampleable_reached = true;
++  const vector<int> sampleable_objects =
++      controller_params_.sampleable_objects.value_or(
++          vector<int>(controller_params_.num_objects, 1));
+   for (int i = 0; i < controller_params_.num_objects; i++) {
+     double object_position_error = (x_lcs_curr.segment(7 + 7 * i, 2) -
+                                     x_lcs_des.get_value().segment(7 + 7 * i, 2))
+@@ -956,7 +960,20 @@ drake::systems::EventStatus SamplingC3Controller::ComputePlan(
+     object_on_target.push_back(
+         (object_position_error < goal_params_.position_success_threshold) &&
+         (object_angular_error < goal_params_.orientation_success_threshold));
+-    all_reached = all_reached && object_on_target[i];
++    if (sampleable_objects[i]) {
++      all_sampleable_reached =
++          all_sampleable_reached && object_on_target[i];
++    }
++  }
++
++  // The upstream multi-object task treats every object as a manipuland.  Our
++  // target-plus-clutter contract instead keeps clutter in the dynamics while
++  // forbidding the robot from selecting it as a contact target.  Mark those
++  // objects as unavailable only for global sampling; their state, costs, and
++  // collision/contact pairs remain unchanged.
++  vector<bool> object_unavailable_for_sampling = object_on_target;
++  for (int i = 0; i < controller_params_.num_objects; ++i) {
++    if (!sampleable_objects[i]) object_unavailable_for_sampling[i] = true;
+   }
+ 
+   // Generate states, differing from the current state only by EE sample
+@@ -967,8 +984,8 @@ drake::systems::EventStatus SamplingC3Controller::ComputePlan(
+   // Re-evaluating it each planning cycle lets the controller recover, while
+   // the independent monitor remains responsible for the five-frame dwell.
+   vector<VectorXd> candidate_states;
+-  achieved_fixed_goal_ =
+-      all_reached && goal_params_.goal_mode == GoalMode::kFixedGoal;
++  achieved_fixed_goal_ = all_sampleable_reached &&
++                         goal_params_.goal_mode == GoalMode::kFixedGoal;
+   if (achieved_fixed_goal_) {
+     int num_samples = is_doing_c3_
+                           ? sampling_params_.num_additional_samples_c3
+@@ -984,7 +1001,8 @@ drake::systems::EventStatus SamplingC3Controller::ComputePlan(
+         n_q_, n_v_, n_u_, x_lcs_curr, is_doing_c3_, sampling_params_,
+         sampling_c3_options_, plant_, context_, plant_ad_, context_ad_,
+         contact_pairs_, faces_, face_bins_, faces_per_object_,
+-        face_bins_per_object_, total_area_per_object_, object_on_target,
++        face_bins_per_object_, total_area_per_object_,
++        object_unavailable_for_sampling,
+         unsuccessful_sample_buffer_);
+   }
+ 
+@@ -1307,6 +1325,224 @@ drake::systems::EventStatus SamplingC3Controller::ComputePlan(
+   // Augment the considered samples with the best from the buffer, if eligible.
+   AugmentSamplesWithBuffer(c3_objects);
+ 
++  // Audit the target-pose effect predicted for every candidate after buffer
++  // augmentation.  Use the dynamically feasible impedance rollout already
++  // used by CalcCost rather than a separate geometric heuristic.  These
++  // diagnostics are intentionally behavior-neutral until cross-simulator
++  // prediction error has been measured in Isaac.
++  vector<double> target_effect_planar_errors(
++      all_sample_costs_.size(), std::numeric_limits<double>::infinity());
++  vector<double> target_effect_rotation_errors(
++      all_sample_costs_.size(), std::numeric_limits<double>::infinity());
++  vector<double> target_effect_signed_rotation_errors(
++      all_sample_costs_.size(), std::numeric_limits<double>::quiet_NaN());
++  vector<double> target_effect_predicted_yaw_changes(
++      all_sample_costs_.size(), std::numeric_limits<double>::quiet_NaN());
++  vector<double> target_effect_goal_torque_proxies(
++      all_sample_costs_.size(), std::numeric_limits<double>::quiet_NaN());
++  vector<double> target_effect_predicted_torque_proxies(
++      all_sample_costs_.size(), std::numeric_limits<double>::quiet_NaN());
++  vector<double> target_effect_peak_rotation_errors(
++      all_sample_costs_.size(), std::numeric_limits<double>::infinity());
++  vector<double> target_effect_peak_angular_speeds(
++      all_sample_costs_.size(), std::numeric_limits<double>::infinity());
++  vector<double> target_effect_peak_rotation_risks(
++      all_sample_costs_.size(), std::numeric_limits<double>::infinity());
++  const Vector2d target_goal_xy =
++      x_lcs_final_des.get_value().segment<2>(7);
++  const Vector2d target_current_xy = x_lcs_curr.segment<2>(7);
++  const double target_current_planar_error =
++      (target_goal_xy - target_current_xy).norm();
++  Quaterniond target_goal_quaternion(
++      x_lcs_final_des.get_value().segment<4>(3));
++  target_goal_quaternion.normalize();
++  Quaterniond target_current_quaternion(x_lcs_curr.segment<4>(3));
++  target_current_quaternion.normalize();
++  const auto signed_yaw_error = [](const Quaterniond& goal,
++                                   const Quaterniond& measured) {
++    const AngleAxisd error(goal * measured.inverse());
++    return error.angle() * error.axis().z();
++  };
++  const double target_current_rotation_error =
++      AngleAxisd(target_goal_quaternion *
++                 target_current_quaternion.inverse()).angle();
++  const double target_current_signed_rotation_error =
++      signed_yaw_error(target_goal_quaternion, target_current_quaternion);
++  Vector2d target_goal_direction = target_goal_xy - target_current_xy;
++  const double target_goal_distance = target_goal_direction.norm();
++  if (target_goal_distance > 1.0e-9) {
++    target_goal_direction /= target_goal_distance;
++  }
++  if (controller_params_.pose_effect_max_horizon_rotation_error.has_value() &&
++      target_current_rotation_error <=
++          goal_params_.orientation_success_threshold) {
++    target_rotation_success_latched_ = true;
++  }
++  for (int i = 0; i < static_cast<int>(all_sample_costs_.size()); ++i) {
++    if (!std::isfinite(all_sample_costs_[i]) ||
++        all_sample_dynamically_feasible_plans_[i].empty()) {
++      continue;
++    }
++    const vector<VectorXd>& predicted_plan =
++        all_sample_dynamically_feasible_plans_[i];
++    const VectorXd& predicted_terminal = predicted_plan.back();
++    if (predicted_terminal.size() < 10 ||
++        !predicted_terminal.allFinite()) {
++      continue;
++    }
++    target_effect_planar_errors[i] =
++        (target_goal_xy - predicted_terminal.segment<2>(7)).norm();
++    Quaterniond predicted_quaternion(predicted_terminal.segment<4>(3));
++    if (predicted_quaternion.norm() < 1.0e-12) continue;
++    predicted_quaternion.normalize();
++    target_effect_rotation_errors[i] =
++        AngleAxisd(target_goal_quaternion *
++                   predicted_quaternion.inverse()).angle();
++    target_effect_signed_rotation_errors[i] =
++        signed_yaw_error(target_goal_quaternion, predicted_quaternion);
++    target_effect_predicted_yaw_changes[i] =
++        target_current_signed_rotation_error -
++        target_effect_signed_rotation_errors[i];
++    if (i < static_cast<int>(all_sample_locations_.size())) {
++      const Vector2d contact_radius =
++          all_sample_locations_[i].head<2>() - target_current_xy;
++      if (target_goal_distance > 1.0e-9) {
++        target_effect_goal_torque_proxies[i] =
++            contact_radius.x() * target_goal_direction.y() -
++            contact_radius.y() * target_goal_direction.x();
++      }
++      Vector2d predicted_translation =
++          predicted_terminal.segment<2>(7) - target_current_xy;
++      const double predicted_translation_distance = predicted_translation.norm();
++      if (predicted_translation_distance > 1.0e-9) {
++        predicted_translation /= predicted_translation_distance;
++        target_effect_predicted_torque_proxies[i] =
++            contact_radius.x() * predicted_translation.y() -
++            contact_radius.y() * predicted_translation.x();
++      }
++    }
++    double peak_rotation_error = 0.0;
++    double peak_angular_speed = 0.0;
++    double peak_rotation_risk = 0.0;
++    bool valid_horizon = true;
++    const double rotation_velocity_lookahead_s =
++        controller_params_.pose_effect_rotation_velocity_lookahead_s
++            .value_or(0.0);
++    for (const VectorXd& predicted_state : predicted_plan) {
++      if (predicted_state.size() < n_x_ || !predicted_state.allFinite()) {
++        valid_horizon = false;
++        break;
++      }
++      Quaterniond horizon_quaternion(predicted_state.segment<4>(3));
++      if (horizon_quaternion.norm() < 1.0e-12) {
++        valid_horizon = false;
++        break;
++      }
++      horizon_quaternion.normalize();
++      const double rotation_error =
++          AngleAxisd(target_goal_quaternion *
++                     horizon_quaternion.inverse()).angle();
++      // State layout is [ee xyz, object quaternion/xyz, ...,
++      // ee xyz velocity, object angular/linear velocity, ...].
++      const double angular_speed =
++          predicted_state.segment<3>(n_q_ + 3).norm();
++      peak_rotation_error = std::max(peak_rotation_error, rotation_error);
++      peak_angular_speed = std::max(peak_angular_speed, angular_speed);
++      peak_rotation_risk = std::max(
++          peak_rotation_risk,
++          rotation_error + rotation_velocity_lookahead_s * angular_speed);
++    }
++    if (valid_horizon) {
++      target_effect_peak_rotation_errors[i] = peak_rotation_error;
++      target_effect_peak_angular_speeds[i] = peak_angular_speed;
++      target_effect_peak_rotation_risks[i] = peak_rotation_risk;
++    }
++  }
++
++  // Filter with the target-pose effect already predicted by C3 rather than an
++  // assumed contact force direction.  This keeps contact selection coupled to
++  // the same dynamics rollout used by the optimizer and is directly portable
++  // to a receding-horizon real-robot loop.  The trust region permits progress
++  // on one pose component without sacrificing an already-correct component.
++  vector<bool> target_effect_valid(all_sample_costs_.size(), false);
++  const bool use_pose_effect_filter =
++      controller_params_.pose_effect_max_planar_regression.has_value() ||
++      controller_params_.pose_effect_max_rotation_regression.has_value() ||
++      controller_params_.pose_effect_minimum_normalized_progress.has_value() ||
++      controller_params_.pose_effect_max_horizon_rotation_error.has_value();
++  const double maximum_planar_error = std::max(
++      goal_params_.position_success_threshold,
++      target_current_planar_error +
++          controller_params_.pose_effect_max_planar_regression.value_or(
++              std::numeric_limits<double>::infinity()));
++  double maximum_rotation_error = std::max(
++      goal_params_.orientation_success_threshold,
++      target_current_rotation_error +
++          controller_params_.pose_effect_max_rotation_regression.value_or(
++              std::numeric_limits<double>::infinity()));
++  if (target_rotation_success_latched_) {
++    if (target_current_rotation_error <=
++        goal_params_.orientation_success_threshold) {
++      maximum_rotation_error = goal_params_.orientation_success_threshold;
++    } else {
++      maximum_rotation_error = target_current_rotation_error;
++    }
++  }
++  const auto pose_violation_merit = [&](double planar_error,
++                                        double rotation_error) {
++    const double planar_violation = std::max(
++        0.0, planar_error - goal_params_.position_success_threshold);
++    const double rotation_violation = std::max(
++        0.0, rotation_error - goal_params_.orientation_success_threshold);
++    return planar_violation / goal_params_.position_success_threshold +
++           rotation_violation / goal_params_.orientation_success_threshold;
++  };
++  const double current_pose_violation_merit = pose_violation_merit(
++      target_current_planar_error, target_current_rotation_error);
++  const double minimum_normalized_progress =
++      controller_params_.pose_effect_minimum_normalized_progress.value_or(0.0);
++  int pose_effect_rejected_count = 0;
++  for (int i = 0; i < static_cast<int>(all_sample_costs_.size()); ++i) {
++    if (!std::isfinite(all_sample_costs_[i]) ||
++        !std::isfinite(target_effect_planar_errors[i]) ||
++        !std::isfinite(target_effect_rotation_errors[i])) {
++      continue;
++    }
++    const bool within_trust_region =
++        !use_pose_effect_filter ||
++        (target_effect_planar_errors[i] <= maximum_planar_error &&
++         target_effect_rotation_errors[i] <= maximum_rotation_error &&
++         (!controller_params_.pose_effect_max_horizon_rotation_error
++               .has_value() ||
++          target_effect_peak_rotation_risks[i] <=
++              controller_params_.pose_effect_max_horizon_rotation_error
++                  .value()) &&
++         (minimum_normalized_progress <= 0.0 ||
++          pose_violation_merit(target_effect_planar_errors[i],
++                               target_effect_rotation_errors[i]) <=
++              current_pose_violation_merit - minimum_normalized_progress));
++    target_effect_valid[i] = within_trust_region;
++    if (!within_trust_region) {
++      all_sample_costs_[i] = std::numeric_limits<double>::infinity();
++      ++pose_effect_rejected_count;
++    }
++  }
++  if (use_pose_effect_filter && pose_effect_rejected_count > 0) {
++    std::cout << "Pose-effect filter rejected " << pose_effect_rejected_count
++              << "/" << all_sample_costs_.size()
++              << " candidates; planar limit: " << maximum_planar_error
++              << " m; rotation limit: " << maximum_rotation_error << " rad"
++              << "; current normalized violation: "
++              << current_pose_violation_merit
++              << "; required progress: " << minimum_normalized_progress
++              << "; max horizon rotation risk: "
++              << controller_params_.pose_effect_max_horizon_rotation_error
++                     .value_or(std::numeric_limits<double>::infinity())
++              << "; rotation latched: "
++              << target_rotation_success_latched_
++              << std::endl;
++  }
++
+   // Set up hysteresis values based on if the cost switching threshold has been
+   // crossed.
+   double hyst_c3_to_repos = progress_params_.hyst_c3_to_repos;
+@@ -1327,7 +1563,7 @@ drake::systems::EventStatus SamplingC3Controller::ComputePlan(
+ 
+   // Review the cost results to determine the best sample.
+   bool force_c3_mode = radio_out->channel[12];
+-  double best_other_cost;
++  double best_other_cost = std::numeric_limits<double>::infinity();
+   if (num_total_samples > 1) {
+     vector<double> additional_sample_cost_vector =
+         vector<double>(all_sample_costs_.begin() + 1, all_sample_costs_.end());
+@@ -1336,10 +1572,19 @@ drake::systems::EventStatus SamplingC3Controller::ComputePlan(
+     vector<double>::iterator it =
+         std::min_element(std::begin(additional_sample_cost_vector),
+                          std::end(additional_sample_cost_vector));
+-    best_sample_index_ =
+-        (SampleIndex)(std::distance(std::begin(additional_sample_cost_vector),
+-                                    it) +
+-                      1);
++    if (std::isfinite(best_other_cost)) {
++      best_sample_index_ = (SampleIndex)(
++          std::distance(std::begin(additional_sample_cost_vector), it) + 1);
++    } else {
++      // Fail closed when every prospective contact has an unsafe pose effect:
++      // hold the current EE location and wait for a fresh sample set instead
++      // of moving toward an invalid contact merely because it is the minimum
++      // among a vector of infinities.
++      best_sample_index_ = SampleIndex::kCurrentLocation;
++      std::cout << "No finite pose-safe contact candidate; holding current "
++                   "location for resampling"
++                << std::endl;
++    }
+   } else {
+     force_c3_mode = true;
+   }
+@@ -1373,6 +1618,15 @@ drake::systems::EventStatus SamplingC3Controller::ComputePlan(
+       std::cout << "All objects on target, switching to repositioning mode"
+                 << std::endl;
+     }
++    // Never continue executing a current-location C3 trajectory whose own
++    // predicted target effect violates the trust region.
++    else if (!target_effect_valid[SampleIndex::kCurrentLocation] &&
++             !force_c3_mode) {
++      is_doing_c3_ = false;
++      mode_switch_reason_ = ModeSwitchReason::kToReposUnproductive;
++      std::cout << "Repositioning because current C3 target effect is unsafe"
++                << std::endl;
++    }
+     // Switch to repositioning if progress was insufficient.
+     else if (!met_minimum_progress && !force_c3_mode &&
+              (sampling_params_.num_additional_samples_c3 > 0)) {
+@@ -1530,6 +1784,45 @@ drake::systems::EventStatus SamplingC3Controller::ComputePlan(
+               << std::endl;
+   }
+   // Update C3 objects and intermediates for current and best samples.
++  if (best_sample_index_ >= 0 &&
++      best_sample_index_ <
++          static_cast<int>(target_effect_planar_errors.size())) {
++    std::cout << "TARGET_EFFECT selected=" << best_sample_index_
++              << " state_time=" << lcs_x_curr->get_timestamp()
++              << " mode=" << (is_doing_c3_ ? "c3" : "reposition")
++              << " current_planar=" << target_current_planar_error
++              << " predicted_planar="
++              << target_effect_planar_errors[best_sample_index_]
++              << " current_rotation=" << target_current_rotation_error
++              << " current_signed_rotation="
++              << target_current_signed_rotation_error
++              << " predicted_rotation="
++              << target_effect_rotation_errors[best_sample_index_]
++              << " predicted_signed_rotation="
++              << target_effect_signed_rotation_errors[best_sample_index_]
++              << " predicted_yaw_change="
++              << target_effect_predicted_yaw_changes[best_sample_index_]
++              << " goal_torque_proxy="
++              << target_effect_goal_torque_proxies[best_sample_index_]
++              << " predicted_torque_proxy="
++              << target_effect_predicted_torque_proxies[best_sample_index_]
++              << " predicted_peak_rotation="
++              << target_effect_peak_rotation_errors[best_sample_index_]
++              << " predicted_peak_angular_speed="
++              << target_effect_peak_angular_speeds[best_sample_index_]
++              << " predicted_peak_rotation_risk="
++              << target_effect_peak_rotation_risks[best_sample_index_]
++              << " current_plan_predicted_planar="
++              << target_effect_planar_errors[SampleIndex::kCurrentLocation]
++              << " current_plan_predicted_rotation="
++              << target_effect_rotation_errors[SampleIndex::kCurrentLocation]
++              << " selected_valid=" << target_effect_valid[best_sample_index_]
++              << " current_plan_valid="
++              << target_effect_valid[SampleIndex::kCurrentLocation]
++              << " rotation_latched=" << target_rotation_success_latched_
++              << " candidate_count=" << all_sample_costs_.size()
++              << std::endl;
++  }
+   c3_curr_plan_ = c3_objects.at(SampleIndex::kCurrentLocation);
+   c3_best_plan_ = c3_objects.at(best_sample_index_);
+ 
+diff --git a/systems/controllers/sampling_based_c3_controller.h b/systems/controllers/sampling_based_c3_controller.h
+index 6b58835..387095d 100644
+--- a/systems/controllers/sampling_based_c3_controller.h
++++ b/systems/controllers/sampling_based_c3_controller.h
+@@ -501,6 +501,7 @@ class SamplingC3Controller : public drake::systems::LeafSystem<double> {
+   mutable Eigen::VectorXd x_final_target_;
+   mutable int detected_goal_changes_ = -1;
+   mutable bool achieved_fixed_goal_ = false;
++  mutable bool target_rotation_success_latched_ = false;
+ 
+   // Sample buffer-related variables.
+   mutable int num_in_buffer_ = 0;

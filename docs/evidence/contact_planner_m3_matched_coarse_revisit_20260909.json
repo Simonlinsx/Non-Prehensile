@@ -1,0 +1,164 @@
+{
+  "old_trial_root": "outputs/contact_planner_m3/workspace_height_20260908/osc_matched_coarse_relinearized_pd180",
+  "old_native_binary_sha256": "1b68b3746a76da1c4bed6bd9918d71f60b5e60eb1306c5f1f45a6e5aadcf7496",
+  "old_result_sha256": "7cf2739005e4aaff6d8812f27654b7e59bd6ff1928aa73fb4a2a4e60ca7ea284",
+  "old_config_has_finite_hysteresis_patch": false,
+  "observed_nonfinite_boundaries": {
+    "total_plans": 3599,
+    "matched_command_modes": 3599,
+    "missing_command_modes": 0,
+    "invalid_current_finite_alternative": 111,
+    "invalid_previous_finite_alternative": 446,
+    "all_costs_invalid": 0,
+    "invalid_current_c3_selected": 4,
+    "invalid_previous_reposition_selected": 21,
+    "examples": [
+      {
+        "utime_us": 3449999,
+        "current_cost": 346.94917668337365,
+        "previous_cost": "invalid",
+        "best_finite_cost": 276.4101353696178,
+        "selected_c3_mode": true
+      },
+      {
+        "utime_us": 3650000,
+        "current_cost": 226.36942316847853,
+        "previous_cost": "invalid",
+        "best_finite_cost": 263.8140749190653,
+        "selected_c3_mode": true
+      },
+      {
+        "utime_us": 3949999,
+        "current_cost": "invalid",
+        "previous_cost": "invalid",
+        "best_finite_cost": 263.8140749190653,
+        "selected_c3_mode": true
+      },
+      {
+        "utime_us": 4000000,
+        "current_cost": 232.68258696646126,
+        "previous_cost": "invalid",
+        "best_finite_cost": 263.8140749190653,
+        "selected_c3_mode": true
+      },
+      {
+        "utime_us": 4149999,
+        "current_cost": "invalid",
+        "previous_cost": "invalid",
+        "best_finite_cost": 305.38222058154435,
+        "selected_c3_mode": false
+      }
+    ],
+    "interpretation": "Observed boundary cases, not counterfactual closed-loop outcomes. Other mode/progress/height gates can affect choices.",
+    "effect_audit_sha256": "17db7bc79af60fe2ddad311f46081ccf65cde57d1b1f7f4ac753232343ba69a6"
+  },
+  "new_trial_root": "outputs/contact_planner_m3/workspace_height_20260908/coarse_matched_finite_hysteresis_scene007_180",
+  "new_trial_specification": {
+    "tmux_session": "c1_coarse_matched_finite180",
+    "argv": [
+      "/data1/linsixu/miniconda3/envs/dapl-isaaclab/bin/python",
+      "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/pd_resolution_wait_variant/scripts/evaluate_push_anything_isaaclab_c1.py",
+      "--manifest",
+      "/data1/linsixu/IsaacLab-nonPrehensile/data/manifests/contact_planner_m3/hammer_c1_canonical_front180_screen8_seed20260907.jsonl",
+      "--scene-id",
+      "scene007",
+      "--output-root",
+      "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/coarse_matched_finite_hysteresis_scene007_180",
+      "--binary-root",
+      "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/frozen_finite_hysteresis_0020",
+      "--gpu",
+      "2",
+      "--base-port",
+      "10430",
+      "--max-sim-time-s",
+      "180",
+      "--planning-horizon",
+      "10",
+      "--c3-qp-max-iterations",
+      "2000",
+      "--c3-nonnegative-contact-forces",
+      "--c3-quaternion-cost-weight",
+      "100",
+      "--c3-end-on-qp-step",
+      "--enforce-actor-workspace",
+      "--execution-height-mode",
+      "optimized",
+      "--task-height-floor-mode",
+      "finger-geometry",
+      "--osc-translation-stiffness",
+      "200",
+      "--osc-rotation-stiffness",
+      "800",
+      "--osc-damping-ratio",
+      "0.7071067811865476",
+      "--c3-pd-rollout-interpolation",
+      "foh",
+      "--c3-relinearized-pd-cost",
+      "--osc-inertia-mode",
+      "partial",
+      "--osc-dynamics-audit",
+      "--video",
+      "--sim-planner-wait-s",
+      "10",
+      "--c3-osc-matched-coarse-model"
+    ],
+    "baseline_root": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/osc_matched_coarse_relinearized_pd180",
+    "reason": "Old matched-coarse180 used pre0020binary1b68 and recorded invalid-cost mode boundaries. Test matched coarse with existing finite-cost correction, original resolution4 and unchanged strict thresholds.",
+    "reference_success_root": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/finite_hysteresis_success_regression180",
+    "new_manual_push_or_force_override": false
+  },
+  "interpretation": "Old failure does not isolate matched-coarse behavior under the later nonfinite-cost fix. Boundaries motivate a controlled rerun; they do not prove that fix would yield success. New trial uses frozen0020, partialOSC, resolution4, max180sim seconds, no hand-push heuristic.",
+  "new_independent_successes": 0,
+  "live_prefix_boundary_comparison": {
+    "prefix_cutoff_utime_us": 3200000,
+    "identical_measured_states_before_divergence": 62,
+    "last_shared_measured_utime_us": 3150000,
+    "first_physical_difference_utime_us": 3200000,
+    "mode_switch_boundary_utime_us": 3150000,
+    "candidate_costs_exact_at_boundary": true,
+    "current_cost": "infinity",
+    "previous_cost": 358.31291692065156,
+    "best_finite_alternative_cost": 268.6131123976325,
+    "selected_c3_mode": {
+      "old": true,
+      "new": false
+    },
+    "prefix_artifact": "outputs/contact_planner_m3/workspace_height_20260908/coarse_matched_finite_hysteresis_scene007_180/scene007/finite_hysteresis_boundary_prefix.json",
+    "prefix_sha256": "2bae5ce14940d4e750611bae030998c28db31d37579f968ee5ef5989f841652b",
+    "scope": "Fixed captured prefix while full trial runs. Confirms the nonfinite-mode repair changes executed behavior; does not establish final task success."
+  },
+  "terminal_result": {
+    "scene_pose_contract_pass": true,
+    "errors": {
+      "initial": {
+        "planar_m": 9.31054314169295e-09,
+        "height_m": 2.787606256937636e-10,
+        "rotation_rad": 5.16191365590357e-08
+      },
+      "isaac_goal": {
+        "planar_m": 5.10815952635377e-07,
+        "height_m": 2.787606256937636e-10,
+        "rotation_rad": 4.2146848510894035e-08
+      },
+      "native_goal": {
+        "planar_m": 5.028005342921327e-07,
+        "height_m": 3.897229761129495e-14,
+        "rotation_rad": 0.0
+      }
+    },
+    "initial_yaw_deg": 0.0,
+    "goal_yaw_deg": 10.0,
+    "positive_legal_hand_contact": true,
+    "result_sha256": "bdc55617ca55b2355f6d137f38d4e93ce59e06ebe7fed3e2aa1cdd8061a600d2",
+    "task_success": false,
+    "stopped_reason": "watchdog_timeout",
+    "executed_sim_time_s": 77.96000000000001,
+    "final_planar_error_m": 0.2979137599468231,
+    "final_rotation_error_rad": 0.984117865562439,
+    "c1_violation": false,
+    "maximum_strict_dwell_steps": 0,
+    "native_goal_artifact_pass": true,
+    "native_controller_termination": "Workspace radius 0.752493 m exceeds maximum0.75m"
+  },
+  "trial_status": "finished_without_task_success"
+}

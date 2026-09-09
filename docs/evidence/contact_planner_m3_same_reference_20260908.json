@@ -1,0 +1,1079 @@
+{
+  "updated_utc": "2026-09-08T21:12:15.352939+00:00",
+  "goal_status": "active",
+  "strict_debug_successes": 0,
+  "acceptance_started": false,
+  "trials": {
+    "reference_replay_zoh_t8_diag10": {
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_zoh_t8_diag10/scene007/result.json",
+      "result_sha256": "6528fa3bd0821d4978bbc28bee7fbe5b44e1facc2a4d70f0d8a4ec16d723dc92",
+      "summary": {
+        "executed_sim_time_s": 10.0,
+        "final_planar_error_m": 0.0356348417699337,
+        "final_rotation_error_rad": 0.21586282551288605,
+        "forbidden_robot_contact_ever": false,
+        "maximum_strict_dwell_steps": 0,
+        "diagnostic_reference_replay": true
+      },
+      "replay_audit": {
+        "schema": "nonprehensile.diagnostic_reference_replay_audit.v1",
+        "acceptance_eligible": false,
+        "plan_utime_us": 8000000,
+        "start_utime_us": 8000000,
+        "end_utime_us": 8675000,
+        "actual_resume_utime_us": 8700000,
+        "duration_s": 0.675,
+        "matched_reference_count": 14,
+        "trace_sample_count": 12,
+        "same_reference_through_window": true,
+        "actual_xy_displacement_m": 0.004350636652688496,
+        "predicted_xy_displacement_m": 0.0011761760525104829,
+        "endpoint_xy_error_m": 0.0031931501065092347,
+        "endpoint_so3_error_rad": 0.010150514915495595,
+        "actual_so3_displacement_rad": 0.038824258913161186,
+        "initial_xyz_error_m": 4.788676795957488e-11,
+        "initial_so3_error_rad": 0.0,
+        "servo_raw_reference_vs_ideal_foh_m": {
+          "count": 12,
+          "median": 5.879407026598066e-17,
+          "p90": 2.77602447609252e-16,
+          "maximum": 3.3437019995255747e-16
+        },
+        "servo_governor_correction_m": {
+          "count": 12,
+          "median": 0.0,
+          "p90": 0.013088723574609147,
+          "maximum": 0.030161469592544926
+        },
+        "applied_force_vs_signed_ideal_foh_n": {
+          "count": 12,
+          "median": 0.06929316693423784,
+          "p90": 0.5508562425657971,
+          "maximum": 0.5514519710879269
+        },
+        "task_tracking_error_m": {
+          "count": 12,
+          "median": 0.008794540911245662,
+          "p90": 0.016955080187490576,
+          "maximum": 0.01701018608732444
+        },
+        "semantic_guard_active_samples": 3,
+        "c1_violation_samples": 0,
+        "positive_legal_hand_force_samples": 6,
+        "legal_hand_force_n": {
+          "count": 6,
+          "median": 0.5356754213571548,
+          "p90": 1.3011944591999054,
+          "maximum": 1.9046924114227295
+        },
+        "limitations": [
+          "Diagnostic replay is not receding-horizon task acceptance.",
+          "Endpoint between measured states uses interpolation; no extrapolation.",
+          "Trace is sampled, with additional contact rows; reference/force differences quantify downstream changes.",
+          "The servo extrapolates 20 Hz command position with local velocity and holds force between packets.",
+          "Existing height/speed/force limits and C1 shielding remain enabled."
+        ],
+        "result": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_zoh_t8_diag10/scene007/result.json",
+        "result_sha256": "6528fa3bd0821d4978bbc28bee7fbe5b44e1facc2a4d70f0d8a4ec16d723dc92",
+        "audit": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_zoh_t8_diag10/scene007/effect_audit.jsonl",
+        "audit_sha256": "14ae99dde1f2832df3eb79256bcca207ed494927abf30579b6614c15691cc6e0"
+      },
+      "video_probe": {
+        "programs": [],
+        "streams": [
+          {
+            "r_frame_rate": "20/1",
+            "duration": "10.000000",
+            "nb_frames": "200"
+          }
+        ]
+      }
+    },
+    "reference_replay_zoh_t8p3_short_diag10": {
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_zoh_t8p3_short_diag10/scene007/result.json",
+      "result_sha256": "df322884800d63b702af011a5f4236d92dd3bb2ff21bcfe6c029dacc3a92d4e3",
+      "summary": {
+        "executed_sim_time_s": 10.0,
+        "final_planar_error_m": 0.008889404125511646,
+        "final_rotation_error_rad": 0.16340236365795135,
+        "forbidden_robot_contact_ever": false,
+        "maximum_strict_dwell_steps": 0,
+        "diagnostic_reference_replay": true
+      },
+      "replay_audit": {
+        "schema": "nonprehensile.diagnostic_reference_replay_audit.v1",
+        "acceptance_eligible": false,
+        "plan_utime_us": 8299999,
+        "start_utime_us": 8300000,
+        "end_utime_us": 8600000,
+        "actual_resume_utime_us": 8600000,
+        "duration_s": 0.3,
+        "matched_reference_count": 6,
+        "trace_sample_count": 14,
+        "same_reference_through_window": true,
+        "actual_xy_displacement_m": 0.018440245759327234,
+        "predicted_xy_displacement_m": 0.0023738434528755275,
+        "endpoint_xy_error_m": 0.016281432821102053,
+        "endpoint_so3_error_rad": 0.06363882699813951,
+        "actual_so3_displacement_rad": 0.0653925837923623,
+        "initial_xyz_error_m": 2.422919992356835e-11,
+        "initial_so3_error_rad": 0.0,
+        "servo_raw_reference_vs_ideal_foh_m": {
+          "count": 14,
+          "median": 1.9944556982830576e-16,
+          "p90": 0.00022738221453252053,
+          "maximum": 0.0009744952051386858
+        },
+        "servo_governor_correction_m": {
+          "count": 14,
+          "median": 0.0,
+          "p90": 0.0,
+          "maximum": 0.0007426113307001205
+        },
+        "applied_force_vs_signed_ideal_foh_n": {
+          "count": 14,
+          "median": 0.05927505022614256,
+          "p90": 0.18606304968839754,
+          "maximum": 0.252929993065333
+        },
+        "task_tracking_error_m": {
+          "count": 14,
+          "median": 0.006450673130125098,
+          "p90": 0.009952530227787151,
+          "maximum": 0.010801507282055662
+        },
+        "semantic_guard_active_samples": 0,
+        "c1_violation_samples": 0,
+        "positive_legal_hand_force_samples": 12,
+        "legal_hand_force_n": {
+          "count": 12,
+          "median": 0.9708259403705597,
+          "p90": 11.608872032165529,
+          "maximum": 24.29009246826172
+        },
+        "limitations": [
+          "Diagnostic replay is not receding-horizon task acceptance.",
+          "Endpoint between measured states uses interpolation; no extrapolation.",
+          "Trace is sampled, with additional contact rows; reference/force differences quantify downstream changes.",
+          "The servo extrapolates 20 Hz command position with local velocity and holds force between packets.",
+          "Existing height/speed/force limits and C1 shielding remain enabled."
+        ],
+        "result": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_zoh_t8p3_short_diag10/scene007/result.json",
+        "result_sha256": "df322884800d63b702af011a5f4236d92dd3bb2ff21bcfe6c029dacc3a92d4e3",
+        "audit": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_zoh_t8p3_short_diag10/scene007/effect_audit.jsonl",
+        "audit_sha256": "45f5d984087cba992fd2bda28d21edf163b2a828babd45450ac8acd461044c48"
+      },
+      "video_probe": {
+        "programs": [],
+        "streams": [
+          {
+            "r_frame_rate": "20/1",
+            "duration": "10.000000",
+            "nb_frames": "200"
+          }
+        ]
+      }
+    },
+    "reference_replay_dual_pd_t8p3_diag10": {
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_dual_pd_t8p3_diag10/scene007/result.json",
+      "result_sha256": "969f3b891c4450fb6f9490f07a4f29c6f78180a4b258a0d154a14cf4b642109d",
+      "summary": {
+        "executed_sim_time_s": 10.0,
+        "final_planar_error_m": 0.008889404125511646,
+        "final_rotation_error_rad": 0.16340236365795135,
+        "forbidden_robot_contact_ever": false,
+        "maximum_strict_dwell_steps": 0,
+        "diagnostic_reference_replay": true
+      },
+      "replay_audit": {
+        "schema": "nonprehensile.diagnostic_reference_replay_audit.v1",
+        "acceptance_eligible": false,
+        "plan_utime_us": 8299999,
+        "start_utime_us": 8300000,
+        "end_utime_us": 8600000,
+        "actual_resume_utime_us": 8600000,
+        "duration_s": 0.3,
+        "matched_reference_count": 6,
+        "trace_sample_count": 14,
+        "same_reference_through_window": true,
+        "actual_xy_displacement_m": 0.018440245759327234,
+        "predicted_xy_displacement_m": 0.0023738434528755275,
+        "endpoint_xy_error_m": 0.016281432821102053,
+        "endpoint_so3_error_rad": 0.06363882699813951,
+        "actual_so3_displacement_rad": 0.0653925837923623,
+        "initial_xyz_error_m": 2.422919992356835e-11,
+        "initial_so3_error_rad": 0.0,
+        "servo_raw_reference_vs_ideal_foh_m": {
+          "count": 14,
+          "median": 1.9944556982830576e-16,
+          "p90": 0.00022738221453252053,
+          "maximum": 0.0009744952051386858
+        },
+        "servo_governor_correction_m": {
+          "count": 14,
+          "median": 0.0,
+          "p90": 0.0,
+          "maximum": 0.0007426113307001205
+        },
+        "applied_force_vs_signed_ideal_foh_n": {
+          "count": 14,
+          "median": 0.05927505022614256,
+          "p90": 0.18606304968839754,
+          "maximum": 0.252929993065333
+        },
+        "task_tracking_error_m": {
+          "count": 14,
+          "median": 0.006450673130125098,
+          "p90": 0.009952530227787151,
+          "maximum": 0.010801507282055662
+        },
+        "semantic_guard_active_samples": 0,
+        "c1_violation_samples": 0,
+        "positive_legal_hand_force_samples": 12,
+        "legal_hand_force_n": {
+          "count": 12,
+          "median": 0.9708259403705597,
+          "p90": 11.608872032165529,
+          "maximum": 24.29009246826172
+        },
+        "limitations": [
+          "Diagnostic replay is not receding-horizon task acceptance.",
+          "Endpoint between measured states uses interpolation; no extrapolation.",
+          "Trace is sampled, with additional contact rows; reference/force differences quantify downstream changes.",
+          "The servo extrapolates 20 Hz command position with local velocity and holds force between packets.",
+          "Existing height/speed/force limits and C1 shielding remain enabled."
+        ],
+        "dual_pd_comparison": {
+          "native_plan_utime_us": 8299999,
+          "recorded_selected_pd_max_state_difference": 0.0,
+          "selected_interpolation": "zoh",
+          "force_tracking_enabled": true,
+          "actual_actor_position_m": [
+            0.4204512149095535,
+            0.1876992553472519,
+            0.004940687119960785
+          ],
+          "actual_target_position_m": [
+            0.465472549200058,
+            0.1880677193403244,
+            -0.017049457877874374
+          ],
+          "modes": {
+            "raw": {
+              "target_endpoint_xy_error_m": 0.10236083804196477,
+              "target_endpoint_so3_error_rad": 1.1599440153738318,
+              "target_predicted_xy_motion_m": 0.10881712966053854,
+              "actor_endpoint_xyz_error_m": 0.01048601795901174,
+              "actor_predicted_position_m": [
+                0.4208218174416873,
+                0.19807285485635007,
+                0.0034548676071224664
+              ],
+              "target_predicted_position_m": [
+                0.4495377484239679,
+                0.2891806427916798,
+                -0.016625610594725535
+              ]
+            },
+            "zoh": {
+              "target_endpoint_xy_error_m": 0.016281432821102053,
+              "target_endpoint_so3_error_rad": 0.06363882699813951,
+              "target_predicted_xy_motion_m": 0.0023738434528755275,
+              "actor_endpoint_xyz_error_m": 0.007943746077746061,
+              "actor_predicted_position_m": [
+                0.4170563786146104,
+                0.19477548673883027,
+                0.0037138466368156074
+              ],
+              "target_predicted_position_m": [
+                0.45031567965548736,
+                0.18212176606797803,
+                -0.01704959643398793
+              ]
+            },
+            "foh": {
+              "target_endpoint_xy_error_m": 0.015749791054174837,
+              "target_endpoint_so3_error_rad": 0.0636388269981465,
+              "target_predicted_xy_motion_m": 0.002955287983513539,
+              "actor_endpoint_xyz_error_m": 0.01037456434149544,
+              "actor_predicted_position_m": [
+                0.42001049473072993,
+                0.19800620411901768,
+                0.0038433457801751677
+              ],
+              "target_predicted_position_m": [
+                0.450727184038652,
+                0.18253327045114315,
+                -0.017049596433987926
+              ]
+            }
+          },
+          "interpretation": "Both PD predictions use identical raw plan, fine LCS, initial state and gains; only reference interpolation differs."
+        },
+        "native_log_sha256": "5345afffbf207e161ab643e3a1dd8c19bb7504b453cda678819551d7129e3eec",
+        "result": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_dual_pd_t8p3_diag10/scene007/result.json",
+        "result_sha256": "969f3b891c4450fb6f9490f07a4f29c6f78180a4b258a0d154a14cf4b642109d",
+        "audit": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_dual_pd_t8p3_diag10/scene007/effect_audit.jsonl",
+        "audit_sha256": "4828ef3632b96f4a7554b45507b025155d059195c5a3400fabe5a076d2cf2e3d"
+      },
+      "video_probe": {
+        "programs": [],
+        "streams": [
+          {
+            "r_frame_rate": "20/1",
+            "duration": "10.000000",
+            "nb_frames": "200"
+          }
+        ]
+      }
+    },
+    "reference_replay_inertia_t8p3_diag10": {
+      "result": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_inertia_t8p3_diag10/scene007/result.json",
+      "result_sha256": "ee01d2a6255f413a0a75450ae78e43049ac8c82ef77599531e868b4f12e545cd",
+      "summary": {
+        "executed_sim_time_s": 10.0,
+        "final_planar_error_m": 0.017385348677635193,
+        "final_rotation_error_rad": 0.16873681545257568,
+        "forbidden_robot_contact_ever": false,
+        "maximum_strict_dwell_steps": 0,
+        "diagnostic_reference_replay": true
+      },
+      "replay_audit": {
+        "schema": "nonprehensile.diagnostic_reference_replay_audit.v1",
+        "acceptance_eligible": false,
+        "plan_utime_us": 8350000,
+        "start_utime_us": 8350000,
+        "end_utime_us": 8650000,
+        "actual_resume_utime_us": 8650000,
+        "duration_s": 0.3,
+        "matched_reference_count": 6,
+        "trace_sample_count": 15,
+        "same_reference_through_window": true,
+        "actual_xy_displacement_m": 0.026032620639499914,
+        "predicted_xy_displacement_m": 0.0018911105004519233,
+        "endpoint_xy_error_m": 0.02442131824425874,
+        "endpoint_so3_error_rad": 0.04314900664007541,
+        "actual_so3_displacement_rad": 0.05341917389535201,
+        "initial_xyz_error_m": 1.1914680462714382e-07,
+        "initial_so3_error_rad": 1.4916054911902533e-06,
+        "servo_raw_reference_vs_ideal_foh_m": {
+          "count": 15,
+          "median": 6.781110396771798e-17,
+          "p90": 0.0002708552281613573,
+          "maximum": 0.00135427614080608
+        },
+        "servo_governor_correction_m": {
+          "count": 15,
+          "median": 0.0,
+          "p90": 0.00014828229986500014,
+          "maximum": 0.0003596400543280657
+        },
+        "applied_force_vs_signed_ideal_foh_n": {
+          "count": 15,
+          "median": 0.06539254542172497,
+          "p90": 0.1951575011604643,
+          "maximum": 0.26157018168691165
+        },
+        "task_tracking_error_m": {
+          "count": 15,
+          "median": 0.008110002555251886,
+          "p90": 0.011037722812972708,
+          "maximum": 0.012138723470066299
+        },
+        "semantic_guard_active_samples": 0,
+        "c1_violation_samples": 0,
+        "positive_legal_hand_force_samples": 14,
+        "legal_hand_force_n": {
+          "count": 14,
+          "median": 10.610508441925049,
+          "p90": 17.307506370544434,
+          "maximum": 24.496849060058594
+        },
+        "limitations": [
+          "Diagnostic replay is not receding-horizon task acceptance.",
+          "Endpoint between measured states uses interpolation; no extrapolation.",
+          "Trace is sampled, with additional contact rows; reference/force differences quantify downstream changes.",
+          "The servo extrapolates 20 Hz command position with local velocity and holds force between packets.",
+          "Existing height/speed/force limits and C1 shielding remain enabled."
+        ],
+        "dual_pd_comparison": {
+          "native_plan_utime_us": 8350000,
+          "recorded_selected_pd_max_state_difference": 0.0,
+          "selected_interpolation": "zoh",
+          "force_tracking_enabled": true,
+          "actual_actor_position_m": [
+            0.42589945197105405,
+            0.18714480996131896,
+            0.006918762624263763
+          ],
+          "actual_target_position_m": [
+            0.475701242685318,
+            0.19132450222969055,
+            -0.01705225557088852
+          ],
+          "modes": {
+            "raw": {
+              "target_endpoint_xy_error_m": 0.10230011661733263,
+              "target_endpoint_so3_error_rad": 1.1175893582636185,
+              "target_predicted_xy_motion_m": 0.10784255929283143,
+              "actor_endpoint_xyz_error_m": 0.013426382674038674,
+              "actor_predicted_position_m": [
+                0.4247352532710848,
+                0.20009961254414038,
+                0.0035892757063078844
+              ],
+              "target_predicted_position_m": [
+                0.44707994232688586,
+                0.28953924158032096,
+                -0.016687541297020336
+              ]
+            },
+            "zoh": {
+              "target_endpoint_xy_error_m": 0.02442131824425874,
+              "target_endpoint_so3_error_rad": 0.04314900664007541,
+              "target_predicted_xy_motion_m": 0.0018911105004519233,
+              "actor_endpoint_xyz_error_m": 0.009769987954416904,
+              "actor_predicted_position_m": [
+                0.4223211386740147,
+                0.19603568476764438,
+                0.005021215851208917
+              ],
+              "target_predicted_position_m": [
+                0.4526444377847259,
+                0.18327561829690847,
+                -0.017045403424468093
+              ]
+            },
+            "foh": {
+              "target_endpoint_xy_error_m": 0.024164464795733944,
+              "target_endpoint_so3_error_rad": 0.04314900667133462,
+              "target_predicted_xy_motion_m": 0.002174827953814864,
+              "actor_endpoint_xyz_error_m": 0.01283525821512996,
+              "actor_predicted_position_m": [
+                0.42379800531487594,
+                0.19962361835725775,
+                0.004772343183020632
+              ],
+              "target_predicted_position_m": [
+                0.45284634552577946,
+                0.18347752608016757,
+                -0.01704540342446809
+              ]
+            }
+          },
+          "interpretation": "Both PD predictions use identical raw plan, fine LCS, initial state and gains; only reference interpolation differs."
+        },
+        "native_log_sha256": "ab00b49642654813f66bed4c2bda2822633ab1ff6cbdf867eaef2022f41c5b0e",
+        "result": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_inertia_t8p3_diag10/scene007/result.json",
+        "result_sha256": "ee01d2a6255f413a0a75450ae78e43049ac8c82ef77599531e868b4f12e545cd",
+        "audit": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_inertia_t8p3_diag10/scene007/effect_audit.jsonl",
+        "audit_sha256": "8c9cdece20542c27577b55449419593412d9eef58ee03e346f7080f31ad14b63"
+      },
+      "video_probe": {
+        "programs": [],
+        "streams": [
+          {
+            "r_frame_rate": "20/1",
+            "duration": "10.000000",
+            "nb_frames": "200"
+          }
+        ]
+      }
+    }
+  },
+  "osc_inertia_audit": {
+    "schema": "nonprehensile.osc_operational_inertia_audit.v1",
+    "sample_count": 15,
+    "window_planner_clock_s": [
+      8.35,
+      8.65
+    ],
+    "planner_point_mass_kg": 0.057,
+    "planner_model": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/reference_replay_inertia_t8p3_diag10/scene007/shared_runtime_1788901340383883726/examples/sampling_c3/urdf/end_effector_simple_model.urdf",
+    "planner_model_sha256": "c4af54036e5a6d1cd565a70fc3f0c548f9c9220814e4205e90b8b6021af43675",
+    "partial_translation_inertia_eigenvalue_range_kg": [
+      0.7597760379342569,
+      9.157767640852605
+    ],
+    "partial_translation_inertia_eigenvalue_medians_kg": [
+      0.7609184371393799,
+      0.985121908928993,
+      9.111313407907371
+    ],
+    "inertia_eigenvalue_to_point_mass_ratio_range": [
+      13.329404174285207,
+      160.66259019039657
+    ],
+    "maximum_cached_inertia_disagreement": 2.1556982900960975e-06,
+    "rows": [
+      {
+        "planner_clock_s": 8.35,
+        "joint_inertia_minimum_eigenvalue": 0.0030959346209170472,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.7613704849690477,
+          0.978505006729551,
+          9.157767640852605
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4826499545943486,
+          1.1379640065820484,
+          8.277029171374805
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.8774790656777839,
+          0.9350484857746689,
+          4.246401141811762
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.82173563035508,
+          6.455312170383608,
+          13.31121821118627
+        ],
+        "cached_inertia_max_abs_difference": 1.0875735352300353e-06,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.27409699380954,
+          195.70100134591019,
+          1831.5535281705208
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.227409699380956,
+          19.570100134591023,
+          183.15535281705212
+        ]
+      },
+      {
+        "planner_clock_s": 8.370000000000001,
+        "joint_inertia_minimum_eigenvalue": 0.0030944481608605806,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.7612665209042773,
+          0.9814600479240101,
+          9.147312378284823
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4855195132097738,
+          1.1476668410611353,
+          8.256852592842204
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.8773662467317183,
+          0.9391010275581989,
+          4.216042386255968
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.820025394766242,
+          6.4534791471293,
+          13.24914439661523
+        ],
+        "cached_inertia_max_abs_difference": 1.396553141574941e-06,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.25330418085545,
+          196.29200958480203,
+          1829.4624756569647
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.225330418085548,
+          19.629200958480205,
+          182.9462475656965
+        ]
+      },
+      {
+        "planner_clock_s": 8.38,
+        "joint_inertia_minimum_eigenvalue": 0.003093858071698775,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.7612132593608435,
+          0.982638941651704,
+          9.141100837734504
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4865358701032292,
+          1.150828312565026,
+          8.2475888560788
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.877278574582628,
+          0.9406751341052815,
+          4.2051955643684265
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.8193611208121965,
+          6.452567946091861,
+          13.21811163796501
+        ],
+        "cached_inertia_max_abs_difference": 1.208923642082027e-06,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.2426518721687,
+          196.5277883303408,
+          1828.2201675469007
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.224265187216872,
+          19.652778833034084,
+          182.8220167546901
+        ]
+      },
+      {
+        "planner_clock_s": 8.39,
+        "joint_inertia_minimum_eigenvalue": 0.003093158256005228,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.7611510617254276,
+          0.984045345759752,
+          9.135941928822959
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4881351903763838,
+          1.1550103144130888,
+          8.23799283151867
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.8772314496556451,
+          0.9425654594258944,
+          4.19135215634566
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.81857615722457,
+          6.451691012612794,
+          13.188230388379779
+        ],
+        "cached_inertia_max_abs_difference": 4.088377760780304e-07,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.2302123450855,
+          196.8090691519504,
+          1827.1883857645917
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.223021234508554,
+          19.68090691519504,
+          182.7188385764592
+        ]
+      },
+      {
+        "planner_clock_s": 8.4,
+        "joint_inertia_minimum_eigenvalue": 0.0030926299399700588,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.7610932509050504,
+          0.985121908928993,
+          9.129633127187324
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4892954594029333,
+          1.157535879460046,
+          8.22901694815839
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.8771572362835087,
+          0.9439811314581439,
+          4.181546037683782
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.8179869596064995,
+          6.450819875801275,
+          13.158370980815823
+        ],
+        "cached_inertia_max_abs_difference": 6.441422772951455e-07,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.21865018101008,
+          197.0243817857986,
+          1825.9266254374647
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.221865018101012,
+          19.702438178579865,
+          182.5926625437465
+        ]
+      },
+      {
+        "planner_clock_s": 8.41,
+        "joint_inertia_minimum_eigenvalue": 0.003092054294918913,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.761032261239641,
+          0.9862983477376877,
+          9.123866301916465
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4908053227145,
+          1.1605047442262675,
+          8.219886843953025
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.8771126616927133,
+          0.9455346873336524,
+          4.17027496718426
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.817347039667281,
+          6.449972341188239,
+          13.129434403485956
+        ],
+        "cached_inertia_max_abs_difference": 3.503901231383111e-07,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.20645224792818,
+          197.25966954753753,
+          1824.7732603832928
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.220645224792822,
+          19.725966954753755,
+          182.47732603832932
+        ]
+      },
+      {
+        "planner_clock_s": 8.42,
+        "joint_inertia_minimum_eigenvalue": 0.0030915757500415667,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.7609737064193058,
+          0.9872895721828003,
+          9.117562356981544
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4921396559318643,
+          1.162499797705888,
+          8.211186181945898
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.8770647096801174,
+          0.9468099544868106,
+          4.161231759800154
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.81681678189187,
+          6.449138112553541,
+          13.100810829513815
+        ],
+        "cached_inertia_max_abs_difference": 7.266236323744124e-07,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.19474128386116,
+          197.45791443656006,
+          1823.512471396309
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.21947412838612,
+          19.74579144365601,
+          182.3512471396309
+        ]
+      },
+      {
+        "planner_clock_s": 8.43,
+        "joint_inertia_minimum_eigenvalue": 0.0030911111632944866,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.7609184371393799,
+          0.9882510210270722,
+          9.111313407907371
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4934847334787833,
+          1.1643635695433308,
+          8.20263456305171
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.8770296342161479,
+          0.9480363739146692,
+          4.152488603611568
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.816304483963507,
+          6.448323381793562,
+          13.072762492949549
+        ],
+        "cached_inertia_max_abs_difference": 2.1556982900960975e-06,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.18368742787598,
+          197.65020420541444,
+          1822.2626815814742
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.2183687427876,
+          19.765020420541447,
+          182.22626815814746
+        ]
+      },
+      {
+        "planner_clock_s": 8.44,
+        "joint_inertia_minimum_eigenvalue": 0.0030906580867346278,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.7608687549559761,
+          0.9891809547221255,
+          9.105061717323895
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4947614520739494,
+          1.1662325184975266,
+          8.194117456430519
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.8769998282756548,
+          0.9492323525580323,
+          4.143882454584034
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.815807545634804,
+          6.447532224464857,
+          13.045390327511157
+        ],
+        "cached_inertia_max_abs_difference": 8.640232920242852e-07,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.17375099119522,
+          197.8361909444251,
+          1821.0123434647792
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.217375099119524,
+          19.783619094442514,
+          182.10123434647795
+        ]
+      },
+      {
+        "planner_clock_s": 8.450000000000001,
+        "joint_inertia_minimum_eigenvalue": 0.003090411333171848,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.7608238073476016,
+          0.9897132975400338,
+          9.097018257267532
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4953684606127895,
+          1.1669069074287877,
+          8.18527999411359
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.87687912345354,
+          0.9500089343711984,
+          4.138134412819131
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.815531665863737,
+          6.446762127058387,
+          13.018769299883994
+        ],
+        "cached_inertia_max_abs_difference": 1.1015964993532634e-06,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.16476146952033,
+          197.94265950800676,
+          1819.4036514535064
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.216476146952035,
+          19.79426595080068,
+          181.94036514535068
+        ]
+      },
+      {
+        "planner_clock_s": 8.47,
+        "joint_inertia_minimum_eigenvalue": 0.003091595519331419,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.760751140389726,
+          0.9875560677900224,
+          9.066869676598742
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4912360362705523,
+          1.155879640155794,
+          8.16806120835214
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.8759515567153072,
+          0.947715818596469,
+          4.156303295438867
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.816771660033682,
+          6.445234539081342,
+          12.965091203173566
+        ],
+        "cached_inertia_max_abs_difference": 1.9554051835513064e-06,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.1502280779452,
+          197.51121355800447,
+          1813.3739353197484
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.215022807794524,
+          19.75112135580045,
+          181.33739353197487
+        ]
+      },
+      {
+        "planner_clock_s": 8.48,
+        "joint_inertia_minimum_eigenvalue": 0.0030925722484063307,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.7607175156248002,
+          0.9857499819513301,
+          9.04861842872318
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4880127118901891,
+          1.1474954445542114,
+          8.159577769854913
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.8753232608789222,
+          0.9457038048798901,
+          4.172405072041572
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.817800553050463,
+          6.444468907272874,
+          12.937919787998808
+        ],
+        "cached_inertia_max_abs_difference": 1.5071836614310996e-06,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.14350312496003,
+          197.149996390266,
+          1809.7236857446362
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.214350312496006,
+          19.714999639026605,
+          180.97236857446364
+        ]
+      },
+      {
+        "planner_clock_s": 8.49,
+        "joint_inertia_minimum_eigenvalue": 0.003093532119510272,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.7606805856564826,
+          0.9839893419683122,
+          9.030441997368307
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4849571360161757,
+          1.1393344777780967,
+          8.150820311198832
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.8746830405790379,
+          0.9437847352757325,
+          4.187867433133663
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.81880479907513,
+          6.443702049500629,
+          12.910777824175868
+        ],
+        "cached_inertia_max_abs_difference": 5.327564487345171e-07,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.13611713129652,
+          196.79786839366244,
+          1806.0883994736614
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.213611713129653,
+          19.679786839366248,
+          180.60883994736616
+        ]
+      },
+      {
+        "planner_clock_s": 8.5,
+        "joint_inertia_minimum_eigenvalue": 0.0030945342942250553,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.7606383514791547,
+          0.9821699591343204,
+          9.011745562449024
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4818325804755312,
+          1.1311645140354138,
+          8.14155677855155
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.8739866660423744,
+          0.9418716598368437,
+          4.20331879646924
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.819844067570045,
+          6.442938673145366,
+          12.883690413157964
+        ],
+        "cached_inertia_max_abs_difference": 9.924187374110716e-07,
+        "motion_stiffness_eigenvalues_n_m": [
+          152.12767029583094,
+          196.4339918268641,
+          1802.3491124898048
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.212767029583096,
+          19.643399182686412,
+          180.2349112489805
+        ]
+      },
+      {
+        "planner_clock_s": 8.6,
+        "joint_inertia_minimum_eigenvalue": 0.003103656331550354,
+        "partial_translation_inertia_eigenvalues_kg": [
+          0.7597760379342569,
+          0.9666979611009162,
+          8.815876833684133
+        ],
+        "partial_translation_inertia_diagonal_kg": [
+          1.4569737751953435,
+          1.0750524236827095,
+          8.010324633841254
+        ],
+        "effective_mass_along_root_axes_kg": [
+          0.8646092580929088,
+          0.9312661020145364,
+          4.279730846667256
+        ],
+        "orientation_constrained_translation_inertia_eigenvalues_kg": [
+          4.828993687405818,
+          6.4355104265066165,
+          12.620447160748757
+        ],
+        "cached_inertia_max_abs_difference": 7.979824765413923e-07,
+        "motion_stiffness_eigenvalues_n_m": [
+          151.95520758685137,
+          193.33959222018325,
+          1763.1753667368266
+        ],
+        "motion_damping_eigenvalues_n_s_m": [
+          15.19552075868514,
+          19.33395922201833,
+          176.3175366736827
+        ]
+      }
+    ],
+    "interpretation": [
+      "These are the actual OSC cached matrices, independently reconstructed; no controller gains changed.",
+      "Task inertia is direction- and configuration-dependent; a scalar point mass is an approximation.",
+      "Partial translational inertia is the matrix used in current OSC motion feedback.",
+      "Free-direction and orientation-constrained inertia describe different mechanical conditions; neither alone calibrates closed-loop contact.",
+      "The snapshot precedes the final physics substep of its trace interval; it includes the joint state used by that OSC call.",
+      "This is dynamics instrumentation, not task acceptance or proof that changing mass improves success."
+    ],
+    "result": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_inertia_t8p3_diag10/scene007/result.json",
+    "result_sha256": "ee01d2a6255f413a0a75450ae78e43049ac8c82ef77599531e868b4f12e545cd"
+  },
+  "paired_replanning_comparison": {
+    "same_initial_reference": true,
+    "initial_xyz_difference_m": 0.0,
+    "initial_so3_difference_rad": 0.0,
+    "initial_pd_prediction_max_difference_m": 0.0,
+    "horizons": {
+      "0.15": {
+        "replanning_actual_xy_motion_m": 0.00902917449416826,
+        "replay_actual_xy_motion_m": 0.004350687761388283,
+        "endpoint_difference_m": 0.004745558683460497
+      },
+      "0.3": {
+        "replanning_actual_xy_motion_m": 0.026410703879423313,
+        "replay_actual_xy_motion_m": 0.00435065313157009,
+        "endpoint_difference_m": 0.022063598450123338
+      },
+      "0.675": {
+        "replanning_actual_xy_motion_m": 0.06925070075045418,
+        "replay_actual_xy_motion_m": 0.004350636652688496,
+        "endpoint_difference_m": 0.06493590963159268
+      }
+    }
+  },
+  "passive_observer_trace_comparison": {
+    "reference_result": "outputs/contact_planner_m3/workspace_height_20260908/reference_replay_zoh_t8p3_short_diag10/scene007/result.json",
+    "entire_trace_equal": true,
+    "trace_counts": [
+      192,
+      192
+    ]
+  },
+  "native_binary_sha256": "2d874b4386bd9fa4312c3e926e120632b35e169b84669d4372fed3fba25fc587",
+  "next_step": "Calibrate directional actor dynamics and PD response against actual OSC inertia and a same-reference window before another full MPC task run. Gravity and force conventions must remain physically consistent; no blind mass/force change."
+}

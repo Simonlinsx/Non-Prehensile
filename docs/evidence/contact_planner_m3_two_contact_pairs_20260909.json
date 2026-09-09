@@ -1,0 +1,98 @@
+{
+  "scope": "Change only cost-model contact resolution from1 to2 end-effector pairs; original C3 solve contact list preserved. Same captured physical inputs and sampled2.5ms integration.",
+  "windows": {
+    "t106p35": {
+      "one_pair_errors": {
+        "xy_m": 0.0036144070035886507,
+        "height_m": 6.022015983267806e-05,
+        "so3_rad": 0.0279674825194841
+      },
+      "two_pair_errors": {
+        "xy_m": 0.004152267337453026,
+        "height_m": 5.648604311659852e-05,
+        "so3_rad": 0.03211574791738175
+      },
+      "eligible_unshielded_contact": true,
+      "execution": {
+        "command": [
+          "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/frozen_pd_single_step_storage/bazel-bin/examples/sampling_c3/franka_sampling_c3_controller",
+          "--is_simulation=true",
+          "--demo_name=anything",
+          "--lcm_url=memq://",
+          "--offline_pd_replay_input=/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/offline_precise_t106p35/resolution30.txt",
+          "--offline_pd_sampled_references=true"
+        ],
+        "cwd": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/offline_two_contact_pairs/t106p35/runtime",
+        "returncode": 0,
+        "elapsed_s": 0.4014397142454982,
+        "env_overrides": {
+          "PUSH_ANYTHING_OFFLINE_PD_FIRST_PERIOD": "1"
+        },
+        "baseline_execution_record": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/offline_precise_t106p35/scalar30_execution.json",
+        "native_binary_sha256": "f06501f9e01db95e980cbc80f08a19a15d1f2b3035a43c171f622fdb5f0593a2",
+        "coarse_contact_index_unchanged": true,
+        "fine_contact_counts_before": [
+          0,
+          1,
+          3,
+          1
+        ],
+        "fine_contact_counts_after": [
+          0,
+          2,
+          3,
+          1
+        ],
+        "options_sha256": "e279e846a0737d53fc0f285b42e632f5f61b7379919daedbffd460fe39aa80cf"
+      },
+      "comparison_artifact": "outputs/contact_planner_m3/workspace_height_20260908/offline_two_contact_pairs/t106p35/physical_comparison.json"
+    },
+    "t8p3": {
+      "one_pair_errors": {
+        "xy_m": 0.00045807440279016726,
+        "height_m": 0.00019500022378823867,
+        "so3_rad": 0.020371353943505633
+      },
+      "two_pair_errors": {
+        "xy_m": 0.0004580744027902441,
+        "height_m": 0.00019500022378827336,
+        "so3_rad": 0.02037135394344023
+      },
+      "eligible_unshielded_contact": true,
+      "execution": {
+        "command": [
+          "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/frozen_pd_single_step_storage/bazel-bin/examples/sampling_c3/franka_sampling_c3_controller",
+          "--is_simulation=true",
+          "--demo_name=anything",
+          "--lcm_url=memq://",
+          "--offline_pd_replay_input=/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/offline_first_period_regression/resolution30.txt",
+          "--offline_pd_sampled_references=true"
+        ],
+        "cwd": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/offline_two_contact_pairs/t8p3/runtime",
+        "returncode": 0,
+        "elapsed_s": 0.4020654992200434,
+        "env_overrides": {
+          "PUSH_ANYTHING_OFFLINE_PD_FIRST_PERIOD": "1"
+        },
+        "baseline_execution_record": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/contact_planner_m3/workspace_height_20260908/offline_first_period_regression/enabled_execution.json",
+        "native_binary_sha256": "f06501f9e01db95e980cbc80f08a19a15d1f2b3035a43c171f622fdb5f0593a2",
+        "coarse_contact_index_unchanged": true,
+        "fine_contact_counts_before": [
+          0,
+          1,
+          3,
+          1
+        ],
+        "fine_contact_counts_after": [
+          0,
+          2,
+          3,
+          1
+        ],
+        "options_sha256": "e279e846a0737d53fc0f285b42e632f5f61b7379919daedbffd460fe39aa80cf"
+      },
+      "comparison_artifact": "outputs/contact_planner_m3/workspace_height_20260908/offline_two_contact_pairs/t8p3/physical_comparison.json"
+    }
+  },
+  "decision": "Not promoted: t8p3 unchanged to roundoff; t106p35 XY and SO3 errors worsen. No task-success evidence."
+}

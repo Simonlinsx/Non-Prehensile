@@ -1,0 +1,39 @@
+--- a/examples/sampling_c3/sampling_c3_utils.cc
++++ b/examples/sampling_c3/sampling_c3_utils.cc
+@@ -1,6 +1,8 @@
+ #include "sampling_c3_utils.h"
+ 
+ #include <iostream>
++#include <cstdlib>
++#include <stdexcept>
+ 
+ #include "common/find_resource.h"
+ 
+@@ -22,12 +24,25 @@
+   Parser parser(plant, scene_graph);
+   parser.SetAutoRenaming(true);
+ 
+-  ModelInstanceIndex franka_index = parser.AddModelsFromUrl(kFrankaModel)[0];
++  // Optional matched full robot for simulation/model alignment. The default
++  // remains the original Panda plus pushing tool. The override includes the
++  // closed gripper and end_effector_tip and must expose seven arm actuators.
++  const char* robot_model = std::getenv("PUSH_ANYTHING_ROBOT_MODEL");
++  const bool full_robot_override = robot_model && robot_model[0];
++  if (full_robot_override && !include_ee) {
++    throw std::invalid_argument("Full robot override requires include_ee");
++  }
++  ModelInstanceIndex franka_index = full_robot_override
++      ? parser.AddModels(robot_model)[0]
++      : parser.AddModelsFromUrl(kFrankaModel)[0];
++  if (full_robot_override) {
++    plant->GetBodyByName(kEndEffectorName, franka_index);
++  }
+   RigidTransform<double> X_WI = RigidTransform<double>::Identity();
+   plant->WeldFrames(plant->world_frame(), plant->GetFrameByName("panda_link0"),
+                     X_WI);
+ 
+-  if (include_ee) {
++  if (include_ee && !full_robot_override) {
+     parser.AddModels(FindResourceOrThrow(kEndEffectorModel));
+     RigidTransform<double> T_EE_W = RigidTransform<double>(
+         drake::math::RotationMatrix<double>(

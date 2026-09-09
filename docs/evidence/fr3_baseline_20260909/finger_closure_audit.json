@@ -1,0 +1,17 @@
+{
+  "schema": "nonprehensile.fr3_finger_closure_audit.v1",
+  "scope": "Dynamic finger closure only; not model, contact, C1, or task acceptance",
+  "closure_pass": true,
+  "tolerance_m": 0.001,
+  "observed_physics_steps": 14182,
+  "maximum_absolute_position_m": [
+    0.0004213379870634526,
+    0.0004198928363621235
+  ],
+  "maximum_finger_mismatch_m": 0.00021396836382336915,
+  "maximum_absolute_command_target_m": 0.0,
+  "violation_steps": 0,
+  "first_violation_step": null,
+  "result_sha256": "79410c03136af5a683892d88cc223d30b46779f53128e7a69a88ab6157c08db4",
+  "finger_state_sha256": "62098c452a1646ee57045196e686f45ca9aacaec9a093733c38fffd4634bd2a2"
+}
