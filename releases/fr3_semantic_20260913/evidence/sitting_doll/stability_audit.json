@@ -1,0 +1,7 @@
+{
+  "settle_s": 10,
+  "tilt_deg": 4.708931251930492e-05,
+  "xy_drift_m": 4.5627735186674046e-08,
+  "passed": true,
+  "scope": "Pose read after 10 seconds zero-action settling; dynamic object, no fixed constraint. Does not prove resistance to subsequent pushing."
+}

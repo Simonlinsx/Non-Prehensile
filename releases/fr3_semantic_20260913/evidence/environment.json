@@ -1,0 +1,19 @@
+{
+  "python": "3.11.15 (main, Jun 11 2026, 15:20:16) [GCC 14.3.0]",
+  "platform": "Linux-5.15.0-176-generic-x86_64-with-glibc2.35",
+  "packages": {
+    "isaacsim": "5.0.0.0",
+    "isaaclab": "0.44.9",
+    "torch": "2.7.0",
+    "numpy": "1.26.0",
+    "scipy": "1.15.3",
+    "trimesh": "4.5.1",
+    "pin": "2.7.0",
+    "hpp-fcl": "2.4.4",
+    "coal": "not registered under this distribution name",
+    "matplotlib": "3.10.0",
+    "plotly": "5.3.1",
+    "pytest": "9.1.1"
+  },
+  "scope": "Observed installed versions, not an independently rebuilt environment lockfile."
+}

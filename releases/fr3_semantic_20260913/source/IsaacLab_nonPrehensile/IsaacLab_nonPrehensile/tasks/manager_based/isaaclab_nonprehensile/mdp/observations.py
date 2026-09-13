@@ -1,0 +1,1046 @@
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+from __future__ import annotations
+
+import os
+import importlib.util
+from pathlib import Path
+
+import numpy as np
+import torch
+from typing import TYPE_CHECKING
+
+from isaaclab.assets import RigidObject, RigidObjectCollection
+from isaaclab.managers import SceneEntityCfg
+from isaaclab.utils.math import subtract_frame_transforms, matrix_from_quat, quat_apply
+from scipy.spatial.transform import Rotation as R
+if TYPE_CHECKING:
+    from isaaclab.envs import ManagerBasedRLEnv
+from IsaacLab_nonPrehensile.tasks.manager_based.isaaclab_nonprehensile.cloud import Cloud
+import IsaacLab_nonPrehensile.tasks.manager_based.isaaclab_nonprehensile.mdp as mdp
+from dapl.representation import (
+    DAPLSceneTensorBuilder,
+    PhysicalSceneBatch,
+)
+from dapl.data import DAPL_DATA_ROOT_ENV, DAPLDataPaths
+from dapl.embodiment import DAPL_HAND_POINTS_ENV, load_dapl_hand_points
+
+# Lightweight profiling utilities for observation functions
+import time
+from functools import wraps
+import torch
+
+def _ensure_obs_timers(env: "ManagerBasedRLEnv") -> dict:
+    if not hasattr(env, "_obs_timers"):
+        env._obs_timers = {}
+    return env._obs_timers
+
+def profile_obs(fn):
+    @wraps(fn)
+    def wrapper(env, *args, **kwargs):
+        timers = _ensure_obs_timers(env)
+        name = fn.__name__
+        t0 = time.perf_counter()
+        result = fn(env, *args, **kwargs)
+        dt = time.perf_counter() - t0
+        entry = timers.get(name)
+        if entry is None:
+            timers[name] = {"time": dt, "count": 1}
+        else:
+            entry["time"] += dt
+            entry["count"] += 1
+        return result
+    return wrapper
+
+def print_obs_timers(env: "ManagerBasedRLEnv") -> None:
+    timers = getattr(env, "_obs_timers", {})
+    if not timers:
+        print("[obs timers] no data collected yet")
+        return
+    print("[obs timers] summary:")
+    for name, entry in timers.items():
+        total = entry["time"]
+        count = entry["count"]
+        avg = total / count if count > 0 else 0.0
+        print(f"  {name}: total={total:.6f}s count={count} avg={avg:.6f}s")
+
+# Debug: print observation stats every N calls
+DEBUG_OBS_EVERY = 10000000
+
+_HAND_GOAL_MEAN = torch.tensor([0.5, 0.0, 0.15, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])  # z mean = 0.15
+_HAND_GOAL_STD = torch.tensor([0.4, 0.4, 0.4, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+_REL_GOAL_POSITION_STD = torch.tensor([0.10, 0.10, 0.02])
+
+def _dbg(env: "ManagerBasedRLEnv", name: str, tensor: torch.Tensor) -> torch.Tensor:
+    cnt = getattr(env, "_dbg_obs_cnt", 0)
+    if cnt % DEBUG_OBS_EVERY == 0:
+        t = tensor
+        if t.dim() >= 2:
+            mins = t.min(dim=0).values
+            maxs = t.max(dim=0).values
+            print(f"[obs] {name}: min={mins.tolist()} max={maxs.tolist()} shape={tuple(t.shape)}")
+        else:
+            print(f"[obs] {name}: min={t.min().item():.3f}, max={t.max().item():.3f}, shape={tuple(t.shape)}")
+    env._dbg_obs_cnt = cnt + 1
+    return tensor
+
+
+def _dbg_cloud(env: "ManagerBasedRLEnv", name: str, cloud_env: torch.Tensor) -> None:
+    cnt = getattr(env, "_dbg_cloud_cnt", 0)
+    if cnt % DEBUG_OBS_EVERY == 0:
+        # cloud_env shape: (num_envs, num_points, 3)
+        x = cloud_env[..., 0]
+        y = cloud_env[..., 1]
+        z = cloud_env[..., 2]
+        print(
+            f"[obs] {name}: x[min={x.min().item():.3f}, max={x.max().item():.3f}] "
+            f"y[min={y.min().item():.3f}, max={y.max().item():.3f}] "
+            f"z[min={z.min().item():.3f}, max={z.max().item():.3f}], shape={tuple(cloud_env.shape)}"
+        )
+    env._dbg_cloud_cnt = cnt + 1
+
+
+@profile_obs
+def hand_state(
+    env: ManagerBasedRLEnv,
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+) -> torch.Tensor:
+    """Hand state observation (9D: position[3] + rotation_matrix[6]).
+    
+    Returns:
+        torch.Tensor: Shape (num_envs, 9) containing [x,y,z, r11,r12,r13, r21,r22,r23]
+    """
+    ee_frame = env.scene[ee_frame_cfg.name]
+    
+    # Get EE position and orientation in world coordinates
+    ee_pos_l_w = ee_frame.data.target_pos_w[..., 1, :]  # (num_envs, 3)
+    ee_pos_r_w = ee_frame.data.target_pos_w[..., 2, :]  # (num_envs, 3)
+    ee_pos_w = (ee_pos_l_w + ee_pos_r_w) / 2
+    ee_quat_w = ee_frame.data.target_quat_w[..., 0, :]  # (num_envs, 4)
+
+    # Convert to environment coordinates
+    ee_pos_env = ee_pos_w - env.scene.env_origins
+    
+    # Rotation as 6D
+    rot_matrix = matrix_from_quat(ee_quat_w)  # (num_envs, 3, 3)
+    rot_6d = torch.cat([rot_matrix[:, 0, :], rot_matrix[:, 1, :]], dim=1)
+    
+    # Combine position and rotation
+    hand_state_9d = torch.cat([ee_pos_env, rot_6d], dim=1)
+    
+    # Check normalization setting from environment config
+    normalize = getattr(env.cfg, 'normalize_observations', True)
+    
+    if normalize:
+        # Use hand-specific normalization parameters (similar to corn config)
+        device = hand_state_9d.device
+        mean = _HAND_GOAL_MEAN.to(device).view(1, 9)
+        std = _HAND_GOAL_STD.to(device).view(1, 9)
+        
+        # Z-score normalization: (x - mean) / std
+        hand_state_9d = (hand_state_9d - mean) / torch.clamp(std, min=1e-6)
+    
+    return _dbg(env, "hand_state", hand_state_9d)
+
+
+@profile_obs
+def robot_state(
+    env: ManagerBasedRLEnv,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    """Robot state observation (14D: joint_positions[7] + joint_velocities[7]).
+    
+    Returns:
+        torch.Tensor: Shape (num_envs, 14)
+    """
+    asset = env.scene[asset_cfg.name]
+    
+    # Get joint positions and velocities
+    joint_pos = asset.data.joint_pos[:, :7]
+    joint_vel = asset.data.joint_vel[:, :7]
+    
+    # Check normalization setting from environment config
+    normalize = getattr(env.cfg, 'normalize_observations', True)
+    
+    if normalize:
+        # Normalize joint positions using soft limits around default pos -> [-1,1]
+        default_pos = asset.data.default_joint_pos[:, :7]
+        soft_limits = asset.data.soft_joint_pos_limits[:, :7, :]
+        mins = soft_limits[..., 0]
+        maxs = soft_limits[..., 1]
+        centers = default_pos
+        half_ranges = torch.clamp((maxs - mins) * 0.5, min=1e-6)
+        pos_norm = torch.clamp((joint_pos - centers) / half_ranges, -1.0, 1.0)
+
+        # Normalize joint velocities to [0,1] using soft velocity limits
+        vel_limits = torch.clamp(asset.data.soft_joint_vel_limits[:, :7], min=1e-6)
+        vel_norm = torch.clamp(joint_vel / vel_limits, -1.0, 1.0)
+        vel_norm = (vel_norm + 1.0) * 0.5
+        
+        return _dbg(env, "robot_state", torch.cat([pos_norm, vel_norm], dim=1))
+    else:
+        # Return raw joint states without normalization
+        return _dbg(env, "robot_state", torch.cat([joint_pos, joint_vel], dim=1))
+
+
+@profile_obs
+def abs_pose_goal(
+    env: ManagerBasedRLEnv,
+    command_name: str = "target_object_pose",
+) -> torch.Tensor:
+    """Absolute pose goal observation (9D: target position[3] + target rotation_matrix[6]).
+    
+    Returns:
+        torch.Tensor: Shape (num_envs, 9)
+    """
+    from isaaclab.utils.math import quat_from_euler_xyz, matrix_from_quat
+    
+    target_goal = env.command_manager.get_command(command_name)
+    target_pos = target_goal[:, :3]
+    target_quat = target_goal[:, 3:7]  # quaternion [w, x, y, z]
+
+    # Command now directly contains quaternions, convert to rotation matrix
+    rot_matrix = matrix_from_quat(target_quat)
+    rot_6d = torch.cat([rot_matrix[:, 0, :], rot_matrix[:, 1, :]], dim=1)
+    
+    # Combine position and rotation
+    goal_9d = torch.cat([target_pos, rot_6d], dim=1)
+    
+    # Check normalization setting from environment config
+    normalize = getattr(env.cfg, 'normalize_observations', True)
+    
+    if normalize:
+        # Use goal-specific normalization parameters (similar to corn config)
+        device = goal_9d.device
+        mean = _HAND_GOAL_MEAN.to(device).view(1, 9)
+        std = _HAND_GOAL_STD.to(device).view(1, 9)
+        
+        # Z-score normalization: (x - mean) / std
+        goal_9d = (goal_9d - mean) / torch.clamp(std, min=1e-6)
+    
+    return _dbg(env, "abs_goal", goal_9d)
+
+
+def rel_pose_goal(
+    env: ManagerBasedRLEnv,
+    command_name: str = "target_object_pose",
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+) -> torch.Tensor:
+    """Relative pose goal observation (9D: goal relative to current object pose)."""
+    from isaaclab.utils.math import quat_from_euler_xyz, quat_mul, quat_conjugate, matrix_from_quat
+
+    target_goal = env.command_manager.get_command(command_name)  # (num_envs, 7)
+    # Relative pose must be computed from raw metric coordinates.  Calling the
+    # normalized object-pose observation here used to mix normalized object
+    # positions with metric goal positions and then normalize the result again.
+    object_pose_7d = object_pose_in_env_frame(env, object_cfg, normalize=False)
+    obj_pos_env = object_pose_7d[:, :3]
+    obj_quat_w = object_pose_7d[:, 3:7]
+
+    target_pos = target_goal[:, :3]
+    target_quat = target_goal[:, 3:7]  # quaternion [w, x, y, z]
+
+    rel_pos = target_pos - obj_pos_env
+    current_quat_inv = quat_conjugate(obj_quat_w)
+    rel_quat = quat_mul(target_quat, current_quat_inv)
+    rot_matrix = matrix_from_quat(rel_quat)
+    rot_6d = torch.cat([rot_matrix[:, 0, :], rot_matrix[:, 1, :]], dim=1)
+    
+    # Combine relative position and rotation
+    rel_pose_9d = torch.cat([rel_pos, rot_6d], dim=1)
+    
+    # Check normalization setting from environment config
+    normalize = getattr(env.cfg, 'normalize_observations', True)
+    
+    if normalize:
+        # A relative displacement is zero-centred; do not reuse the absolute
+        # workspace mean [0.5, 0.0, 0.15].  Scale Z more tightly because this
+        # task keeps the hammer on a fixed support face.
+        device = rel_pose_9d.device
+        rel_pose_9d = torch.cat(
+            (
+                rel_pos / _REL_GOAL_POSITION_STD.to(device).view(1, 3),
+                rot_6d,
+            ),
+            dim=1,
+        )
+    
+    return rel_pose_9d
+
+
+@profile_obs
+def object_twist_in_env_frame(
+    env: ManagerBasedRLEnv,
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+    linear_velocity_scale: float = 0.50,
+    angular_velocity_scale: float = 3.0,
+) -> torch.Tensor:
+    """Object linear and angular velocity as a normalized 6-D twist.
+
+    Environment frames differ from world only by translation, so world-frame
+    velocities already have the correct axes.  The scales keep normal pushing
+    velocities near unit magnitude while retaining the sign of every axis.
+    """
+
+    if linear_velocity_scale <= 0.0 or angular_velocity_scale <= 0.0:
+        raise ValueError("object twist scales must be positive")
+    object_asset: RigidObject = env.scene[object_cfg.name]
+    twist = torch.cat(
+        (
+            object_asset.data.root_lin_vel_w / linear_velocity_scale,
+            object_asset.data.root_ang_vel_w / angular_velocity_scale,
+        ),
+        dim=1,
+    )
+    return _dbg(env, "object_twist", torch.clamp(twist, min=-5.0, max=5.0))
+
+
+@profile_obs
+def phys_params(
+    env: ManagerBasedRLEnv,
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+    hand_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    """Physical parameters observation for non-prehensile manipulation.
+    
+    Returns 5D tensor: [object_mass, object_friction, hand_friction, ground_friction, object_restitution]
+
+    Args:
+        env: The RL environment
+        object_cfg: Configuration for the object asset
+        hand_cfg: Configuration for the robot hand
+        
+    Returns:
+        torch.Tensor: Shape (num_envs, 5) containing [object_mass, object_friction, hand_friction, ground_friction, object_restitution]
+    """
+    object: RigidObject = env.scene[object_cfg.name]
+    hand: RigidObject = env.scene[hand_cfg.name]
+    
+    # 1. Get object mass from IsaacLab's built-in interface
+    object_mass = object.root_physx_view.get_masses().squeeze(-1)  # Shape: (num_envs,)
+
+    # 2. Get object material properties from PhysX view
+    # Material properties format: [static_friction, dynamic_friction, restitution]
+    object_material_props = object.root_physx_view.get_material_properties()  # Shape: (num_envs, num_bodies, 3)
+    object_friction = object_material_props[:, :, 0].mean(dim=1)   # (num_envs,) - object static friction
+    object_restitution = object_material_props[:, :, 2].mean(dim=1)  # (num_envs,) - object restitution
+
+    # 3. Get hand friction from robot's physics properties
+    hand_material_props = hand.root_physx_view.get_material_properties()    # Shape: (num_envs, num_bodies, 3)
+    hand_friction = hand_material_props[:, -1, 0]      # Use static friction for hand (last body)
+
+    # 4. Read the actual randomized ground material from the local procedural
+    # support surface.  Retain the legacy TerrainImporter path for configs that
+    # explicitly provide a terrain.
+    terrain = env.scene["terrain"]
+    if terrain is None:
+        physics_material_path = "/World/ground/geometry/material"
+    else:
+        physics_material_path = f"{terrain.cfg.prim_path}/terrain/physicsMaterial"
+    
+    import isaacsim.core.utils.prims as prim_utils
+    from pxr import UsdPhysics
+    
+    # Read the actual physics material values
+    physics_material_prim = prim_utils.get_prim_at_path(physics_material_path)
+    physics_material = UsdPhysics.MaterialAPI(physics_material_prim)
+    static_friction_attr = physics_material.GetStaticFrictionAttr()
+    ground_friction_value = static_friction_attr.Get()
+    
+    ground_friction = torch.full_like(object_mass, ground_friction_value)
+    
+    # Stack into observation tensor: [object_mass, object_friction, hand_friction, ground_friction, object_restitution]
+    phys_params_tensor = torch.stack([
+        object_mass.to(device=object.data.root_pos_w.device),                      # (num_envs,) - object mass [0.1, 0.5]
+        object_friction.to(device=object.data.root_pos_w.device),                  # (num_envs,) - object static friction [0.7, 1.0]
+        hand_friction.to(device=object.data.root_pos_w.device),                    # (num_envs,) - hand friction coefficient [1.0, 1.5]
+        ground_friction.to(device=object.data.root_pos_w.device),                  # (num_envs,) - ground friction coefficient [0.3, 0.8]
+        object_restitution.to(device=object.data.root_pos_w.device)                # (num_envs,) - object restitution coefficient [0.1, 0.2]
+    ], dim=1)  # (num_envs, 5)
+    
+    return _dbg(env, "phys_params", phys_params_tensor)
+
+
+def object_pose_in_env_frame(
+    env: ManagerBasedRLEnv,
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+    normalize: bool | None = None,
+) -> torch.Tensor:
+    """The pose of the object in the environment coordinate frame.
+
+    Returns:
+        torch.Tensor: Shape (num_envs, 7) containing [x, y, z, qw, qx, qy, qz] in environment coordinates
+    """
+    object: RigidObject = env.scene[object_cfg.name]
+    object_pos_w = object.data.root_pos_w[:, :3]  # (num_envs, 3)
+    object_quat_w = object.data.root_quat_w       # (num_envs, 4)
+    object_pos_env = object_pos_w - env.scene.env_origins  # (num_envs, 3)
+    pose_7d = torch.cat([object_pos_env, object_quat_w], dim=1)  # (num_envs, 7)
+
+    if env.cfg.visualize_current_object_pose:
+        visualize_object_pose_in_env(env, pose_7d)
+
+    # Check normalization setting from environment config
+    if normalize is None:
+        normalize = getattr(env.cfg, 'normalize_observations', True)
+    
+    if normalize:
+        # Use hand-specific normalization parameters for object pose
+        device = pose_7d.device
+        # For 7D pose: position [x,y,z] + quaternion [qw,qx,qy,qz]
+        # Use position normalization from hand_goal params
+        pos_mean = _HAND_GOAL_MEAN[:3].to(device).view(1, 3)  # [x, y, z] mean
+        pos_std = _HAND_GOAL_STD[:3].to(device).view(1, 3)    # [x, y, z] std
+        # For quaternion, use simple normalization (quaternions are already normalized)
+        quat_mean = torch.zeros(4, device=device).view(1, 4)  # [qw, qx, qy, qz] mean
+        quat_std = torch.ones(4, device=device).view(1, 4)    # [qw, qx, qy, qz] std
+        
+        # Normalize position and quaternion separately
+        pos_norm = (pose_7d[:, :3] - pos_mean) / torch.clamp(pos_std, min=1e-6)
+        quat_norm = (pose_7d[:, 3:7] - quat_mean) / torch.clamp(quat_std, min=1e-6)
+        
+        pose_7d = torch.cat([pos_norm, quat_norm], dim=1)
+        
+    return pose_7d
+
+
+def object_pose_9d_in_env_frame(
+    env: ManagerBasedRLEnv,
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+) -> torch.Tensor:
+    """The object's current pose in the environment frame as 9D [x,y,z, r11,r12,r13, r21,r22,r23]."""
+    pose_7d = object_pose_in_env_frame(env, object_cfg, normalize=False)
+    pos_env = pose_7d[:, :3]
+    quat_wxyz = pose_7d[:, 3:7]
+
+    # Convert to rotation matrix
+    rot_matrix = matrix_from_quat(quat_wxyz)
+    rot_6d = torch.cat([rot_matrix[:, 0, :], rot_matrix[:, 1, :]], dim=1)
+    
+    # Combine position and rotation
+    object_pose_9d = torch.cat([pos_env, rot_6d], dim=1)
+    
+    # Check normalization setting from environment config
+    normalize = getattr(env.cfg, 'normalize_observations', True)
+    
+    if normalize:
+        # Use hand/goal-specific normalization parameters for object pose too
+        device = object_pose_9d.device
+        mean = _HAND_GOAL_MEAN.to(device).view(1, 9)
+        std = _HAND_GOAL_STD.to(device).view(1, 9)
+        
+        # Z-score normalization: (x - mean) / std
+        object_pose_9d = (object_pose_9d - mean) / torch.clamp(std, min=1e-6)
+    
+    return _dbg(env, "cur_pose", object_pose_9d)
+
+
+def visualize_object_pose_in_env(
+    env: ManagerBasedRLEnv,
+    object_pose_7d: torch.Tensor,
+    marker_scale: tuple = (0.08, 0.08, 0.08),
+) -> None:
+    """Visualize the object's current pose in environment coordinates.
+    
+    This function creates visualization markers to show the object's current pose
+    in the environment coordinate frame, using the same approach as the target pose visualization.
+    """
+    from isaaclab.markers import VisualizationMarkers
+    from isaaclab.markers.config import FRAME_MARKER_CFG
+    from isaaclab.utils.math import quat_from_euler_xyz
+    
+    # Create visualization markers if they don't exist (similar to target pose visualization)
+    if not hasattr(env, '_current_object_pose_visualizer'):
+        marker_cfg = FRAME_MARKER_CFG.copy()
+        marker_cfg.prim_path = "/Visuals/ObjectPose/current_pose"  # Different path from target pose
+        marker_cfg.markers["frame"].scale = marker_scale  # Make frames visible but distinct
+        
+        env._current_object_pose_visualizer = VisualizationMarkers(marker_cfg)
+
+    # Extract position and quaternion (same as target pose visualization)
+    local_positions = object_pose_7d[:, :3]  # (num_envs, 3)
+    quaternions = object_pose_7d[:, 3:7]  # (num_envs, 4)
+
+    # Convert local positions to world positions by adding environment origins (same as target)
+    world_positions = local_positions + env.scene.env_origins
+    
+    # Visualize current pose frames using world positions (same method as target)
+    env._current_object_pose_visualizer.visualize(translations=world_positions, orientations=quaternions)
+
+
+def create_object_pose_visualizer(env: ManagerBasedRLEnv, marker_scale: tuple = (0.08, 0.08, 0.08)) -> None:
+    """Initialize the object pose visualizer. Call this once during environment setup."""
+    from isaaclab.markers import VisualizationMarkers
+    from isaaclab.markers.config import FRAME_MARKER_CFG
+    
+    if not hasattr(env, '_current_object_pose_visualizer'):
+        marker_cfg = FRAME_MARKER_CFG.copy()
+        marker_cfg.prim_path = "/Visuals/ObjectPose/current_pose"
+        marker_cfg.markers["frame"].scale = marker_scale
+        
+        env._current_object_pose_visualizer = VisualizationMarkers(marker_cfg)
+
+
+def update_object_pose_visualization(env: ManagerBasedRLEnv, object_cfg: SceneEntityCfg = SceneEntityCfg("object")) -> None:
+    """Update the object pose visualization. Call this during environment step/reset."""
+    from isaaclab.utils.math import quat_from_euler_xyz
+    
+    if hasattr(env, '_current_object_pose_visualizer'):
+        # Get object pose in environment frame
+        object_pose_7d = object_pose_in_env_frame(env, object_cfg)
+        
+        # Extract position and euler angles
+        local_positions = object_pose_7d[:, :3]
+        world_positions = local_positions + env.scene.env_origins
+        
+        quaternions = object_pose_7d[:, 3:7]
+        
+        # Update visualization (same method as target pose)
+        env._current_object_pose_visualizer.visualize(translations=world_positions, orientations=quaternions)
+
+
+def object_pose_with_visualization(
+    env: ManagerBasedRLEnv,
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+) -> torch.Tensor:
+    """Get object pose in environment frame and update visualization as a side effect.
+    
+    This function serves dual purpose:
+    1. Returns the object pose for observations
+    2. Triggers visualization update each time it's called
+    
+    Returns:
+        torch.Tensor: Shape (num_envs, 6) containing [x, y, z, roll, pitch, yaw] in environment coordinates
+    """
+    # Initialize visualizer if not already done
+    if not hasattr(env, '_current_object_pose_visualizer'):
+        from isaaclab.markers import VisualizationMarkers
+        from isaaclab.markers.config import FRAME_MARKER_CFG
+        
+        marker_cfg = FRAME_MARKER_CFG.copy()
+        marker_cfg.prim_path = "/Visuals/ObjectPose/current_pose"
+        marker_cfg.markers["frame"].scale = (0.08, 0.08, 0.08)
+        
+        env._current_object_pose_visualizer = VisualizationMarkers(marker_cfg)
+    
+    # Get object pose
+    object_pose_7d = object_pose_in_env_frame(env, object_cfg)
+    
+    # Update visualization
+    update_object_pose_visualization(env, object_cfg)
+    
+    return object_pose_7d
+
+
+def visualize_object_pointcloud(
+    env: ManagerBasedRLEnv,
+    pointcloud_tensor: torch.Tensor,
+    point_size: float = 0.005,
+    color: tuple = (0.0, 1.0, 0.0),  # Green color for point cloud
+) -> None:
+    """Visualize the object's point cloud for debugging purposes.
+    
+    The point cloud is displayed in world coordinates, showing the actual 
+    transformed points at the object's current position and orientation.
+    
+    Args:
+        env: The RL environment
+        pointcloud_tensor: Pre-computed point cloud tensor, shape (num_envs, num_points*3)
+        point_size: Size of the visualization spheres
+        color: RGB color tuple for the point cloud visualization
+    """
+    from isaaclab.markers import VisualizationMarkers, VisualizationMarkersCfg
+    import isaaclab.sim as sim_utils
+    
+    # Create visualization markers if they don't exist
+    if not hasattr(env, '_pointcloud_visualizer'):
+        marker_cfg = VisualizationMarkersCfg(
+            prim_path="/Visuals/PointCloud",
+            markers={
+                "sphere": sim_utils.SphereCfg(
+                    radius=point_size,
+                    visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=color),
+                ),
+            },
+        )
+        
+        env._pointcloud_visualizer = VisualizationMarkers(marker_cfg)
+    
+    # Reshape flattened point cloud back to (num_envs, num_points, 3) for visualization
+    num_envs = pointcloud_tensor.shape[0]
+    points_per_env = pointcloud_tensor.shape[1] // 3
+    pointcloud_reshaped = pointcloud_tensor.view(num_envs, points_per_env, 3)
+    
+    # For visualization, show points from the first environment only
+    first_env_points = pointcloud_reshaped[1]  # Shape: (num_points, 3)
+    
+    # Create identity quaternions for all points (spheres don't need rotation)
+    num_points = first_env_points.shape[0]
+    orientations = torch.tensor([[1.0, 0.0, 0.0, 0.0]] * num_points).to(first_env_points.device)
+    
+    # Visualize the points in world coordinates
+    env._pointcloud_visualizer.visualize(
+        translations=first_env_points,
+        orientations=orientations
+    )
+
+
+@profile_obs
+def get_object_pointcloud(
+    env: ManagerBasedRLEnv,
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+) -> torch.Tensor:
+    """Get object point cloud transformed to world coordinates.
+    
+    The point cloud is computed in world coordinates by transforming the object's
+    canonical point cloud using the object's current pose (position + orientation).
+    
+    Args:
+        env: The RL environment
+        robot_cfg: Robot configuration (currently unused but kept for compatibility)
+        object_cfg: Object configuration
+
+    Returns:
+        torch.Tensor: Point cloud in world coordinates, shape (num_envs, num_points*3)
+                     Each row contains flattened [x1,y1,z1, x2,y2,z2, ...] coordinates for observation concatenation
+    """
+    object: RigidObject = env.scene[object_cfg.name]
+    
+    # Get asset configuration - with random_choice=False, we cycle through assets deterministically
+    assets_cfg = object.cfg.spawn.assets_cfg
+    num_envs = object.data.root_pos_w.shape[0]
+    
+    # Optimized batch processing by asset type
+    from IsaacLab_nonPrehensile.tasks.manager_based.isaaclab_nonprehensile.env import get_cached_cloud
+    
+    # Group environments by asset type for batch processing
+    env_to_asset = {env_idx: env_idx % len(assets_cfg) for env_idx in range(num_envs)}
+    asset_to_envs = {}
+    for env_idx, asset_idx in env_to_asset.items():
+        if asset_idx not in asset_to_envs:
+            asset_to_envs[asset_idx] = []
+        asset_to_envs[asset_idx].append(env_idx)
+    
+    out_tensor = None
+    
+    # Optionally compile the inner transform function for speed (PyTorch 2.x)
+    compile_enabled = getattr(env.cfg, "use_torch_compile", False)
+
+    # Process each asset type in batch
+    device = object.data.root_pos_w.device
+    num_assets = len(assets_cfg)
+    for asset_idx in range(num_assets):
+        # With more asset candidates than vectorized environments, no
+        # environment maps to the remaining candidates.  PyTorch 2.7 raises
+        # for arange(start > stop, positive_step), so skip them explicitly.
+        if asset_idx >= num_envs:
+            break
+        # Build env indices for this asset by stepping
+        env_indices_tensor = torch.arange(asset_idx, num_envs, num_assets, device=device, dtype=torch.long)
+        if env_indices_tensor.numel() == 0:
+            continue
+        obj_path = assets_cfg[asset_idx].obj_path
+        
+        # Get cached cloud object for this asset
+        object_cloud = get_cached_cloud(obj_path)
+        
+        # Get actual scales from USD objects for the environments using this asset
+        # Read cached scales if available; else fallback to API
+        if hasattr(env, "_object_scales"):
+            scales = env._object_scales[env_indices_tensor]
+        else:
+            scales = mdp.get_rigid_body_scale(env, object_cfg, env_indices_tensor.tolist())
+        
+        # Batch gather poses for all environments using this asset
+        batch_pos_w = object.data.root_pos_w[env_indices_tensor, :3].contiguous()  # (batch,3)
+        batch_quat_w = object.data.root_quat_w[env_indices_tensor].contiguous()    # (batch,4)
+        
+        # Batch transform point clouds for all environments using this asset
+        if not compile_enabled:
+            batch_transformed = object_cloud.get_pointcloud(
+                translation=batch_pos_w, 
+                rotation=batch_quat_w,
+                scale=scales
+            )
+        else:
+            # Prewarm point cache on this device to avoid CPU->GPU tensor construction inside compiled graph
+            if object_cloud._points_torch.get(device) is None:
+                object_cloud._points_torch[device] = torch.tensor(object_cloud.points, dtype=torch.float32, device=device)
+            # Compile and cache per-Cloud callable to avoid passing function objects as dynamic inputs
+            if not hasattr(object_cloud, "_compiled_get_pointcloud"):
+                def _call(t, r, s, self_ref=object_cloud):
+                    return self_ref.get_pointcloud(translation=t, rotation=r, scale=s)
+                object_cloud._compiled_get_pointcloud = torch.compile(
+                    _call,
+                    mode="reduce-overhead",
+                    fullgraph=False,
+                    dynamic=True,
+                )
+            batch_transformed = object_cloud._compiled_get_pointcloud(batch_pos_w, batch_quat_w, scales)
+
+        # Allocate output tensor if not yet allocated
+        if out_tensor is None:
+            num_points = batch_transformed.shape[1]
+            out_tensor = torch.empty((num_envs, num_points, 3), device=batch_transformed.device, dtype=batch_transformed.dtype)
+
+        # Write this batch back using tensor indexing on (N, M, 3)
+        out_tensor[env_indices_tensor] = batch_transformed
+    
+    # Result tensor: flatten to (N, M*3)
+    all_pointclouds = out_tensor.view(num_envs, -1)
+    
+    # Optional visualization for debugging
+    if env.cfg.visualize_object_pointcloud:
+        # Visualization expects fp32; cast temporarily to float32
+        visualize_object_pointcloud(env, all_pointclouds.float())
+    
+    return all_pointclouds
+
+@profile_obs
+def get_object_pointcloud_in_env_frame(
+    env: ManagerBasedRLEnv,
+    object_cfg: SceneEntityCfg = SceneEntityCfg("object"),
+) -> torch.Tensor:
+    """Get object point cloud in environment frame with optional normalization."""
+    pointcloud_w = get_object_pointcloud(env, object_cfg)
+    num_envs, flat_dim = pointcloud_w.shape
+    num_points = flat_dim // 3
+    pointcloud_w_reshaped = pointcloud_w.view(num_envs, num_points, 3)
+    pointcloud_env = pointcloud_w_reshaped - env.scene.env_origins.unsqueeze(1)
+
+    pointcloud_env_flat = pointcloud_env.reshape(num_envs, num_points * 3)
+    return pointcloud_env_flat
+
+
+@profile_obs
+def get_obstacle_pointclouds_in_env_frame(
+    env: ManagerBasedRLEnv,
+    obstacles_cfg: SceneEntityCfg = SceneEntityCfg("obstacles"),
+) -> torch.Tensor:
+    """Return canonical 512-point clouds for every obstacle as ``[B, O, 512, 3]``."""
+
+    obstacles: RigidObjectCollection = env.scene[obstacles_cfg.name]
+    num_envs = obstacles.num_instances
+    num_objects = obstacles.num_objects
+    device = obstacles.data.object_pos_w.device
+    dtype = obstacles.data.object_pos_w.dtype
+    output = torch.empty((num_envs, num_objects, 512, 3), device=device, dtype=dtype)
+
+    from IsaacLab_nonPrehensile.tasks.manager_based.isaaclab_nonprehensile.env import (
+        get_cached_cloud,
+    )
+
+    slot_cfgs = tuple(obstacles.cfg.rigid_objects.values())
+    for object_index, slot_cfg in enumerate(slot_cfgs):
+        assets_cfg = slot_cfg.spawn.assets_cfg
+        num_assets = len(assets_cfg)
+        for asset_index, asset_cfg in enumerate(assets_cfg):
+            if asset_index >= num_envs:
+                break
+            env_ids = torch.arange(
+                asset_index, num_envs, num_assets, device=device, dtype=torch.long
+            )
+            if env_ids.numel() == 0:
+                continue
+            scale_value = asset_cfg.scale or (1.0, 1.0, 1.0)
+            scales = torch.as_tensor(scale_value, device=device, dtype=dtype).expand(
+                env_ids.numel(), -1
+            )
+            cloud = get_cached_cloud(asset_cfg.obj_path)
+            points_world = cloud.get_pointcloud(
+                translation=obstacles.data.object_pos_w[env_ids, object_index],
+                rotation=obstacles.data.object_quat_w[env_ids, object_index],
+                scale=scales,
+            )
+            output[env_ids, object_index] = points_world.to(dtype=dtype)
+
+    return output - env.scene.env_origins[:, None, None, :]
+
+
+def _farthest_point_subset(points: np.ndarray, count: int) -> np.ndarray:
+    """Select a deterministic surface-covering subset without random state."""
+
+    if points.ndim != 2 or points.shape[1] != 3 or len(points) < count:
+        raise ValueError(f"need at least {count} finite 3-D points, got {points.shape}")
+    if not np.isfinite(points).all():
+        raise ValueError("collision mesh contains non-finite vertices")
+    first = int(np.lexsort((points[:, 2], points[:, 1], points[:, 0]))[0])
+    selected = [first]
+    squared_distance = np.sum((points - points[first]) ** 2, axis=1)
+    for _ in range(1, count):
+        index = int(np.argmax(squared_distance))
+        selected.append(index)
+        squared_distance = np.minimum(
+            squared_distance,
+            np.sum((points - points[index]) ** 2, axis=1),
+        )
+    return points[np.asarray(selected)]
+
+
+def _packaged_franka_collision_hand_points() -> torch.Tensor:
+    """Build the 256-point hand model from the collision meshes used by PhysX.
+
+    The result is expressed in ``panda_hand`` coordinates with both fingers
+    closed, matching this task's fixed gripper configuration.  Triangle
+    centroids plus unique vertices are downsampled deterministically so the
+    planner and safety gate cover the palm as well as both fingers.
+    """
+
+    isaacsim_spec = importlib.util.find_spec("isaacsim")
+    if isaacsim_spec is None or not isaacsim_spec.submodule_search_locations:
+        raise RuntimeError("cannot locate Isaac Sim's packaged Franka meshes")
+    isaacsim_root = Path(next(iter(isaacsim_spec.submodule_search_locations)))
+    mesh_root = (
+        isaacsim_root
+        / "exts"
+        / "isaacsim.asset.importer.urdf"
+        / "data"
+        / "urdf"
+        / "robots"
+        / "franka_description"
+        / "meshes"
+        / "collision"
+    )
+
+    try:
+        import trimesh
+    except ImportError as error:
+        raise RuntimeError(
+            "trimesh is required to derive the Franka collision point cloud"
+        ) from error
+
+    def mesh_candidates(path: Path) -> np.ndarray:
+        if not path.is_file():
+            raise FileNotFoundError(f"Franka collision mesh not found: {path}")
+        mesh = trimesh.load(path, force="mesh", process=False)
+        vertices = np.unique(np.asarray(mesh.vertices, dtype=np.float64), axis=0)
+        centroids = np.asarray(mesh.triangles, dtype=np.float64).mean(axis=1)
+        return np.unique(np.concatenate((vertices, centroids), axis=0), axis=0)
+
+    hand = _farthest_point_subset(mesh_candidates(mesh_root / "hand.stl"), 128)
+    finger = _farthest_point_subset(
+        mesh_candidates(mesh_root / "finger.stl"), 64
+    )
+    finger_origin = np.asarray((0.0, 0.0, 0.0584), dtype=np.float64)
+    left_finger = finger + finger_origin
+    # The right-finger collision element has origin Rz(pi) in the URDF.
+    right_finger = finger * np.asarray((-1.0, -1.0, 1.0)) + finger_origin
+    merged = np.concatenate((hand, left_finger, right_finger), axis=0)
+    return torch.from_numpy(np.asarray(merged, dtype=np.float32))
+
+
+def _configured_hand_points_path() -> Path | None:
+    """Resolve an explicit or dataset-relative released hand point cache."""
+
+    explicit = os.environ.get(DAPL_HAND_POINTS_ENV)
+    if explicit is not None and explicit.strip():
+        return Path(explicit).expanduser().resolve()
+    data_root = os.environ.get(DAPL_DATA_ROOT_ENV)
+    if data_root is None or not data_root.strip():
+        return None
+    candidate = DAPLDataPaths.resolve(data_root).hand_points
+    return candidate if candidate.is_file() else None
+
+
+def _released_hand_points(
+    env: ManagerBasedRLEnv, device: torch.device, dtype: torch.dtype
+) -> torch.Tensor | None:
+    """Load the released cache once per environment and move it to simulation device."""
+
+    if not hasattr(env, "_dapl_released_hand_points"):
+        path = _configured_hand_points_path()
+        if os.environ.get("PUSH_ANYTHING_ROBOT_MODEL_MANIFEST"):
+            # FR3 must use its own collision meshes. Keep samples in each
+            # body's frame so measured finger displacement is represented.
+            from dapl.contact_planner.fr3_collision_geometry import collision_candidates
+            model = os.environ["DAPL_LOCAL_FRANKA_URDF"]
+            blocks, ids = [], []
+            for name, count in (("panda_hand", 128), ("panda_leftfinger", 64), ("panda_rightfinger", 64)):
+                points = _farthest_point_subset(collision_candidates(model, name), count)
+                blocks.append(points)
+                ids.extend([env.scene["robot"].body_names.index(name)] * len(points))
+            env._dapl_released_hand_points = torch.tensor(np.concatenate(blocks), device=device, dtype=dtype)
+            env._dapl_hand_point_body_ids = torch.tensor(ids, device=device, dtype=torch.long)
+            env._dapl_hand_point_source = str(model)
+            env._dapl_pusher_contact_point_indices = torch.arange(128, 256, device=device)
+        elif path is None:
+            env._dapl_released_hand_points = _packaged_franka_collision_hand_points().to(
+                device=device, dtype=dtype
+            )
+            env._dapl_hand_point_source = "packaged_franka_collision_meshes"
+            # The first 128 samples cover panda_hand; the remaining samples
+            # are the two finger collision meshes and form the legal pusher
+            # contact surface.
+            env._dapl_pusher_contact_point_indices = torch.arange(
+                128, 256, device=device
+            )
+        else:
+            env._dapl_released_hand_points = load_dapl_hand_points(path).to(
+                device=device, dtype=dtype
+            )
+            env._dapl_hand_point_source = str(path)
+            # Released DAPL caches do not carry per-link labels.  Restrict
+            # deliberate contact to their distal +Z surface; fall back to the
+            # 64 most distal samples if the cache is unusually sparse there.
+            distal = torch.nonzero(
+                env._dapl_released_hand_points[:, 2] >= 0.080,
+                as_tuple=False,
+            ).flatten()
+            if distal.numel() < 16:
+                distal = torch.topk(
+                    env._dapl_released_hand_points[:, 2],
+                    k=min(64, env._dapl_released_hand_points.shape[0]),
+                ).indices
+            env._dapl_pusher_contact_point_indices = distal
+    points = env._dapl_released_hand_points
+    if points is not None and (points.device != device or points.dtype != dtype):
+        points = points.to(device=device, dtype=dtype)
+        env._dapl_released_hand_points = points
+    return points
+
+
+def get_pusher_contact_pointcloud_in_env_frame(
+    env: ManagerBasedRLEnv,
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+) -> torch.Tensor:
+    """Return only the gripper surface allowed to establish push contact."""
+
+    collision_points = get_end_effector_pointcloud_in_env_frame(env, ee_frame_cfg)
+    indices = env._dapl_pusher_contact_point_indices.to(
+        device=collision_points.device
+    )
+    return collision_points.index_select(1, indices)
+
+
+@profile_obs
+def get_end_effector_pointcloud_in_env_frame(
+    env: ManagerBasedRLEnv,
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+) -> torch.Tensor:
+    """Return the released 256-point hand cloud or an analytical fallback."""
+
+    # Multipart FR3 geometry uses articulation body transforms directly.
+    # Do not update a separate frame sensor merely to obtain dtype/device.
+    if hasattr(env, "_dapl_hand_point_body_ids"):
+        robot = env.scene["robot"]
+        released = _released_hand_points(
+            env, robot.data.body_pos_w.device, robot.data.body_pos_w.dtype
+        )
+        body_ids = env._dapl_hand_point_body_ids
+        quats = robot.data.body_quat_w[:, body_ids]
+        points = released.unsqueeze(0).expand(env.num_envs, -1, -1)
+        rotated = quat_apply(quats.reshape(-1, 4), points.reshape(-1, 3)).reshape(points.shape)
+        return rotated + robot.data.body_pos_w[:, body_ids] - env.scene.env_origins[:, None, :]
+    ee_frame = env.scene[ee_frame_cfg.name]
+    released = _released_hand_points(
+        env, ee_frame.data.target_pos_w.device, ee_frame.data.target_pos_w.dtype
+    )
+    # Both the released cache and the packaged fallback are expressed in
+    # panda_hand coordinates.  The first configured frame is the TCP, offset
+    # +0.1034 m along hand Z.
+    positions = ee_frame.data.target_pos_w[:, 0, :]
+    quaternions = ee_frame.data.target_quat_w[:, 0, :]
+    hand_to_tcp = released.new_tensor((0.0, 0.0, 0.1034))
+    local_tcp = released - hand_to_tcp
+    num_envs = positions.shape[0]
+    local_tcp = local_tcp.unsqueeze(0).expand(num_envs, -1, -1)
+    expanded_quat = quaternions.unsqueeze(1).expand(-1, released.shape[0], -1)
+    points_world = quat_apply(
+        expanded_quat.reshape(-1, 4), local_tcp.reshape(-1, 3)
+    ).reshape(num_envs, released.shape[0], 3)
+    return points_world + positions.unsqueeze(1) - env.scene.env_origins.unsqueeze(1)
+
+
+def _end_effector_mass_and_velocity(env: ManagerBasedRLEnv) -> tuple[torch.Tensor, torch.Tensor]:
+    robot = env.scene["robot"]
+    if not hasattr(env, "_dapl_finger_body_ids"):
+        body_ids, body_names = robot.find_bodies(
+            ["panda_leftfinger", "panda_rightfinger"], preserve_order=True
+        )
+        if len(body_ids) != 2:
+            raise RuntimeError(
+                f"expected two Franka finger bodies, resolved {body_names}"
+            )
+        # Articulation default masses are CPU tensors while dynamic body state
+        # lives on the simulation device.  A plain integer tuple indexes both.
+        env._dapl_finger_body_ids = tuple(body_ids)
+    body_ids = env._dapl_finger_body_ids
+    mass = robot.data.default_mass[:, body_ids].sum(dim=1)
+    velocity = robot.data.body_lin_vel_w[:, body_ids].mean(dim=1)
+    return mass, velocity
+
+
+def build_dapl_physical_scene(
+    env: ManagerBasedRLEnv,
+    target_cfg: SceneEntityCfg = SceneEntityCfg("target"),
+    obstacles_cfg: SceneEntityCfg = SceneEntityCfg("obstacles"),
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+    obstacle_source_indices: torch.Tensor | None = None,
+) -> PhysicalSceneTensor:
+    """Build a physical scene, optionally preserving an earlier obstacle selection."""
+
+    target: RigidObject = env.scene[target_cfg.name]
+    obstacles: RigidObjectCollection = env.scene[obstacles_cfg.name]
+    target_points = get_object_pointcloud_in_env_frame(env, target_cfg).reshape(
+        env.num_envs, 512, 3
+    )
+    obstacle_points = get_obstacle_pointclouds_in_env_frame(env, obstacles_cfg)
+    end_effector_points = get_end_effector_pointcloud_in_env_frame(env, ee_frame_cfg)
+    end_effector_mass, end_effector_velocity = _end_effector_mass_and_velocity(env)
+
+    if not hasattr(env, "_dapl_scene_tensor_builder"):
+        env._dapl_scene_tensor_builder = DAPLSceneTensorBuilder(validate_values=False)
+    return env._dapl_scene_tensor_builder(
+        PhysicalSceneBatch(
+            target_points=target_points,
+            target_mass=target.data.default_mass.squeeze(-1),
+            target_velocity=target.data.root_com_lin_vel_w,
+            obstacle_points=obstacle_points,
+            obstacle_masses=obstacles.data.default_mass.squeeze(-1),
+            obstacle_velocities=obstacles.data.object_com_lin_vel_w,
+            end_effector_points=end_effector_points,
+            end_effector_mass=end_effector_mass,
+            end_effector_velocity=end_effector_velocity,
+        ),
+        obstacle_source_indices=obstacle_source_indices,
+    )
+
+
+@profile_obs
+def dapl_physical_scene(
+    env: ManagerBasedRLEnv,
+    target_cfg: SceneEntityCfg = SceneEntityCfg("target"),
+    obstacles_cfg: SceneEntityCfg = SceneEntityCfg("obstacles"),
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+) -> torch.Tensor:
+    """Build the paper-defined physical input tensor with shape ``[B, 1280, 7]``."""
+
+    scene_tensor = build_dapl_physical_scene(
+        env,
+        target_cfg=target_cfg,
+        obstacles_cfg=obstacles_cfg,
+        ee_frame_cfg=ee_frame_cfg,
+    )
+    # A future-frame collector must reuse this selection to preserve point identity.
+    env._dapl_obstacle_source_indices = scene_tensor.obstacle_source_indices
+    return scene_tensor.features
+
+
+def dapl_physical_scene_flattened(
+    env: ManagerBasedRLEnv,
+    target_cfg: SceneEntityCfg = SceneEntityCfg("target"),
+    obstacles_cfg: SceneEntityCfg = SceneEntityCfg("obstacles"),
+    ee_frame_cfg: SceneEntityCfg = SceneEntityCfg("ee_frame"),
+) -> torch.Tensor:
+    """Return the DAPL scene as the 8,960-D prefix expected by RSL-RL."""
+
+    features = dapl_physical_scene(
+        env,
+        target_cfg=target_cfg,
+        obstacles_cfg=obstacles_cfg,
+        ee_frame_cfg=ee_frame_cfg,
+    )
+    return features.reshape(env.num_envs, -1)

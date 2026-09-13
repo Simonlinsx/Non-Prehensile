@@ -1,0 +1,6 @@
+{
+  "unit_tests": "14 passed",
+  "release_smoke": "6 simulation seconds, original frozen source hashes passed, physical/semantic query audit passed. Diagnostic startup check, not a task success.",
+  "sitting_video": "Full ffmpeg decode passed",
+  "hardware": "Not connected or tested"
+}

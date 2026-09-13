@@ -1,0 +1,50 @@
+[
+  {
+    "group": "hard",
+    "case": "000",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "group": "hard",
+    "case": "005",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "group": "hard",
+    "case": "010",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "group": "hard",
+    "case": "015",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "group": "soft",
+    "case": "000",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "group": "soft",
+    "case": "005",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "group": "soft",
+    "case": "010",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "group": "soft",
+    "case": "015",
+    "returncode": 0,
+    "stderr": ""
+  }
+]

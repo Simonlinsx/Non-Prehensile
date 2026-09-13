@@ -1,0 +1,83 @@
+{
+  "c2": false,
+  "c3": false,
+  "steps": 5658,
+  "dwell": 120,
+  "max_dwell": 120,
+  "contact_steps_002": 2312,
+  "contact_steps_05": 1,
+  "safe_05": true,
+  "safe_002": true,
+  "c1": false,
+  "max_finger_m": 2.0257053620298393e-05,
+  "max_displacement_m": 0.05787724256515503,
+  "first_contact_s": 4.966666666666667,
+  "action_count": 472,
+  "last": {
+    "c2": false,
+    "c3": false,
+    "target_obstacle_force_n": 0.0,
+    "robot_obstacle_force_n": 0.0,
+    "protected_clearance_m": null,
+    "step": 5658,
+    "xy_m": 0.012300704586744319,
+    "height_m": 0.0009878836572170258,
+    "rotation_rad": 0.0987133975394748,
+    "pose_wxyz": [
+      0.4101232886314392,
+      0.23698502779006958,
+      0.011949015781283379,
+      -0.6934182047843933,
+      0.08148282021284103,
+      0.7110748291015625,
+      0.0830933228135109
+    ],
+    "force_n": 0.0,
+    "safe": false,
+    "c1": false,
+    "finger_m": [
+      1.9815555788227357e-05,
+      1.9996667106170207e-05
+    ],
+    "legacy_pose_errors": [
+      0.012300703674554825,
+      0.0009878836572170258,
+      0.09871049225330353
+    ]
+  },
+  "stop_reason": "strict_pose_dwell_success",
+  "sim_s": 23.575,
+  "main_wall_s": 187.14851413620636,
+  "initial_pose_wxyz": [
+    0.4000000059604645,
+    0.18000000715255737,
+    0.012936899438500404,
+    -0.6992781162261963,
+    0.052459150552749634,
+    0.7105228304862976,
+    0.05844242125749588
+  ],
+  "goal_pose_wxyz": [
+    0.39819100499153137,
+    0.23997299373149872,
+    0.012936899438500404,
+    -0.691523551940918,
+    0.11418567597866058,
+    0.7032469511032104,
+    0.11916612833738327
+  ],
+  "constrained_success": true,
+  "typed_stop_scope": "combined",
+  "clutter_force_threshold_n": 0.02,
+  "scope_note": "All constraints observed; stop scope does not change the C1 persistent planner. Stop on collision is not anticipatory avoidance.",
+  "thresholds": {
+    "xy_m": 0.02,
+    "height_m": 0.01,
+    "so3_rad": 0.105,
+    "dwell_s": 0.5,
+    "contact_force_n": 0.5,
+    "semantic_distance_m": 0.01
+  },
+  "audit_cadence": "every physics step, before the next substep",
+  "controller_contact_gate_n": 0.02
+}

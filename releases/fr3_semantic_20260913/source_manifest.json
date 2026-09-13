@@ -1,0 +1,322 @@
+{
+  "frozen_source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1",
+  "files": {
+    "scripts/audit_strict_pose_dwell.py": {
+      "sha256": "bbe98ae08217b902db44b7c4bfb36bc58f0a966dbecb657ff1b06955d563f18c",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/audit_strict_pose_dwell.py"
+    },
+    "scripts/fr3_constraint_tasks.py": {
+      "sha256": "6add69f4ad65e7c11d1349e05613da3a314a297add42b2fed49f6631607c844f",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/fr3_constraint_tasks.py"
+    },
+    "scripts/fr3_execution_runtime/__init__.py": {
+      "sha256": "812a4d21dca006ad348c6664002d93a3e7f928989e53a14bbf6758273a76b1df",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/fr3_execution_runtime/__init__.py"
+    },
+    "scripts/fr3_execution_runtime/acceptance.py": {
+      "sha256": "42bcf7842cce82dc4ba81acace740df35fd6afae8a33539c597d4020a4e39295",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/fr3_execution_runtime/acceptance.py"
+    },
+    "scripts/fr3_execution_runtime/approach_route.py": {
+      "sha256": "3dc12b2256c5f713eee669f62619f2cdde82867207df5afe808c0e91946af182",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/fr3_execution_runtime/approach_route.py"
+    },
+    "scripts/fr3_execution_runtime/audit_packet.py": {
+      "sha256": "407dd052847d2a8e08d185da108628783c43dcabf4704c8a193bd24536230c26",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/fr3_execution_runtime/audit_packet.py"
+    },
+    "scripts/fr3_execution_runtime/clutter_route.py": {
+      "sha256": "99e7e8f857e3e6e7844df1625e80023c9de068910bdee894f68580881c385adc",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/fr3_execution_runtime/clutter_route.py"
+    },
+    "scripts/fr3_execution_runtime/servo_candidate.py": {
+      "sha256": "6cf1cff27f2e8802af4994c75a9da878ef1433080795b538b4cea12495e7ad95",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/fr3_execution_runtime/servo_candidate.py"
+    },
+    "scripts/fr3_execution_runtime/timebase.py": {
+      "sha256": "db74827f5a638ede9e42999e1f3ad0ad30b6f798bf98a0774242d3ad1515cbcf",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/fr3_execution_runtime/timebase.py"
+    },
+    "scripts/fr3_execution_runtime/typed_constraints.py": {
+      "sha256": "5501b9851310831c047a1bcfd3ed546b951723fc90f9ceb460f15e76af75d4ca",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/fr3_execution_runtime/typed_constraints.py"
+    },
+    "scripts/fr3_robot_model_contract.py": {
+      "sha256": "e64df1c9e228e119f095b80fc1684a87f4970f026579b1e69473bf6f91f7af30",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/fr3_robot_model_contract.py"
+    },
+    "scripts/fr3_semantic_cost_map.py": {
+      "sha256": "4535212bbf356755265df0ccdff67d5a3cec0febec30b655aa2162b104a35869",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/fr3_semantic_cost_map.py"
+    },
+    "scripts/fr3_semantic_sweep3d.py": {
+      "sha256": "6a3160c8b585154b10bdd885e6bb9943d3aee28adae840eff2b5daef394ece41",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/fr3_semantic_sweep3d.py"
+    },
+    "scripts/m1_candidate_pose_score.py": {
+      "sha256": "5cd8a3b3924d82fe5d5b539831f07c8baf2bb288ed43ccef2fb8741571ee6772",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/m1_candidate_pose_score.py"
+    },
+    "scripts/m1_control_timing.py": {
+      "sha256": "294a58c23f3c6c53f6ff133297c588ccd05f7d13bca16ea265b86fb749c94380",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/m1_control_timing.py"
+    },
+    "scripts/m1_fr3_comparison_adapter.py": {
+      "sha256": "25284dfc65ddfffae13d8f651edce5cdc5bdc61beb72e7abe027bedd9668e2d6",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/m1_fr3_comparison_adapter.py"
+    },
+    "scripts/run_contact_planner_m1.py": {
+      "sha256": "3c9dbcb624024b70d7f173106d957812a97eb49d4bfed27bde3869fbf8422862",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/run_contact_planner_m1.py"
+    },
+    "scripts/run_contact_planner_m1.sh": {
+      "sha256": "54e4df78884f50b12bbc260d45dcb2377aba2d092162e01b10ba9f99c2e13020",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/scripts/run_contact_planner_m1.sh"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/__init__.py": {
+      "sha256": "85c08b17ac05dfc39a6f1b3751482d42bb82b5ef6fc0cc94b3fd58594653488e",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/__init__.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/__init__.py": {
+      "sha256": "098fcc6bb68a96b995f3dc47aa377afb9d5e1da108a4e404a754b70e3bcca9eb",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/__init__.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/__init__.py": {
+      "sha256": "0f061c6be551c578c0bf4e7b9c217d86b5ff740adce37b99d70fd997feddcabe",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/__init__.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/__init__.py": {
+      "sha256": "53d6c65492a879c93eacb616e7ae7e4fee5bc2790bb35ab94717bdcbff48533d",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/__init__.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/affordance_env.py": {
+      "sha256": "4192f20c8ac1a974dcc353c4ac83dec1cd4c2ff3315dc3eda62e861b6c259ad0",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/affordance_env.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/agents/__init__.py": {
+      "sha256": "e72b43071221e271f69574d1d5e6116c5d71b41727973bf00560cb667d766435",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/agents/__init__.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/agents/config/rsl_rl_ppo_cfg.py": {
+      "sha256": "50c7cc1833da6bfe2a00a5478b553c6f2a091b5d560619faf2999255248f1c07",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/agents/config/rsl_rl_ppo_cfg.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/assets/smoke_cube.obj": {
+      "sha256": "1e884bd4c6947fb9f1e342315ec17e81a7be9592c43961ad8bc4c275ae77655d",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/assets/smoke_cube.obj"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/cloud.py": {
+      "sha256": "038d95c541851aa84e54d26ed8de5e555cee7ada1844fd98d7ade1c002ec3c4b",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/cloud.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/clutter.py": {
+      "sha256": "ad0496a6aab325d842e995e88846d9622ab001705571ad46a94d8a3c4456a55f",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/clutter.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/clutter_env.py": {
+      "sha256": "1bf459ccdc2c0d8c3f79d8c23dcc2af37143a59b2d40797da2bc2a34237528b0",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/clutter_env.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/env.py": {
+      "sha256": "6dd6a99c257523c0f2fae9c0302de3eee230426f272fb99dac75446bf9899351",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/env.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/__init__.py": {
+      "sha256": "f5095bfd8464616f9c43a01f2fe8dab1b6bf82b23f59abb89429cbc1dc31c2d2",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/__init__.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/__init__.py": {
+      "sha256": "21656280af16610e22298b6a76374b7630deddf86a59bc6c02073becc4a03eb4",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/__init__.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/clipped_differential_ik_action.py": {
+      "sha256": "a827f7a7c721253e69d2cb657d9d54d5408585c65f3fbf2a04928be981945ba0",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/clipped_differential_ik_action.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/controller_fixed_impedance_delta_action.py": {
+      "sha256": "319c84269041a57a1120d6a1eefe6357de69dab77594695143e3eacf920ae6f0",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/controller_fixed_impedance_delta_action.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/controller_variable_impedance_delta_action.py": {
+      "sha256": "8e1ee854efcaee394f6a68160ea1a4330428d729a9d147c3eb02c55315a7efc6",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/controller_variable_impedance_delta_action.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/delta_joint_fixed_impedance_action.py": {
+      "sha256": "4b07be0063027122ae42c45001d9f2af8f3c41fbd0a99ee0d173838ebf694aee",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/delta_joint_fixed_impedance_action.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/delta_joint_variable_impedance_action.py": {
+      "sha256": "c93ccab3d803b90c50b47c860f83c604d9efc45b6061ec7e4a04e12708e657e0",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/delta_joint_variable_impedance_action.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/fixed_impedance_residual_action.py": {
+      "sha256": "ed0b05297723711b0396b0c39cd688dbd597978969cb823bd642b5cfee66081a",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/fixed_impedance_residual_action.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/latched_relative_joint_position_action.py": {
+      "sha256": "afe6b7b396921cb4cadf78e0f1f4a54fc9a80abe8bd1b2f6097da60826ff1f6f",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/latched_relative_joint_position_action.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/subgoal_residual_action.py": {
+      "sha256": "6c0f4e12d5a15a852b809fea79b1f49eeb24992f102e7e2959d9a181f0e874f5",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/actions/subgoal_residual_action.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/affordances.py": {
+      "sha256": "e4b389ca4187a0f941388027b52aaea193be7c3b8dfb9b0f0761464946413221",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/affordances.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/commands.py": {
+      "sha256": "4de9995712ea003f4b8af36d92a0e659b3b95174be7b83081ed4f11786f9c1b9",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/commands.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/events.py": {
+      "sha256": "d340df07e8829148a04038895b286a4e5f1bfc488403735ad26bc38b601b333d",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/events.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/observations.py": {
+      "sha256": "d79cef50b787614183c965d4aad2fad7874cd0e24e4b550614ce513ba2a22ac2",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/observations.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/rewards.py": {
+      "sha256": "9461b6ce87e6b32220c5facc2e13de631584520c037aaead93cac82376177cfa",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/rewards.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/semantic_distance_graph.py": {
+      "sha256": "0f0d09948a36309227575a5e6838a17d494ec429e8f3ddb5841a4b3c1b6011d1",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/semantic_distance_graph.py"
+    },
+    "source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/terminations.py": {
+      "sha256": "466e50ea5ec041b4639e5783b9bca0de7dabc25bb41a493f5a8a61a8fc8b745c",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/IsaacLab_nonPrehensile/tasks/manager_based/isaaclab_nonprehensile/mdp/terminations.py"
+    },
+    "source/IsaacLab_nonPrehensile/config/extension.toml": {
+      "sha256": "cae3509ad15d185cce45a415d82d3fd0470ac5a3c1cb0ce0b736c6b905a9156c",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/config/extension.toml"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/__init__.py": {
+      "sha256": "d7d6c0cf3f832b325a5a5d99ac9dda16fa2c381955d4b7b4d3baa94212ce02b6",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/__init__.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/catalog.py": {
+      "sha256": "a28b3c46d1bf26afa6d0eec3a3e39b4fb9665b8d7e714f2d668929ab532fd9b1",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/catalog.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/__init__.py": {
+      "sha256": "35e31151e9838ce6fdd4f18e10ce0b2460e84a1387e8cf941fe2f51ff46d0e1a",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/__init__.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/c3_online_protocol.py": {
+      "sha256": "eee208665a7cbed035c9c6df42aabdf46258b0ca00e1b729bebba99dd9b3fe2c",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/c3_online_protocol.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/contact_servo.py": {
+      "sha256": "f07051e0bd0a8023e9e1b6578c54b96aeb6e7c3d9ff4eed275ece061318eacec",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/contact_servo.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/fr3_collision_geometry.py": {
+      "sha256": "e1aa322377d097bc5e0c8d0454bf03df3bada3ce6c3805b747e26b09033cee16",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/fr3_collision_geometry.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/fr3_model_runtime.py": {
+      "sha256": "b4efb1045fea73d3032fe7cdf6e6d3656a7a4ad1673ac7937c63852d0e941f80",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/fr3_model_runtime.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/franka_push_tool_urdf.py": {
+      "sha256": "04478124c2137c13131aaeeac6459e9448fab7ae27a20c8798d22c3cb57e2d68",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/franka_push_tool_urdf.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/franka_tcp_ik.py": {
+      "sha256": "25a8b925f18997efe41e58699354fb95c05110d6ec8f9d9eba721d0e93eba714",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/franka_tcp_ik.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/isaac_bridge.py": {
+      "sha256": "fa63d8ef0c314342a1e254f6a36c5d349d3fb035b7d4f9fc8b100b88ee3ead24",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/isaac_bridge.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/isaac_trajectory_action.py": {
+      "sha256": "696e2dc733f196dd40f75c2b5d2096f2e7d4d0b1e9c566611bbbf4b538ef27e1",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/isaac_trajectory_action.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/isaac_visualization.py": {
+      "sha256": "add878bec8e1a9f411e74c124ae65b999f4393e81d929348a5a363b3c3a0d41d",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/isaac_visualization.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/oracle_contact.py": {
+      "sha256": "2c5cc7f719cc5689b473bfe7f49a6b4fdf08e97424c919244df71d893b065e40",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/oracle_contact.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/rollout_scoring.py": {
+      "sha256": "d218606333a20bb1b9082d6dc81c3898a01db798085658b37cd4f23dfc303950",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/rollout_scoring.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/semantic_mesh.py": {
+      "sha256": "d25cb211bc74d324c08ce0c23406d0fd8263d43581f9486c7813fc62424a1141",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/semantic_mesh.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/semantic_trajectory_guard.py": {
+      "sha256": "311ee2b0c85841e9e9058d0f33c11f9674c2e94aa796b37faf07b3ce79e5930a",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/semantic_trajectory_guard.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/contact_planner/streaming_video.py": {
+      "sha256": "b0f729b1cf9b84b89edc80361b137eb4bdbac7a613ae0ec8cc8f4146cd710e60",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/contact_planner/streaming_video.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/data.py": {
+      "sha256": "fad9f3060195418427c431071d8d1d2a706e629f9eae25eb51e81535c55076dc",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/data.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/domino.py": {
+      "sha256": "d8bda0ec40670bd7dd268c6e3a10a5bacfee5599f001a7899546e9a47fd53c83",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/domino.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/embodiment.py": {
+      "sha256": "948c77a0b67eb42e98f79534cf5cd0d40749fd4122d3d7bc99cf5bb55b45fc26",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/embodiment.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/generation.py": {
+      "sha256": "bc0fdfbe38fd9c0d98d9f83b869e38639ed48223481fab102b96b0d6a492fc98",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/generation.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/metrics.py": {
+      "sha256": "d598652451a2b088d3e66ed14d7cb50073e89274279aa1baa9df07aab67c2b55",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/metrics.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/models/__init__.py": {
+      "sha256": "a5372aa0f4f58a86fb9612b5c261c5e3967de932c25eacadffda32c8380d6c41",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/models/__init__.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/models/normalization.py": {
+      "sha256": "1d10476b30a341b54634a8a6ec3af2bdb9a3f299af4f60cd6724d716332cc468",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/models/normalization.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/models/tokenizer.py": {
+      "sha256": "bca38e67dcbd92950607cde17df3099160ab5553e7bf5982c6c9f124b9929273",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/models/tokenizer.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/models/world_model.py": {
+      "sha256": "c700afa9670c5d1d5ce9b75f698ed27a631db8e1f04be687131fef0b8483a650",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/models/world_model.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/representation.py": {
+      "sha256": "0779ecb647c612f2c4cf6d5ad2b175509865445319bcba7a9af13c8c89c7a645",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/representation.py"
+    },
+    "source/IsaacLab_nonPrehensile/dapl/scene.py": {
+      "sha256": "55559859aa91edfb6ab31f5eabbbc8df109268679cac653eef37e94c55e8f4d8",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/dapl/scene.py"
+    },
+    "source/IsaacLab_nonPrehensile/docs/CHANGELOG.rst": {
+      "sha256": "31534b400dcc5e9a7cd419208cf7bf5bd88967a75b035f041788f65bd1e72055",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/docs/CHANGELOG.rst"
+    },
+    "source/IsaacLab_nonPrehensile/pyproject.toml": {
+      "sha256": "5427dcc108de1d2537775540acdd539d65a2f31506ba992bc95e5bfeefb6f288",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/pyproject.toml"
+    },
+    "source/IsaacLab_nonPrehensile/setup.py": {
+      "sha256": "b22d343f229fab44b33a349506ba52a730df7d933e06a906fc9e3bc54256dabc",
+      "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1/source/IsaacLab_nonPrehensile/setup.py"
+    }
+  },
+  "scope": "Controller/environment files are byte-identical to tested frozen source. Added launcher, offline renderers and audits are separate tools. Dataset, simulator, robot-model conversion cache and original full logs remain external."
+}

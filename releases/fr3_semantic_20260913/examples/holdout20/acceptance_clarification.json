@@ -1,0 +1,6 @@
+{
+  "frozen_metric": "Original strict success includes at least one safe robot-target contact above 0.5 N, in addition to terminal pose dwell and safety.",
+  "source": "Frozen result.json thresholds.contact_force_n, safe_05 and independent audit_strict_success.",
+  "supplementary_metric": "Same terminal pose dwell, safety and closed-finger checks with observed safe contact >0.02 N (existing contact acquisition gate). Diagnostic only; does not replace frozen success rate.",
+  "discovery": "soft/001 reaches pose tolerance for 2.19 s with substantial motion but fails only the historical 0.5 N safe-contact evidence gate."
+}

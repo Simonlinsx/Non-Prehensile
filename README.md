@@ -1,13 +1,19 @@
 # Affordance-Aware Non-Prehensile Manipulation
 
 This repository develops safety-aware non-prehensile manipulation of tools in
-Isaac Lab. The current development route uses **FR3 + its stock closed gripper**,
-semantic C1 constraints, Push Anything/C3+, and the original native OSC torque
-controller (1 kHz, with 20 Hz planning). **Simulation acceptance is still open.**
-Start with the [current FR3 development baseline](docs/FR3_SIMULATION_BASELINE.md)
-for verified results, the actual IsaacLab video, configuration, test commands,
-and known failures. The sections below retain earlier teacher and planner
-milestones; their success rates do not describe the current FR3 setup.
+Isaac Lab. The current handoff uses **FR3 + its stock closed gripper**, a
+simplified predictive contact planner, 3-D semantic constraints/costs, and
+20 Hz joint-position references with PD/gravity compensation. Start with the
+[2026-09-13 simulation release](releases/fr3_semantic_20260913/README.md) and
+[real-robot deployment handoff](docs/FR3_SIM_TO_REAL_HANDOFF_20260913.md).
+The release includes frozen source, reproducible scenes, audits, and videos.
+
+**Generalization remains unresolved:** the known-layout development regression
+was 20/20 per group, while new relative layouts/goal angles gave 5/20 hard-only
+and 4/20 with semantic cost under the unchanged strict metric. Real RGB-D pose
+tracking and the pushing-to-hardware adapter are not yet connected. The earlier
+[native C3+/OSC baseline](docs/FR3_SIMULATION_BASELINE.md) and milestones below
+are separate implementations and evaluation cohorts.
 
 The C1 Isaac evaluator now defaults to shared PhysX target/finger convex
 geometry with measured hand orientation. The previous single-sphere model is

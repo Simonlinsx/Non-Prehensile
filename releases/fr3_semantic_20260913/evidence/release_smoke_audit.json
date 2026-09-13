@@ -1,0 +1,52 @@
+{
+  "steps": 1440,
+  "sim_s": 6.0,
+  "final_xy_mm": 58.32503680629082,
+  "final_height_mm": 0.9877989068627357,
+  "final_so3_rad": 0.1420553161208546,
+  "terminal_dwell_s": 0.0,
+  "maximum_dwell_s": 0.0,
+  "contact_steps_gt002N": 187,
+  "contact_steps_gt05N": 0,
+  "first_contact_s": 5.029166666666667,
+  "safe_contact_gt05N": false,
+  "c1_violation": false,
+  "max_finger_mm": 0.028136711989645846,
+  "max_object_displacement_mm": 2.996812761708305,
+  "strict_success": false,
+  "strict_semantic_success": false,
+  "stage_sequence_pass": null,
+  "hard_collision_steps": 0,
+  "contacts": {
+    "doll": {
+      "target_n": 0.0,
+      "robot_n": 0.0,
+      "target_contact_steps": 0,
+      "robot_contact_steps": 0
+    },
+    "liquidcup": {
+      "target_n": 0.0,
+      "robot_n": 0.0,
+      "target_contact_steps": 0,
+      "robot_contact_steps": 0
+    },
+    "balloon": {
+      "target_n": 0.0,
+      "robot_n": 0.0,
+      "target_contact_steps": 0,
+      "robot_contact_steps": 0
+    }
+  },
+  "candidate_queries": 32,
+  "candidate_rejections": 0,
+  "candidates_allowed_only_by_acceptable_contact": 32,
+  "micro_queries": 4,
+  "whole_arm_phase_queries": 4,
+  "ranking_events": 1,
+  "ranking_changes_due_to_semantic_cost": 1,
+  "volume_query_wall_s": 0.018574579153209925,
+  "stages": [],
+  "process_wall_s": 35.62450105883181,
+  "source_hashes_pass": true,
+  "scope": "Assistant-authored cached semantics + ground-truth simulation geometry. Rigid proxies. Not autonomous VLM inference, fluid/deformation safety validation, or a population success rate."
+}

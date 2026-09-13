@@ -1,0 +1,48 @@
+{
+  "schema": "fr3.semantic_policy.v1",
+  "task": "Rotate hammer approximately 12 degrees between bowl and sponge, then translate to goal; avoid liquid cup.",
+  "provenance": {
+    "semantic_provider": "assistant_visual_review",
+    "image": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/scenes/rotate_translate/assistant_review_input.png",
+    "image_sha256": "ee195017ff5ab1a0900fd73fa393c624198e613ab6e50c85d36bf7f157bc0858",
+    "geometry_provider": "IsaacLab ground-truth meshes and live poses; no learned reconstruction or pose estimation.",
+    "task_attributes": "Liquid-filled status and acceptable contacts supplied by user; image checked for instance correspondence."
+  },
+  "objects": [
+    {
+      "id": "bowl",
+      "asset_id": "905_bowl:0",
+      "obstacle_index": 0,
+      "mode": "forbidden",
+      "weight": 1.0,
+      "robot_contact": "forbidden",
+      "target_contact": "forbidden",
+      "reason": "Assistant-inferred protection policy for a fragile bowl."
+    },
+    {
+      "id": "sponge",
+      "asset_id": "903_sponge:0",
+      "obstacle_index": 1,
+      "mode": "acceptable",
+      "weight": 0.15,
+      "robot_contact": "acceptable",
+      "target_contact": "acceptable",
+      "reason": "Assistant-inferred acceptable contact policy for the sponge proxy; not a measured softness property."
+    },
+    {
+      "id": "liquidcup",
+      "asset_id": "904_liquidcup:0",
+      "obstacle_index": 2,
+      "mode": "forbidden",
+      "weight": 1.0,
+      "robot_contact": "forbidden",
+      "target_contact": "forbidden",
+      "reason": "Task requires avoiding liquid cup, balloon and fragile bowl."
+    }
+  ],
+  "c1": "Original protected tool-part contact with the robot stays forbidden.",
+  "hard_margin_m": 0.012,
+  "scope": "Rigid proxies; no liquid, deformation or bursting simulation.",
+  "rotate_then_translate": false,
+  "evaluation_note": "Cached assistant contact semantics; final-pose task without injected waypoints. Four development layouts with rigid XY shifts, not novel-category generalization."
+}

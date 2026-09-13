@@ -1,0 +1,66 @@
+[
+  {
+    "group": "hard",
+    "case": "000",
+    "path": "outputs/fr3_semantic_map_20260913/clutter20_v1/hard/000/native_result_video/native_result-step-0.mp4",
+    "returncode": 0,
+    "stderr": "",
+    "bytes": 1340772
+  },
+  {
+    "group": "hard",
+    "case": "005",
+    "path": "outputs/fr3_semantic_map_20260913/clutter20_v1/hard/005/native_result_video/native_result-step-0.mp4",
+    "returncode": 0,
+    "stderr": "",
+    "bytes": 1386295
+  },
+  {
+    "group": "hard",
+    "case": "010",
+    "path": "outputs/fr3_semantic_map_20260913/clutter20_v1/hard/010/native_result_video/native_result-step-0.mp4",
+    "returncode": 0,
+    "stderr": "",
+    "bytes": 954849
+  },
+  {
+    "group": "hard",
+    "case": "015",
+    "path": "outputs/fr3_semantic_map_20260913/clutter20_v1/hard/015/native_result_video/native_result-step-0.mp4",
+    "returncode": 0,
+    "stderr": "",
+    "bytes": 961622
+  },
+  {
+    "group": "soft",
+    "case": "000",
+    "path": "outputs/fr3_semantic_map_20260913/clutter20_v1/soft/000/native_result_video/native_result-step-0.mp4",
+    "returncode": 0,
+    "stderr": "",
+    "bytes": 1237748
+  },
+  {
+    "group": "soft",
+    "case": "005",
+    "path": "outputs/fr3_semantic_map_20260913/clutter20_v1/soft/005/native_result_video/native_result-step-0.mp4",
+    "returncode": 0,
+    "stderr": "",
+    "bytes": 1390189
+  },
+  {
+    "group": "soft",
+    "case": "010",
+    "path": "outputs/fr3_semantic_map_20260913/clutter20_v1/soft/010/native_result_video/native_result-step-0.mp4",
+    "returncode": 0,
+    "stderr": "",
+    "bytes": 1228380
+  },
+  {
+    "group": "soft",
+    "case": "015",
+    "path": "outputs/fr3_semantic_map_20260913/clutter20_v1/soft/015/native_result_video/native_result-step-0.mp4",
+    "returncode": 0,
+    "stderr": "",
+    "bytes": 1202653
+  }
+]

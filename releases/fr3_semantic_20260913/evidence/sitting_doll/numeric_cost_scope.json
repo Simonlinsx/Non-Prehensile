@@ -1,0 +1,22 @@
+{
+  "grid_spacing_m": 0.005,
+  "margin_m": 0.012,
+  "finite_range": [
+    0,
+    0.15
+  ],
+  "hard_cost": "infinity",
+  "formula": "If any forbidden d_i<=delta: infinity; else sum acceptable w_i*max(0,1-d_i/delta)",
+  "distance": "Euclidean distance to semantic volume: forbidden object convex envelope (including cup cavity), acceptable union of actual convex collision components; zero inside; exact closest triangles outside",
+  "query": "3-D point contact, not full hammer pose or robot configuration",
+  "consumed_by_successful_rollouts": false,
+  "scene_sha256": "536a8c70d124c5a766755f0d3e8b6999e143e603a3c1a3fb968087c0151fa120",
+  "mesh_hashes": {
+    "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/sitting_doll_v2/assets/901_doll/geometry.obj": "5a0367e64f1f1e0472ee04ceb990c78ebb4e2b4a03c54a4251b26a7537edc21b",
+    "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/sitting_doll_v2/assets/904_liquidcup/geometry.obj": "50edd6d9f92af69b8625cc0203ff22932ddb9ad39dd257092a879efd78a1597d",
+    "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/sitting_doll_v2/assets/902_balloon/geometry.obj": "b9ad3a0dc4a0826292b51dd7b32055818caa6f081a76d30c15f0e580ed18d54c"
+  },
+  "runtime_backend": "volume3d",
+  "runtime_scope": "\u672c\u56fe\u663e\u793a\u4e09\u7ef4\u70b9\u63a5\u89e6\u4ee3\u4ef7\uff1b\u672c\u6b21\u6267\u884c\u4f7f\u7528\u540c\u4e00\u8bed\u4e49\u89c4\u5219\u4e0b\u7684\u6574\u628a\u9524\u5b50\u4e09\u7ef4\u626b\u63a0\u67e5\u8be2\u3002\u63a7\u5236\u5668\u5728\u7ebf\u67e5\u8be2\u51e0\u4f55\u548c\u5f53\u524d\u4f4d\u59ff\uff0c\u4e0d\u8bfb\u53d6\u672c\u56fe\u7684\u79bb\u7ebf\u6805\u683c\u3002",
+  "limitation": "Offline spatial field visualization added after frozen trials; not autonomous VLM inference or continuous safety proof"
+}

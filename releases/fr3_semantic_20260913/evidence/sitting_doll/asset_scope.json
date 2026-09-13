@@ -1,0 +1,23 @@
+{
+  "dimensions_xyz_m": [
+    0.176,
+    0.157,
+    0.22699999999999998
+  ],
+  "bounds_m": [
+    [
+      -0.088,
+      -0.054,
+      0.0
+    ],
+    [
+      0.088,
+      0.10300000000000001,
+      0.22699999999999998
+    ]
+  ],
+  "mass_kg": 0.12,
+  "posture": "Sitting upright on pelvis and two forward feet; facing local +Y.",
+  "scope": "New rigid teddy proxy, not a scaled copy of the flat doll; no cloth/deformation model. Collision meshes match visible body components; small eye/belly decorations are visual only.",
+  "previous_assets_unchanged": true
+}

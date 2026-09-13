@@ -1,0 +1,5 @@
+# Standalone interactive plot embeds numerical slices and Plotly; store as an artifact.
+evidence/sitting_doll/numeric_cost_map_3d.html filter=lfs diff=lfs merge=lfs -text
+# Preserve checksum-pinned upstream snapshot bytes without formatting checks.
+source/** -whitespace
+scripts/** -whitespace

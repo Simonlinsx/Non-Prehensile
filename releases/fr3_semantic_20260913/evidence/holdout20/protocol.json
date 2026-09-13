@@ -1,0 +1,422 @@
+{
+  "jobs": [
+    {
+      "case": "000",
+      "layout": "doll_side",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "0",
+      "video": true,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/000",
+      "launch_sha256": "a27ee92b38fefb6eed91c961f407962b9ec2158f934f654bdb25e54f35aff5c3"
+    },
+    {
+      "case": "000",
+      "layout": "doll_side",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "0",
+      "video": true,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/000",
+      "launch_sha256": "4146e52734e4f4f1eaab89f8a6d504d26fe98ac06be06cefa126a3ce1ab1527f"
+    },
+    {
+      "case": "001",
+      "layout": "doll_side",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "1",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/001",
+      "launch_sha256": "83aee3269be58ee504b4e36a2d85f0392399fe7892ff37a0c473fa3664f1feda"
+    },
+    {
+      "case": "001",
+      "layout": "doll_side",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "1",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/001",
+      "launch_sha256": "cff4054106c47f8d47e9911a62b95f74cabcc5efc9e4db07e78429063bce1745"
+    },
+    {
+      "case": "002",
+      "layout": "doll_side",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "2",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/002",
+      "launch_sha256": "5d573eb9257d871edb92f2b85e078009bd6077596b0e375aa97be02cd8e25068"
+    },
+    {
+      "case": "002",
+      "layout": "doll_side",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "2",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/002",
+      "launch_sha256": "b32714d0a26bfdf341d89c6e57ed2bdddc2215f5ee6637da44d191e0cbb0ab9d"
+    },
+    {
+      "case": "003",
+      "layout": "doll_side",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "3",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/003",
+      "launch_sha256": "f4d3e8d770b0fe168c16554a0d3b4ebc33b341414043a74e70d265ba3428bf5f"
+    },
+    {
+      "case": "003",
+      "layout": "doll_side",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "3",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/003",
+      "launch_sha256": "c6594092014f076619d27a8937eefb835c4b14f61410eb7ce5002605026ec6c1"
+    },
+    {
+      "case": "004",
+      "layout": "doll_side",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "4",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/004",
+      "launch_sha256": "5e6532ce45bdc580147fb4dbb46c8f55e5529dc0d178666a5c9c37886768f879"
+    },
+    {
+      "case": "004",
+      "layout": "doll_side",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "4",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/004",
+      "launch_sha256": "09ab2b72b1f9874edd4ef192ffe9f8ff9c3d7731df69d2bd41eb0fad6c5c5fa9"
+    },
+    {
+      "case": "005",
+      "layout": "doll_front",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "5",
+      "video": true,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/005",
+      "launch_sha256": "787faf3cd7f3856bed57dd51a5bbac71c10417defac481ed99284e10dbb21ac5"
+    },
+    {
+      "case": "005",
+      "layout": "doll_front",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "5",
+      "video": true,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/005",
+      "launch_sha256": "0644deae732097dee54e15dae89cf8d406993784f8e802da42ad214fc7c16a07"
+    },
+    {
+      "case": "006",
+      "layout": "doll_front",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "6",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/006",
+      "launch_sha256": "13975cceb99411bc2b4022d4214d24acc2b22b0d2dc540abb61cbb7458f005c9"
+    },
+    {
+      "case": "006",
+      "layout": "doll_front",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "6",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/006",
+      "launch_sha256": "daf5d28ee893fd34aa63ca43ea14e15936dedc5c9cec264dff3c2bba2cec53b9"
+    },
+    {
+      "case": "007",
+      "layout": "doll_front",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "7",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/007",
+      "launch_sha256": "9f2350d3d2225bf7ad056943c9207f386161550abbba003d7d448862ff9974d1"
+    },
+    {
+      "case": "007",
+      "layout": "doll_front",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "7",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/007",
+      "launch_sha256": "88ed8290c645c8bf053f7d4f32a0bc4cf3d44e6b11c0515c8b8fb4c2570fa4e5"
+    },
+    {
+      "case": "008",
+      "layout": "doll_front",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "0",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/008",
+      "launch_sha256": "f7cbd6518900083ecb8c6022ab536660593860b14886e571b2c79925f3753709"
+    },
+    {
+      "case": "008",
+      "layout": "doll_front",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "0",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/008",
+      "launch_sha256": "4a2f772cee556df1fdbb69272dbee34ea9a8ade14d7cc025ed7f4a1b0bbd9e3c"
+    },
+    {
+      "case": "009",
+      "layout": "doll_front",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "1",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/009",
+      "launch_sha256": "91ea7046aced26422d681a8fe3ac9098f4efea2d1a7cb615e377bdae846ffdbc"
+    },
+    {
+      "case": "009",
+      "layout": "doll_front",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "1",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/009",
+      "launch_sha256": "561406063d99cbae13f87026ba367e19e15537356a7404e73eefd617a8785061"
+    },
+    {
+      "case": "010",
+      "layout": "optional_contact",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "2",
+      "video": true,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/010",
+      "launch_sha256": "8a8ae6b1cba1662054c523305bd7ddd1a059916c944e606992de1b336a24518f"
+    },
+    {
+      "case": "010",
+      "layout": "optional_contact",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "2",
+      "video": true,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/010",
+      "launch_sha256": "cf1695f24046b6fab6544a27f18dccf00c9121b2197f6ba116b4362d97b22a07"
+    },
+    {
+      "case": "011",
+      "layout": "optional_contact",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "3",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/011",
+      "launch_sha256": "819436c22dffc6849f7c6c538c4360db2c13262109f3766e74c3404aebb7c998"
+    },
+    {
+      "case": "011",
+      "layout": "optional_contact",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "3",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/011",
+      "launch_sha256": "513b630fd23006b9b5d88b0a8509505c94ec64b503c527ace8b11287df16ce2d"
+    },
+    {
+      "case": "012",
+      "layout": "optional_contact",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "4",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/012",
+      "launch_sha256": "2a8e6c7358d3b8a9f28a53dcef3178dc443ebfd6e1ed4a80f857b6f7cdbb4dc9"
+    },
+    {
+      "case": "012",
+      "layout": "optional_contact",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "4",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/012",
+      "launch_sha256": "7f4436bc68de6e9baa5e7f90c219475ac43c6d87d1374f3a95e2e684faa1e2df"
+    },
+    {
+      "case": "013",
+      "layout": "optional_contact",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "5",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/013",
+      "launch_sha256": "109e92b797e01c51e9dabd825f743f34b730b9d204c492c88ae7ff453b1ca8e9"
+    },
+    {
+      "case": "013",
+      "layout": "optional_contact",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "5",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/013",
+      "launch_sha256": "38f5dc41c0799251404f2170754c487635511769de9e9251e68c08961f875dd4"
+    },
+    {
+      "case": "014",
+      "layout": "optional_contact",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "6",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/014",
+      "launch_sha256": "61cb542a165569184c3d5e32d5b3090bd39fbcec0490f21a7808bf4b42cee38e"
+    },
+    {
+      "case": "014",
+      "layout": "optional_contact",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "6",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/014",
+      "launch_sha256": "9716431ef1de93134ace131465ad3ce8f670b69d9470d4dff5df34d7bf2db869"
+    },
+    {
+      "case": "015",
+      "layout": "bowl_sponge",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "7",
+      "video": true,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/015",
+      "launch_sha256": "747fdec6d42e565736aa618520add6d80642c88e0f6918c4cde5a078e57ee2c1"
+    },
+    {
+      "case": "015",
+      "layout": "bowl_sponge",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "7",
+      "video": true,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/015",
+      "launch_sha256": "684492543be18df9576de56eff76f12ff7443c57ea317901f954884fc9363d4a"
+    },
+    {
+      "case": "016",
+      "layout": "bowl_sponge",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "0",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/016",
+      "launch_sha256": "14065403ec5555f7ab0926c1352c4bafe2fdcbea225873a1433454b098167ffa"
+    },
+    {
+      "case": "016",
+      "layout": "bowl_sponge",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "0",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/016",
+      "launch_sha256": "190ab40adc740b116bca72035a7ed6127866d3775b8b1e151edf74c6cc74ebea"
+    },
+    {
+      "case": "017",
+      "layout": "bowl_sponge",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "1",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/017",
+      "launch_sha256": "c46c0d966b7112f88e31d649d61e2b9733251fc61f2a6f7832ca47a95e354656"
+    },
+    {
+      "case": "017",
+      "layout": "bowl_sponge",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "1",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/017",
+      "launch_sha256": "a30d46b64195aac141f3075e6b85d0d7526afc9516002e4b26d6e1cefe879143"
+    },
+    {
+      "case": "018",
+      "layout": "bowl_sponge",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "2",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/018",
+      "launch_sha256": "23978f428ad5543e7b2d50007ab014d880d2030be2867332cb21cc70956a268c"
+    },
+    {
+      "case": "018",
+      "layout": "bowl_sponge",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "2",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/018",
+      "launch_sha256": "ac8061c0a1800782b17fc9dfe6251b6a6b615234802d5296fcc2eba817ef8d30"
+    },
+    {
+      "case": "019",
+      "layout": "bowl_sponge",
+      "group": "soft",
+      "weight_m": 0.5,
+      "gpu": "3",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/soft/019",
+      "launch_sha256": "0b82dfda5747e57864cbfc68d4f97406419a88c8b883e639613b4c5693860471"
+    },
+    {
+      "case": "019",
+      "layout": "bowl_sponge",
+      "group": "hard",
+      "weight_m": 0.0,
+      "gpu": "3",
+      "video": false,
+      "folder": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/holdout20_v1/hard/019",
+      "launch_sha256": "6cf7616d7f92ab64339c97dbc84b82e8e81e16405849d963d965f945532216c3"
+    }
+  ],
+  "n_pairs": 20,
+  "source": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/source_choice_eval_v1",
+  "weights_m": {
+    "hard": 0,
+    "soft": 0.5
+  },
+  "freeze_time": 1789304274.8025346,
+  "budget": "240 Hz physics / 20 Hz control / 60 sim s / 10 replans / 900 wall s",
+  "criteria": {
+    "xy_m": 0.02,
+    "z_m": 0.01,
+    "so3_rad": 0.105,
+    "dwell_s": 0.5
+  },
+  "source_change": "None. Byte-identical frozen source_choice_eval_v1 and same dynamics/control parameters.",
+  "scope": "Twenty unseen combinations of relative obstacle layouts and goal poses within four known asset/layout families. Geometry-conditioned held-out task instances, not novel-category generalization. No outcome-based selection, retuning or replacement.",
+  "pairing": "Same manifest/policy/initial goal, seed, video setting and GPU per pair. Alternate hard-first/soft-first by case parity.",
+  "exclusions": "Infrastructure/implementation errors remain visible and are not converted into physical successes or failures; do not silently select a best retry."
+}

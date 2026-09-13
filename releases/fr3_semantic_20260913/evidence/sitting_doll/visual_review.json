@@ -1,0 +1,8 @@
+{
+  "provider": "assistant_visual_review",
+  "scene": "scene_original.png",
+  "finding": "Large upright sitting teddy, front view with hammer and cup. Same acceptable-contact semantic class; new rigid geometry.",
+  "geometry_observation_count": 97,
+  "max_observed_tilt_deg": 0.00014277433859972573,
+  "scope": "Sampled live geometry in candidate/micro queries; not continuous deformation/contact validation."
+}

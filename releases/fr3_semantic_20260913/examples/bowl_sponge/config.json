@@ -1,0 +1,34 @@
+{
+  "command_arguments": [
+    "--task",
+    "Isaac-FR3-Typed-Validation-v0",
+    "--candidate-pose-score",
+    "acceptance_scaled",
+    "--control-rate-hz",
+    "20",
+    "--contact-penetration-m",
+    "0.001",
+    "--goal-ghost-opacity",
+    "0.35"
+  ],
+  "environment": {
+    "OMNI_KIT_ACCEPT_EULA": "YES",
+    "NUM_ENVS": "1",
+    "SEED": "486317",
+    "EXECUTION_PROFILE": "persistent",
+    "RUN_LABEL": "native_result",
+    "PYTHONUNBUFFERED": "1",
+    "M1_COMPARISON_SIM_S": "60",
+    "MAX_REPLANS": "10",
+    "VIDEO": "1",
+    "M1_TYPED_STOP_SCOPE": "combined",
+    "M1_ACTIVE_OBSTACLES": "3",
+    "FR3_SEMANTIC_BACKEND": "volume3d",
+    "FR3_SEMANTIC_WEIGHT_M": "0.5",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "FR3_SEMANTIC_SNAPSHOT": "1"
+  },
+  "assets": "legacy",
+  "source_launch": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/clutter20_v1/soft/015/launch.json"
+}

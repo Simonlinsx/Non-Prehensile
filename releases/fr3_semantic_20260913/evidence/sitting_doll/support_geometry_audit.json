@@ -1,0 +1,25 @@
+{
+  "results": {
+    "v1": {
+      "local_geometric_com_m": [
+        5.450810917952461e-19,
+        0.00917827620919141,
+        0.08803273300324348
+      ],
+      "support_area_m2": 0.0,
+      "com_projection_inside_support": false,
+      "bottom_vertex_count": 2
+    },
+    "v2": {
+      "local_geometric_com_m": [
+        4.628268267222156e-19,
+        0.00837759999340403,
+        0.07677459710339005
+      ],
+      "support_area_m2": 0.012145985572224498,
+      "com_projection_inside_support": true,
+      "bottom_vertex_count": 54
+    }
+  },
+  "scope": "Equal-density component-volume estimate, not a readback of actual PhysX inertia. Dynamic settling verifies the resulting stability."
+}

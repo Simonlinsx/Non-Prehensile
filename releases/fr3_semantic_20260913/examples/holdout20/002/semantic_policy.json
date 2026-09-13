@@ -1,0 +1,48 @@
+{
+  "schema": "fr3.semantic_policy.v1",
+  "task": "Safely extract hammer among a doll, liquid-filled cup and balloon.",
+  "provenance": {
+    "semantic_provider": "assistant_visual_review",
+    "image": "/data1/linsixu/IsaacLab-nonPrehensile/outputs/fr3_semantic_map_20260913/scenes/extraction/assistant_review_input.png",
+    "image_sha256": "843df6533369861c09767bd8f744bb5b17d2ad1968d82ac663731b4345e9015b",
+    "geometry_provider": "IsaacLab ground-truth meshes and live poses; no learned reconstruction or pose estimation.",
+    "task_attributes": "Liquid-filled status and acceptable contacts supplied by user; image checked for instance correspondence."
+  },
+  "objects": [
+    {
+      "id": "doll",
+      "asset_id": "901_doll:0",
+      "obstacle_index": 0,
+      "mode": "acceptable",
+      "weight": 0.15,
+      "robot_contact": "acceptable",
+      "target_contact": "acceptable",
+      "reason": "Task explicitly tolerates contact with doll/sponge."
+    },
+    {
+      "id": "liquidcup",
+      "asset_id": "904_liquidcup:0",
+      "obstacle_index": 1,
+      "mode": "forbidden",
+      "weight": 1.0,
+      "robot_contact": "forbidden",
+      "target_contact": "forbidden",
+      "reason": "Task requires avoiding liquid cup, balloon and fragile bowl."
+    },
+    {
+      "id": "balloon",
+      "asset_id": "902_balloon:0",
+      "obstacle_index": 2,
+      "mode": "forbidden",
+      "weight": 1.0,
+      "robot_contact": "forbidden",
+      "target_contact": "forbidden",
+      "reason": "Task requires avoiding liquid cup, balloon and fragile bowl."
+    }
+  ],
+  "c1": "Original protected tool-part contact with the robot stays forbidden.",
+  "hard_margin_m": 0.012,
+  "scope": "Rigid proxies; no liquid, deformation or bursting simulation.",
+  "rotate_then_translate": false,
+  "evaluation_note": "Held-out relative layouts and goal poses, frozen cached semantics and controller; no injected waypoints or outcome-based filtering."
+}

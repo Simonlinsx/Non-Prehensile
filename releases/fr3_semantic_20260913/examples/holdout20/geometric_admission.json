@@ -1,0 +1,3114 @@
+[
+  {
+    "case": "000",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          0.020266058575698888,
+          -0.02038016743379864
+        ],
+        "delta_yaw_deg": -21.13709231406307
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.011584685716231061,
+          0.008378848999050684
+        ],
+        "delta_yaw_deg": 3.228474847197326
+      },
+      "balloon": {
+        "delta_xy_m": [
+          0.009602433330044118,
+          0.010428157551266144
+        ],
+        "delta_yaw_deg": -11.889228594641676
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.014984894541172881,
+          "liquidcup": 0.09452130340198199,
+          "balloon": 0.05860399755278812
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0004447861574590206
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.08367594883771746,
+          "balloon": 0.06819555208346317
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0003304420970380306
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "001",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          0.013008470788372507,
+          -0.009556477396014774
+        ],
+        "delta_yaw_deg": 14.020136208214154
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.017836330019368733,
+          -0.013446268481671384
+        ],
+        "delta_yaw_deg": -5.701207696473553
+      },
+      "balloon": {
+        "delta_xy_m": [
+          0.02432799041368784,
+          -0.020971308580868687
+        ],
+        "delta_yaw_deg": -4.868986073157622
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.015158190829657857,
+          "liquidcup": 0.10121324831264943,
+          "balloon": 0.02639255869452046
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00028936006128787994
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "balloon"
+        ],
+        "soft_cost": 0.011069309888913819,
+        "clearance_m": {
+          "doll": 0.011114455208886894,
+          "liquidcup": 0.1516180239314964,
+          "balloon": 0.0
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0002502910792827606
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "001",
+    "draw": 1,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          0.026751377132819387,
+          -0.029784138803031338
+        ],
+        "delta_yaw_deg": 17.07202379147212
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.006460200853521905,
+          -0.007378061298613004
+        ],
+        "delta_yaw_deg": 5.189780388750474
+      },
+      "balloon": {
+        "delta_xy_m": [
+          -0.0029541912376540615,
+          0.004233425122067758
+        ],
+        "delta_yaw_deg": -2.210315617545593
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.012101516162911734,
+        "clearance_m": {
+          "doll": 0.011031878706967061,
+          "liquidcup": 0.1182344460637581,
+          "balloon": 0.0596360842424023
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00022969907149672508
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.037222638857193714,
+          "liquidcup": 0.16343358610425,
+          "balloon": 0.01878795268953445
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00020415987819433212
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "002",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          -0.01096688383031955,
+          -0.012403664394495334
+        ],
+        "delta_yaw_deg": 20.298243085795924
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.0024055198148371752,
+          0.00047274273185790583
+        ],
+        "delta_yaw_deg": 19.46772553435342
+      },
+      "balloon": {
+        "delta_xy_m": [
+          -0.005427417183532575,
+          -0.010635082548427936
+        ],
+        "delta_yaw_deg": 5.307581391546535
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.1065304846220263,
+          "balloon": 0.04979606474187336
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00030571408569812775
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.12177261035687785,
+          "balloon": 0.01204768197709362
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00029049115255475044
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "003",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          0.009875635778696157,
+          0.02105218694979126
+        ],
+        "delta_yaw_deg": 2.5592535231061753
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.01919275271577877,
+          0.019760387742833584
+        ],
+        "delta_yaw_deg": 11.984826885537714
+      },
+      "balloon": {
+        "delta_xy_m": [
+          2.0385860024882407e-05,
+          0.019469253232554523
+        ],
+        "delta_yaw_deg": -12.641749617993842
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.028376835613085027,
+          "liquidcup": 0.08218100327207048,
+          "balloon": 0.07059206039287581
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00026206811890006065
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.045264640130273204,
+          "liquidcup": 0.11447128361453134,
+          "balloon": 0.03275406610211844
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0002215360291302204
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "004",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          -0.017237283831177688,
+          -0.002486562593521747
+        ],
+        "delta_yaw_deg": -11.729187593550344
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.015860067316521433,
+          -0.014963228936119498
+        ],
+        "delta_yaw_deg": -1.222496581941897
+      },
+      "balloon": {
+        "delta_xy_m": [
+          0.01394369830126433,
+          0.005543441397331622
+        ],
+        "delta_yaw_deg": -11.870948957768807
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.10374873889999596,
+          "balloon": 0.05266595122263774
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00029073096811771393
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.06918453860336292,
+          "balloon": 0.042473094336759075
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00032221945002675056
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "005",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          -0.020868165868555916,
+          0.0007454949259043039
+        ],
+        "delta_yaw_deg": 23.74308442927375
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.007257198711727527,
+          -0.02646863782613565
+        ],
+        "delta_yaw_deg": 15.234466998373506
+      },
+      "balloon": {
+        "delta_xy_m": [
+          7.033715175910199e-05,
+          0.00910760621379364
+        ],
+        "delta_yaw_deg": 1.613453991520693
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.027307567693590596,
+          "liquidcup": 0.11715603212164889,
+          "balloon": 0.06241639379765733
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00029305508360266685
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.1641449612354905,
+          "balloon": 0.026039484304334882
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.000334068201482296
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "006",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          0.008380485384914295,
+          -0.02240739967619517
+        ],
+        "delta_yaw_deg": 16.3334532313027
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.026248657476159225,
+          -0.029251084378894426
+        ],
+        "delta_yaw_deg": 19.85700483352091
+      },
+      "balloon": {
+        "delta_xy_m": [
+          0.001718569983353485,
+          -0.005929777192065978
+        ],
+        "delta_yaw_deg": -17.914512185299316
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.01252873413645785,
+          "liquidcup": 0.14673689430330905,
+          "balloon": 0.049540745551925364
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00027239415794610977
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.16465610639642875,
+          "balloon": 0.04098451636104286
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0003605382516980171
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "007",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          -0.009548989119523062,
+          -0.016936927672926427
+        ],
+        "delta_yaw_deg": -4.601872595514905
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.020521684982878874,
+          -0.02461353900268603
+        ],
+        "delta_yaw_deg": 17.130138091552595
+      },
+      "balloon": {
+        "delta_xy_m": [
+          0.026360560576424642,
+          0.009150575723370802
+        ],
+        "delta_yaw_deg": 12.621095096654969
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.012140864039333992,
+        "clearance_m": {
+          "doll": 0.011028730876853281,
+          "liquidcup": 0.13941354767505304,
+          "balloon": 0.05183476499378879
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0002690991386771202
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "balloon"
+        ],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.19382978781186674,
+          "balloon": 0.0
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0002979016862809658
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "007",
+    "draw": 1,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          0.018875224626276693,
+          -0.0038000584039684544
+        ],
+        "delta_yaw_deg": 19.489053468079177
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.028603423542905567,
+          0.026261361186174344
+        ],
+        "delta_yaw_deg": 9.225470218754303
+      },
+      "balloon": {
+        "delta_xy_m": [
+          -0.008798152071493953,
+          -0.0015589063006531123
+        ],
+        "delta_yaw_deg": 5.505216246605045
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.03536929330076879,
+          "liquidcup": 0.0705878027218013,
+          "balloon": 0.058702353612308855
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00022585270926356316
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "balloon"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.021464763763361597,
+          "liquidcup": 0.13292726223128853,
+          "balloon": 0.0
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00022884830832481384
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "007",
+    "draw": 2,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          0.0013675210085041523,
+          -0.0016818621619365919
+        ],
+        "delta_yaw_deg": -18.7275358697348
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.018964494797214987,
+          0.005324128042645586
+        ],
+        "delta_yaw_deg": -4.0955159813075355
+      },
+      "balloon": {
+        "delta_xy_m": [
+          0.018803968807601386,
+          -0.0206120999664915
+        ],
+        "delta_yaw_deg": 11.08093095414133
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.02950257244857151,
+          "liquidcup": 0.12200293910980994,
+          "balloon": 0.028573198782378368
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0002227392978966236
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "balloon"
+        ],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.1839696712352895,
+          "balloon": 0.0
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0002469560131430626
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "007",
+    "draw": 3,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          -0.00016224731878779902,
+          -0.009161963369781877
+        ],
+        "delta_yaw_deg": 21.635366510523845
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.003622001894075244,
+          0.005274591504651774
+        ],
+        "delta_yaw_deg": 9.900776859690211
+      },
+      "balloon": {
+        "delta_xy_m": [
+          0.017294903221543194,
+          -0.011303948535086875
+        ],
+        "delta_yaw_deg": 17.5303381807852
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.02302674068108985,
+          "liquidcup": 0.10299507229210121,
+          "balloon": 0.03737095185951756
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0002239602617919445
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "balloon"
+        ],
+        "soft_cost": 0.07272416420798904,
+        "clearance_m": {
+          "doll": 0.0061820668633608775,
+          "liquidcup": 0.16202570021159657,
+          "balloon": 0.0
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00024218903854489326
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "007",
+    "draw": 4,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          -0.0013926290572378007,
+          0.02084352960481199
+        ],
+        "delta_yaw_deg": -23.546431361685894
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.01198885534993907,
+          0.01992806733882007
+        ],
+        "delta_yaw_deg": 1.2983070560531615
+      },
+      "balloon": {
+        "delta_xy_m": [
+          -0.026631709037025796,
+          0.011535852276721915
+        ],
+        "delta_yaw_deg": -8.01176673726997
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.049118180768126504,
+          "liquidcup": 0.10891891125448887,
+          "balloon": 0.07963958472060395
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0002168603241443634
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "balloon"
+        ],
+        "soft_cost": 0.022604336769845194,
+        "clearance_m": {
+          "doll": 0.010191653058412384,
+          "liquidcup": 0.17408739583131164,
+          "balloon": 0.010578087901838213
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0002161678858101368
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "007",
+    "draw": 5,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          0.004293521530120366,
+          0.010432757454803356
+        ],
+        "delta_yaw_deg": 9.04753354745079
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.0012518777119457057,
+          0.013634941445552974
+        ],
+        "delta_yaw_deg": -12.193969282797335
+      },
+      "balloon": {
+        "delta_xy_m": [
+          -0.0054490585339924055,
+          0.02899064824548756
+        ],
+        "delta_yaw_deg": 1.7621584177928824
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.03983736419789812,
+          "liquidcup": 0.10036250640006004,
+          "balloon": 0.08153474714739785
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00022296886891126633
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.030940865742694623,
+        "clearance_m": {
+          "doll": 0.009524730740584431,
+          "liquidcup": 0.1625928978377138,
+          "balloon": 0.020706960750922144
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00021520722657442093
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "008",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          0.013769226038990313,
+          0.014389664959708837
+        ],
+        "delta_yaw_deg": -6.839851777228535
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.027719188787893194,
+          0.02433443003936086
+        ],
+        "delta_yaw_deg": 0.14296455719252066
+      },
+      "balloon": {
+        "delta_xy_m": [
+          0.027113929558212436,
+          0.00826230418376999
+        ],
+        "delta_yaw_deg": -23.427021424381962
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.04689243407548689,
+          "liquidcup": 0.1210430328213587,
+          "balloon": 0.050465175507573144
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0002764500677585602
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.046039804310684974,
+        "clearance_m": {
+          "doll": 0.008316815655145202,
+          "liquidcup": 0.10392871701491431,
+          "balloon": 0.04014957049182885
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00024409079924225807
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "009",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          0.025678771631023896,
+          0.00034725370599191646
+        ],
+        "delta_yaw_deg": -6.617578460175334
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.026820376296341344,
+          -0.011286519739634373
+        ],
+        "delta_yaw_deg": 19.035609909888166
+      },
+      "balloon": {
+        "delta_xy_m": [
+          -0.029735881049024873,
+          -0.00942526393399772
+        ],
+        "delta_yaw_deg": -22.690937069395318
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.036793578023222,
+          "liquidcup": 0.0924258304526472,
+          "balloon": 0.06760274602818704
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0002720542252063751
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.06923537737459538,
+          "balloon": 0.050834756646829724
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00027926499024033546
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "010",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          -0.021687229686588164,
+          -0.026772871484497182
+        ],
+        "delta_yaw_deg": -2.1862500044877216
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.014887574206241747,
+          0.0003017428432542553
+        ],
+        "delta_yaw_deg": -14.218036221805669
+      },
+      "balloon": {
+        "delta_xy_m": [
+          0.005401731179128358,
+          0.02993563053339808
+        ],
+        "delta_yaw_deg": 22.046970374736077
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.12117739326870992,
+          "balloon": 0.07780934107667328
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0003745490685105324
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.1344460046490793,
+          "balloon": 0.06009090928320096
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00023715011775493622
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "011",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          -0.016361522379397413,
+          0.01615558925786989
+        ],
+        "delta_yaw_deg": 23.59406642056163
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.026207830641945852,
+          -0.01264518848481181
+        ],
+        "delta_yaw_deg": -14.130200503412127
+      },
+      "balloon": {
+        "delta_xy_m": [
+          -0.005373621086487548,
+          -0.005721979505110629
+        ],
+        "delta_yaw_deg": 10.786700121468613
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.09009461919052353,
+        "clearance_m": {
+          "doll": 0.004792430464758118,
+          "liquidcup": 0.13770869033387168,
+          "balloon": 0.05369109910027907
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00028393231332302094
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.10201744099473449,
+        "clearance_m": {
+          "doll": 0.0038386047204212407,
+          "liquidcup": 0.17004061423525085,
+          "balloon": 0.02029897441929477
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0002339361235499382
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "012",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          -0.023154902172669672,
+          0.022547309398777193
+        ],
+        "delta_yaw_deg": 9.465147322210697
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.016122906690496312,
+          -0.023118835077045544
+        ],
+        "delta_yaw_deg": 9.408916248894847
+      },
+      "balloon": {
+        "delta_xy_m": [
+          -0.023722549534851842,
+          0.00595980790319027
+        ],
+        "delta_yaw_deg": -18.274444025780276
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.08209675573891063,
+        "clearance_m": {
+          "doll": 0.0054322595408871485,
+          "liquidcup": 0.1349795100570432,
+          "balloon": 0.07355144724087152
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00028301961719989777
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.11527997933546533,
+          "balloon": 0.06254726714377937
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00034726783633232117
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "013",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          -0.02346196366796552,
+          -0.024651646178698125
+        ],
+        "delta_yaw_deg": 4.267791990223586
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.014154237429099076,
+          -0.01339979246467006
+        ],
+        "delta_yaw_deg": 22.753922958147065
+      },
+      "balloon": {
+        "delta_xy_m": [
+          0.0054165374758957385,
+          -0.002689845364169243
+        ],
+        "delta_yaw_deg": 12.842994793816317
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.10422718615427026,
+          "balloon": 0.049781642883210436
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00029854290187358856
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.08737649147298182,
+          "balloon": 0.020274289208925798
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.0003357301466166973
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "014",
+    "draw": 0,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          -0.02709710519744797,
+          0.004291729111302413
+        ],
+        "delta_yaw_deg": 21.17737029398122
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.025548241105673768,
+          -0.029058907247425648
+        ],
+        "delta_yaw_deg": -18.80174685090766
+      },
+      "balloon": {
+        "delta_xy_m": [
+          0.02112355891683275,
+          -0.01612900067847517
+        ],
+        "delta_yaw_deg": 9.53388875709556
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.15,
+        "clearance_m": {
+          "doll": 0.0,
+          "liquidcup": 0.10332969214402121,
+          "balloon": 0.03128170321516424
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00035890471190214157
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "balloon"
+        ],
+        "soft_cost": 0.023377435427559577,
+        "clearance_m": {
+          "doll": 0.010129805165795234,
+          "liquidcup": 0.1073485132685937,
+          "balloon": 0.0
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00024387100711464882
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "014",
+    "draw": 1,
+    "perturbations": {
+      "doll": {
+        "delta_xy_m": [
+          0.0022446901107256167,
+          -0.02086622282708439
+        ],
+        "delta_yaw_deg": -22.806342602134492
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.011905892691183868,
+          -0.004034045998078949
+        ],
+        "delta_yaw_deg": 13.034465890622599
+      },
+      "balloon": {
+        "delta_xy_m": [
+          0.028954633566368224,
+          0.02828813345738023
+        ],
+        "delta_yaw_deg": -1.0802122622170884
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.00817565187788845,
+        "clearance_m": {
+          "doll": 0.011345947849768924,
+          "liquidcup": 0.10117093232426697,
+          "balloon": 0.06910028673956761
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00021078111603856087
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "doll": 0.03362599640879402,
+          "liquidcup": 0.10605254949367189,
+          "balloon": 0.03335305250434182
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 20,
+        "query_wall_s": 0.00020043505355715752
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "015",
+    "draw": 0,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.010510708609447535,
+          -0.029886092118670875
+        ],
+        "delta_yaw_deg": -11.066221881074807
+      },
+      "sponge": {
+        "delta_xy_m": [
+          -0.02018619636519286,
+          -0.021845134228881548
+        ],
+        "delta_yaw_deg": -16.101540702697505
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.010029163414073207,
+          0.028505591336928572
+        ],
+        "delta_yaw_deg": -8.490540036585386
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.014865763708860042,
+          "sponge": 0.018466371339450133,
+          "liquidcup": 0.104154702173396
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00016117515042424202
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.051939572210714054,
+          "liquidcup": 0.14371762653690406
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0001505790278315544
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "015",
+    "draw": 1,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          8.039431851411885e-05,
+          0.012310167724427078
+        ],
+        "delta_yaw_deg": -6.128338967590825
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.02503384578841169,
+          -0.02750173774864052
+        ],
+        "delta_yaw_deg": -5.4589789935005015
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.020509090759158584,
+          0.012124566447858441
+        ],
+        "delta_yaw_deg": 7.3972413547879725
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.054755995171078584,
+          "sponge": 0.06734219759634762,
+          "liquidcup": 0.13870427985009312
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0007904823869466782
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.011992819249130798,
+          "sponge": 0.0990875203185343,
+          "liquidcup": 0.17812432862117794
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00013393396511673927
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "015",
+    "draw": 2,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.023034440990008856,
+          -0.02535531296036642
+        ],
+        "delta_yaw_deg": -7.056800389473004
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.025542645355847243,
+          0.006194208951910397
+        ],
+        "delta_yaw_deg": -24.947928093826054
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.020260696813733353,
+          -0.023118219827060905
+        ],
+        "delta_yaw_deg": -7.5358368313043975
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.010650859169679823,
+          "sponge": 0.0724436640164055,
+          "liquidcup": 0.15765510795897025
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00012494996190071106
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.09232329375638348,
+          "liquidcup": 0.1995541712671444
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00014555081725120544
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "015",
+    "draw": 3,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.011542560479272997,
+          -0.0026354507637325365
+        ],
+        "delta_yaw_deg": -2.96102341597161
+      },
+      "sponge": {
+        "delta_xy_m": [
+          -0.002229710062107898,
+          -0.027642826973876843
+        ],
+        "delta_yaw_deg": 12.138970482527952
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.026777698264984752,
+          -0.02174473464919832
+        ],
+        "delta_yaw_deg": 11.856363561116254
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.03619652904479327,
+          "sponge": 0.04241322587055676,
+          "liquidcup": 0.16258417889772622
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00011972198262810707
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.06673105732264088,
+          "liquidcup": 0.20355668469632704
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00012208521366119385
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "015",
+    "draw": 4,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          -0.005105218258646068,
+          0.02664877617884668
+        ],
+        "delta_yaw_deg": 9.603621773180066
+      },
+      "sponge": {
+        "delta_xy_m": [
+          -0.02552458262709437,
+          -0.011902777253467934
+        ],
+        "delta_yaw_deg": 16.809361647004074
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.01393484694404102,
+          0.01385878792679577
+        ],
+        "delta_yaw_deg": -14.854420637820892
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.06972931593694798,
+          "sponge": 0.023971333696917146,
+          "liquidcup": 0.132294958743059
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00011250097304582596
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.02458701425493963,
+          "sponge": 0.043993940088703366,
+          "liquidcup": 0.1716735186434064
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00010763434693217278
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "016",
+    "draw": 0,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          -0.004374814758030813,
+          -0.009827236801282807
+        ],
+        "delta_yaw_deg": -20.620564910037448
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.01905446886877671,
+          -0.016700673393360656
+        ],
+        "delta_yaw_deg": -8.557936214918659
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.011597508155591081,
+          0.0020856066522231265
+        ],
+        "delta_yaw_deg": -20.06889719700304
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.039848631629442466,
+          "sponge": 0.05981547467280103,
+          "liquidcup": 0.11730136320716529
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00015522586181759834
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.06714577727359826,
+          "sponge": 0.016815568526394497,
+          "liquidcup": 0.12282393205524593
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00012573227286338806
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "017",
+    "draw": 0,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          -0.005231093674099942,
+          -0.006416777830981938
+        ],
+        "delta_yaw_deg": 8.638850933344152
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.0003850216068431375,
+          -0.024372605323128772
+        ],
+        "delta_yaw_deg": 18.845033898975103
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.028603312197238814,
+          -0.006493700293257087
+        ],
+        "delta_yaw_deg": -11.723338039017822
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.042989607501157455,
+          "sponge": 0.0447875191412298,
+          "liquidcup": 0.15560296221086825
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00015265215188264847
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.01936126929353935,
+          "sponge": 0.03837751004594922,
+          "liquidcup": 0.1494326034224229
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00012449920177459717
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "018",
+    "draw": 0,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          -0.007505008125256528,
+          -0.019899863471667334
+        ],
+        "delta_yaw_deg": -9.573578522935062
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.020374137417942133,
+          0.004233736509024803
+        ],
+        "delta_yaw_deg": 24.498400417999903
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.003096711969152531,
+          -0.024193086422625715
+        ],
+        "delta_yaw_deg": -0.7466191831565787
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.034866742967348215,
+          "sponge": 0.0732570073220471,
+          "liquidcup": 0.13871943431042688
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00015272200107574463
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.10459275903673125,
+          "liquidcup": 0.16455772894850132
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0001528519205749035
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 1,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.018817274108621385,
+          -0.022915276816323858
+        ],
+        "delta_yaw_deg": 0.7084238762590083
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.024655539721833805,
+          -0.004800781515082821
+        ],
+        "delta_yaw_deg": 9.242369618221026
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.018980254438059174,
+          0.01257085155533584
+        ],
+        "delta_yaw_deg": 24.66324133634906
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.015180814845310952,
+          "sponge": 0.07279053301801293,
+          "liquidcup": 0.10539193064307967
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00012395810335874557
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.11258827742839829,
+          "liquidcup": 0.1325626797655805
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00013655703514814377
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 2,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          -0.0019768608367450903,
+          -0.024420794348312787
+        ],
+        "delta_yaw_deg": 23.00890725898398
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.008099877871077209,
+          -0.020991849100458437
+        ],
+        "delta_yaw_deg": 7.570580038484884
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.006967020685921029,
+          -0.024072581969407158
+        ],
+        "delta_yaw_deg": 2.2612020987770656
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.027565319932193418,
+          "sponge": 0.05371070295242049,
+          "liquidcup": 0.13531056440427877
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00011869985610246658
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.09607061488849979,
+          "liquidcup": 0.1611287026676925
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00013280194252729416
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 3,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.011702987856059305,
+          0.025720847040222566
+        ],
+        "delta_yaw_deg": 1.7837770450615302
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.00026526085523195103,
+          0.02695887723398148
+        ],
+        "delta_yaw_deg": 6.72606333052898
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.017333989684459733,
+          -0.0017590321050125132
+        ],
+        "delta_yaw_deg": 18.51704126178165
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.06134691928616384,
+          "sponge": 0.05992019744991255,
+          "liquidcup": 0.14357039720692516
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0001130206510424614
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0033732513415077924,
+          "sponge": 0.09029530312235642,
+          "liquidcup": 0.17167202141504678
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00011600600555539131
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 4,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.021145342001868503,
+          0.01416216163481801
+        ],
+        "delta_yaw_deg": -15.620717537260543
+      },
+      "sponge": {
+        "delta_xy_m": [
+          -0.010000002751642052,
+          -0.012535841175046254
+        ],
+        "delta_yaw_deg": 16.311835003994993
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.023518701657667423,
+          -0.011032763673903313
+        ],
+        "delta_yaw_deg": -3.538888176988621
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.04707228550484162,
+          "sponge": 0.03860284373740456,
+          "liquidcup": 0.11451717202906377
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0001123109832406044
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.07544857399967185,
+          "liquidcup": 0.14036492483091204
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00012090429663658142
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 5,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.023441125092751425,
+          0.008485662482937369
+        ],
+        "delta_yaw_deg": 2.7914614718835757
+      },
+      "sponge": {
+        "delta_xy_m": [
+          -0.015318319567668185,
+          -0.02197735511447943
+        ],
+        "delta_yaw_deg": 6.104794563859013
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.020338317693820204,
+          0.009486004914628463
+        ],
+        "delta_yaw_deg": -23.81809836577385
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.041120205062161165,
+          "sponge": 0.030136813375957357,
+          "liquidcup": 0.1399802218220115
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00011554593220353127
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.07319503523110178,
+          "liquidcup": 0.16997052822666198
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.000131980050355196
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 6,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.027462544645085823,
+          -0.007763861129741253
+        ],
+        "delta_yaw_deg": -4.613560892890895
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.0025352371247188976,
+          0.0022156748823402156
+        ],
+        "delta_yaw_deg": 3.2298966087576915
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.013843167039916067,
+          -0.02115993925417619
+        ],
+        "delta_yaw_deg": -17.35235374012828
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.024566693907735117,
+          "sponge": 0.050026522751762094,
+          "liquidcup": 0.1513840592919366
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00011775922030210495
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.09308464341150241,
+          "liquidcup": 0.1774238483912674
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00013206107541918755
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 7,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.012341849695459942,
+          0.006644131568063975
+        ],
+        "delta_yaw_deg": 10.834647326237977
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.002793641783309847,
+          0.02845670648670269
+        ],
+        "delta_yaw_deg": 22.986827950606326
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.011103706313146805,
+          -0.0011564361124841195
+        ],
+        "delta_yaw_deg": -13.265966785721018
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.044082209649686795,
+          "sponge": 0.06672772241782138,
+          "liquidcup": 0.13802968417912356
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00012130429968237877
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.08817102828143224,
+          "liquidcup": 0.1657024757846371
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0001256209798157215
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 8,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          -0.008968040300760614,
+          0.016777724957912687
+        ],
+        "delta_yaw_deg": -0.06823399370059491
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.024716245517648595,
+          -0.026403723525592136
+        ],
+        "delta_yaw_deg": -2.6694649934742074
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.017127842072775304,
+          -0.029076396035044406
+        ],
+        "delta_yaw_deg": 12.821497600727248
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.06348127457242815,
+          "sponge": 0.06795868610026172,
+          "liquidcup": 0.15843263905194918
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00010943599045276642
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.004297671241148364,
+          "sponge": 0.11276911116915939,
+          "liquidcup": 0.18437094909748625
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0001106983982026577
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 9,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.0013580116918188098,
+          0.017382544419664775
+        ],
+        "delta_yaw_deg": -13.127882963440445
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.02632892933946749,
+          -0.025802402543922923
+        ],
+        "delta_yaw_deg": -22.032210256701916
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.020323873092906973,
+          0.01844072780411691
+        ],
+        "delta_yaw_deg": 13.85139809981208
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.058681717770766535,
+          "sponge": 0.06361045072730265,
+          "liquidcup": 0.1354466842333688
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.000109856016933918
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0002502446395401875,
+          "sponge": 0.10919085965148977,
+          "liquidcup": 0.16676955000476001
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00011302204802632332
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 10,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          -0.025531740823987008,
+          -0.013371996896271159
+        ],
+        "delta_yaw_deg": 4.259740774401788
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.02440003497780467,
+          -0.0006040835094268254
+        ],
+        "delta_yaw_deg": 11.737363418270583
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.027161974502559746,
+          -0.02646424920684443
+        ],
+        "delta_yaw_deg": 21.296405550157417
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.05285888112465881,
+          "sponge": 0.07402226132877666,
+          "liquidcup": 0.11965433242464464
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0001118299551308155
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.11163089199343687,
+          "liquidcup": 0.146273532083793
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00011820998042821884
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 11,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.01709578964982813,
+          -0.006278970253089135
+        ],
+        "delta_yaw_deg": -9.44149799857395
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.026961781372705163,
+          -0.017226563219578956
+        ],
+        "delta_yaw_deg": -9.770087951013723
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.009014368247665553,
+          -0.0027233627665267032
+        ],
+        "delta_yaw_deg": 15.924665433949606
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.030148687149697755,
+          "sponge": 0.06732412574481701,
+          "liquidcup": 0.12201543657596754
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00010891584679484367
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.11290598059404962,
+          "liquidcup": 0.14860239197019262
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0001284247264266014
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 12,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          -0.02618751438659549,
+          0.005590004761738487
+        ],
+        "delta_yaw_deg": -18.05160108766645
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.01920026157135097,
+          -0.007014007291904385
+        ],
+        "delta_yaw_deg": -11.64528826818733
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.012200964299849813,
+          -0.0029535198924585393
+        ],
+        "delta_yaw_deg": -7.608985146025795
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.06598799101046472,
+          "sponge": 0.06061145490091735,
+          "liquidcup": 0.1399272200818825
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00010757287964224815
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.002134443331158801,
+          "sponge": 0.10497402876507234,
+          "liquidcup": 0.16745888234150325
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0001062820665538311
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 13,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.004056774492399544,
+          0.029959145233996176
+        ],
+        "delta_yaw_deg": -2.510478199970141
+      },
+      "sponge": {
+        "delta_xy_m": [
+          -0.0032431361989329194,
+          -0.010370525364279091
+        ],
+        "delta_yaw_deg": -11.76993981072772
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.007913037966361742,
+          -0.0203205117778335
+        ],
+        "delta_yaw_deg": -3.439780024309414
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.06860122521567871,
+          "sponge": 0.03804905117954945,
+          "liquidcup": 0.13267135689517712
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00010809395462274551
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.010537896325277381,
+          "sponge": 0.08238930629622568,
+          "liquidcup": 0.15850838630847264
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00010681198909878731
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 14,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          -0.021702042324397222,
+          0.012539298966390895
+        ],
+        "delta_yaw_deg": -4.611631380676645
+      },
+      "sponge": {
+        "delta_xy_m": [
+          -0.024711478860191715,
+          -0.018044913443536675
+        ],
+        "delta_yaw_deg": -8.704416633072153
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.010859790740011678,
+          0.009549723338560044
+        ],
+        "delta_yaw_deg": 17.919168586370773
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.06816731105248035,
+          "sponge": 0.015995237333151082,
+          "liquidcup": 0.11375984464538703
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00010749325156211853
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.00628100825544808,
+          "sponge": 0.06156520475282581,
+          "liquidcup": 0.14133980617549535
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00010692188516259193
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 15,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.014468527732958071,
+          0.01907114589983181
+        ],
+        "delta_yaw_deg": -3.852777840260213
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.01590596186834728,
+          -0.024592822318354364
+        ],
+        "delta_yaw_deg": 11.066199450789256
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.009043846152902706,
+          0.003604255566211287
+        ],
+        "delta_yaw_deg": -2.5570728300658807
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.05431564722048797,
+          "sponge": 0.060884059951292965,
+          "liquidcup": 0.13390829577823735
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00010994728654623032
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.10249798264325989,
+          "liquidcup": 0.16174727307139372
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00012019183486700058
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 16,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          -0.001985834974567169,
+          -0.02557268546686173
+        ],
+        "delta_yaw_deg": -19.1938937268149
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.02688288410933956,
+          0.006786191295561565
+        ],
+        "delta_yaw_deg": 18.662043907417804
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.003409090520921927,
+          0.02298989907223134
+        ],
+        "delta_yaw_deg": 10.79419765977483
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.026788720047561387,
+          "sponge": 0.07990085757163577,
+          "liquidcup": 0.1185811901242365
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00011216104030609131
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.11239871406033039,
+          "liquidcup": 0.14946539729074368
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00013614725321531296
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 17,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          0.026624207552908043,
+          0.009774743354696747
+        ],
+        "delta_yaw_deg": -24.877642549380663
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.00037123310856912103,
+          0.022959227403262276
+        ],
+        "delta_yaw_deg": -17.82351624391169
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.024451603215379362,
+          0.01155632610300781
+        ],
+        "delta_yaw_deg": 22.826674925441047
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0413563783295042,
+          "sponge": 0.060470847001754764,
+          "liquidcup": 0.14233727241544583
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0002042609266936779
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.0857516993451388,
+          "liquidcup": 0.17310535065368118
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00013530580326914787
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 18,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          -0.024288475137301393,
+          -0.014089688649628462
+        ],
+        "delta_yaw_deg": -8.9160772540416
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.008244104649295855,
+          0.011490440182414421
+        ],
+        "delta_yaw_deg": 1.2400574330589116
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.016263855643520578,
+          -0.020344786481530347
+        ],
+        "delta_yaw_deg": 4.467946235735749
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.051519055611859765,
+          "sponge": 0.05820130744034366,
+          "liquidcup": 0.152782373797001
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00010941596701741219
+      },
+      "goal": {
+        "admissible": false,
+        "hard_rejections": [
+          "bowl"
+        ],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.0,
+          "sponge": 0.09926457835664737,
+          "liquidcup": 0.17906778742699095
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00012252572923898697
+      },
+      "clutter_overlaps": [],
+      "admitted": false
+    }
+  },
+  {
+    "case": "018",
+    "draw": 19,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          -0.01220272098723265,
+          0.025939461217799775
+        ],
+        "delta_yaw_deg": -16.586072109967887
+      },
+      "sponge": {
+        "delta_xy_m": [
+          -0.005498884028474992,
+          -0.01442568851690867
+        ],
+        "delta_yaw_deg": -1.7935413572219794
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          0.024463545646564985,
+          -0.028755711243543123
+        ],
+        "delta_yaw_deg": -16.53429494918729
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.07287650748085607,
+          "sponge": 0.037776307315356486,
+          "liquidcup": 0.16437499448589413
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0001087551936507225
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.014021917680728916,
+          "sponge": 0.0833475406783648,
+          "liquidcup": 0.1904900556333103
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.00010714307427406311
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  },
+  {
+    "case": "019",
+    "draw": 0,
+    "perturbations": {
+      "bowl": {
+        "delta_xy_m": [
+          -0.00511854565179571,
+          -0.019619312025694613
+        ],
+        "delta_yaw_deg": 7.198559613556647
+      },
+      "sponge": {
+        "delta_xy_m": [
+          0.007381887885267932,
+          0.016670401697942844
+        ],
+        "delta_yaw_deg": -21.23698707966728
+      },
+      "liquidcup": {
+        "delta_xy_m": [
+          -0.026532352913121813,
+          0.029004918704913868
+        ],
+        "delta_yaw_deg": 5.57768637020531
+      }
+    },
+    "checks": {
+      "initial": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.033147468901237306,
+          "sponge": 0.06281905476155043,
+          "liquidcup": 0.09002823398090815
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0001542540267109871
+      },
+      "goal": {
+        "admissible": true,
+        "hard_rejections": [],
+        "soft_cost": 0.0,
+        "clearance_m": {
+          "bowl": 0.013534071885623698,
+          "sponge": 0.06652199419363194,
+          "liquidcup": 0.07435978428548379
+        },
+        "samples": 2,
+        "margin_m": 0.012,
+        "backend": "fcl_swept_target_3d",
+        "fcl_queries": 6,
+        "query_wall_s": 0.0001355959102511406
+      },
+      "clutter_overlaps": [],
+      "admitted": true
+    }
+  }
+]

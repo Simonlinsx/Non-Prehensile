@@ -1,0 +1,312 @@
+{
+  "metrics": {
+    "doll_side": {
+      "hard": {
+        "n": 5,
+        "successes": 5,
+        "c1_violations": 0,
+        "forbidden_contact_trials": 0,
+        "peak_force_median_n": 0.13708506524562836,
+        "peak_force_max_n": 0.15090717375278473,
+        "duration_median_s": 22.904166666666665,
+        "force_norm_integral_median_ns": 0.9823195421602577,
+        "sim_median_s": 32.15,
+        "query_median_s": 0.06698999600484967
+      },
+      "soft": {
+        "n": 5,
+        "successes": 5,
+        "c1_violations": 0,
+        "forbidden_contact_trials": 0,
+        "peak_force_median_n": 0.12551306188106537,
+        "peak_force_max_n": 0.12970365583896637,
+        "duration_median_s": 13.5875,
+        "force_norm_integral_median_ns": 0.371227123378776,
+        "sim_median_s": 23.9875,
+        "query_median_s": 0.047642949502915144
+      }
+    },
+    "doll_front": {
+      "hard": {
+        "n": 5,
+        "successes": 5,
+        "c1_violations": 0,
+        "forbidden_contact_trials": 0,
+        "peak_force_median_n": 0.5545541048049927,
+        "peak_force_max_n": 0.5703624486923218,
+        "duration_median_s": 23.954166666666666,
+        "force_norm_integral_median_ns": 1.7747195246021874,
+        "sim_median_s": 33.12083333333333,
+        "query_median_s": 0.0665849456563592
+      },
+      "soft": {
+        "n": 5,
+        "successes": 5,
+        "c1_violations": 0,
+        "forbidden_contact_trials": 0,
+        "peak_force_median_n": 0.5545541048049927,
+        "peak_force_max_n": 0.5703624486923218,
+        "duration_median_s": 23.954166666666666,
+        "force_norm_integral_median_ns": 1.7747195246021874,
+        "sim_median_s": 33.12083333333333,
+        "query_median_s": 0.06671696482226253
+      }
+    },
+    "optional_contact": {
+      "hard": {
+        "n": 5,
+        "successes": 5,
+        "c1_violations": 0,
+        "forbidden_contact_trials": 0,
+        "peak_force_median_n": 0.02014201134443283,
+        "peak_force_max_n": 0.020952818915247917,
+        "duration_median_s": 4.783333333333333,
+        "force_norm_integral_median_ns": 0.030983538506552576,
+        "sim_median_s": 23.229166666666668,
+        "query_median_s": 0.0427966364659369
+      },
+      "soft": {
+        "n": 5,
+        "successes": 5,
+        "c1_violations": 0,
+        "forbidden_contact_trials": 0,
+        "peak_force_median_n": 0.0,
+        "peak_force_max_n": 0.0,
+        "duration_median_s": 0.0,
+        "force_norm_integral_median_ns": 0.0,
+        "sim_median_s": 24.75,
+        "query_median_s": 0.04450749512761831
+      }
+    },
+    "bowl_sponge": {
+      "hard": {
+        "n": 5,
+        "successes": 5,
+        "c1_violations": 0,
+        "forbidden_contact_trials": 0,
+        "peak_force_median_n": 0.0,
+        "peak_force_max_n": 0.0,
+        "duration_median_s": 0.0,
+        "force_norm_integral_median_ns": 0.0,
+        "sim_median_s": 23.445833333333333,
+        "query_median_s": 0.023641761392354965
+      },
+      "soft": {
+        "n": 5,
+        "successes": 5,
+        "c1_violations": 0,
+        "forbidden_contact_trials": 0,
+        "peak_force_median_n": 0.0,
+        "peak_force_max_n": 0.0,
+        "duration_median_s": 0.0,
+        "force_norm_integral_median_ns": 0.0,
+        "sim_median_s": 23.445833333333333,
+        "query_median_s": 0.023748851846903563
+      }
+    },
+    "all": {
+      "hard": {
+        "n": 20,
+        "successes": 20,
+        "c1_violations": 0,
+        "forbidden_contact_trials": 0,
+        "peak_force_median_n": 0.07143594976514578,
+        "peak_force_max_n": 0.5703624486923218,
+        "duration_median_s": 10.14375,
+        "force_norm_integral_median_ns": 0.4494112755737054,
+        "sim_median_s": 23.989583333333332,
+        "query_median_s": 0.04619298013858497
+      },
+      "soft": {
+        "n": 20,
+        "successes": 20,
+        "c1_violations": 0,
+        "forbidden_contact_trials": 0,
+        "peak_force_median_n": 0.058611635118722916,
+        "peak_force_max_n": 0.5703624486923218,
+        "duration_median_s": 2.564583333333333,
+        "force_norm_integral_median_ns": 0.12672284526245978,
+        "sim_median_s": 24.227083333333333,
+        "query_median_s": 0.046569504076614976
+      }
+    }
+  },
+  "timing": {
+    "hard": {
+      "False": {
+        "n": 16,
+        "wall_median_s": 101.96600738214329,
+        "sim_median_s": 23.989583333333332
+      },
+      "True": {
+        "n": 4,
+        "wall_median_s": 191.03464076365344,
+        "sim_median_s": 27.672916666666666
+      }
+    },
+    "soft": {
+      "False": {
+        "n": 16,
+        "wall_median_s": 102.25278525822796,
+        "sim_median_s": 24.227083333333333
+      },
+      "True": {
+        "n": 4,
+        "wall_median_s": 203.25953172100708,
+        "sim_median_s": 24.358333333333334
+      }
+    }
+  },
+  "paired_contact": {
+    "acceptable_target_force_peak_n": {
+      "lower": [
+        "001",
+        "003",
+        "004",
+        "010",
+        "011",
+        "012",
+        "013",
+        "014"
+      ],
+      "equal": [
+        "005",
+        "006",
+        "007",
+        "008",
+        "009",
+        "015",
+        "016",
+        "017",
+        "018",
+        "019"
+      ],
+      "higher": [
+        "000",
+        "002"
+      ],
+      "deltas": {
+        "000": 0.002953365445137024,
+        "001": -0.01779969036579132,
+        "002": 0.004326671361923218,
+        "003": -0.0336839035153389,
+        "004": -0.01795811951160431,
+        "005": 0.0,
+        "006": 0.0,
+        "007": 0.0,
+        "008": 0.0,
+        "009": 0.0,
+        "010": -0.019212182611227036,
+        "011": -0.02014201134443283,
+        "012": -0.020952818915247917,
+        "013": -0.01927397958934307,
+        "014": -0.020170783624053,
+        "015": 0.0,
+        "016": 0.0,
+        "017": 0.0,
+        "018": 0.0,
+        "019": 0.0
+      }
+    },
+    "acceptable_contact_gt2mN_s": {
+      "lower": [
+        "000",
+        "001",
+        "002",
+        "003",
+        "004",
+        "010",
+        "011",
+        "012",
+        "013",
+        "014"
+      ],
+      "equal": [
+        "005",
+        "006",
+        "007",
+        "008",
+        "009",
+        "015",
+        "016",
+        "017",
+        "018",
+        "019"
+      ],
+      "higher": [],
+      "deltas": {
+        "000": -9.029166666666667,
+        "001": -17.775,
+        "002": -9.520833333333334,
+        "003": -9.295833333333333,
+        "004": -9.3,
+        "005": 0.0,
+        "006": 0.0,
+        "007": 0.0,
+        "008": 0.0,
+        "009": 0.0,
+        "010": -4.75,
+        "011": -4.808333333333334,
+        "012": -4.783333333333333,
+        "013": -4.708333333333333,
+        "014": -4.8625,
+        "015": 0.0,
+        "016": 0.0,
+        "017": 0.0,
+        "018": 0.0,
+        "019": 0.0
+      }
+    },
+    "acceptable_force_norm_integral_ns": {
+      "lower": [
+        "000",
+        "001",
+        "002",
+        "003",
+        "004",
+        "010",
+        "011",
+        "012",
+        "013",
+        "014"
+      ],
+      "equal": [
+        "005",
+        "006",
+        "007",
+        "008",
+        "009",
+        "015",
+        "016",
+        "017",
+        "018",
+        "019"
+      ],
+      "higher": [],
+      "deltas": {
+        "000": -0.48473866831045603,
+        "001": -0.7759371489170006,
+        "002": -0.7958766868557481,
+        "003": -0.48218186681624503,
+        "004": -0.49629169339702156,
+        "005": 0.0,
+        "006": 0.0,
+        "007": 0.0,
+        "008": 0.0,
+        "009": 0.0,
+        "010": -0.030796447697017962,
+        "011": -0.030983538506552576,
+        "012": -0.031220267707734214,
+        "013": -0.03048028612975031,
+        "014": -0.03130373437161325,
+        "015": 0.0,
+        "016": 0.0,
+        "017": 0.0,
+        "018": 0.0,
+        "019": 0.0
+      }
+    }
+  },
+  "hashes_pass": true,
+  "scope": "Four known development layouts x five rigid XY shifts. Forty new paired runs, no reuse or task filtering by outcome. Not twenty independent novel tasks, not generalization or stable population-rate evidence. Bowl layout uses stock gripper and final-pose task, not its previous round-tip phased controller."
+}
